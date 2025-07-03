@@ -1,0 +1,76 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'war'
+}
+
+group = 'com.WHS'
+version = '0.0.1-SNAPSHOT'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repo.maven.apache.org/maven2"
+    }
+}
+
+dependencies {
+  // Web, JSP/JSTL
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'javax.servlet:jstl:1.2'
+
+  // Security, Data, Validation
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+		
+	// PostgreSQL Driver
+	implementation 'org.postgresql:postgresql'
+	
+	// 개발 도구
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	// 테스트
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	
+	// WAR 패키징을 위한 Tomcat 제외
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+  // JWT (0.11.x 버전 사용)
+  implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+  implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+  implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// module
+	implementation project(':common')
+}
+
+// WAR 파일명 설정
+war {
+    enabled = true
+}
+
+test {
+    useJUnitPlatform()
+} 
+
+// 개발 시 JSP 수정 즉시 반영을 위한 설정
+bootRun {
+	systemProperty 'spring.profiles.active', 'dev'
+} 
+
+bootWar {
+    mainClass = 'com.WHS.whair.WhAirApplication'
+}

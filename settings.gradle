@@ -1,0 +1,8 @@
+rootProject.name = 'WH_AIR'
+include 'common'
+include 'data:web'
+include 'data:admin'
+
+project(':data:web').projectDir = file('data/web')
+project(':data:admin').projectDir = file('data/admin') 
+project(':common').projectDir = file('common')
