@@ -12,12 +12,6 @@ ENV POSTGRES_PASSWORD=wh_air_password
 # 초기화 스크립트 디렉토리 복사
 COPY ../../data/db/ /docker-entrypoint-initdb.d/
 
-# PostgreSQL 설정 최적화
-RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "pg_stat_statements.track = all" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "log_statement = 'all'" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "log_min_duration_statement = 1000" >> /usr/share/postgresql/postgresql.conf.sample
-
 # 포트 노출
 EXPOSE 5432
 
