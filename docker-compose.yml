@@ -1,6 +1,10 @@
 networks:
   dmz-net:
   int-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
 
 services:
 
@@ -13,8 +17,8 @@ services:
     environment:
       # 데이터베이스 연결 설정
       DB_URL: jdbc:postgresql://db-server:5432/wh_air
-      DB_USERNAME: wh_air_user
-      DB_PASSWORD: wh_air_password
+      DB_USERNAME: wh_manager
+      DB_PASSWORD: password
       
       # Spring Boot 설정
       SPRING_PROFILES_ACTIVE: docker
@@ -40,18 +44,21 @@ services:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
+    extra_hosts:
+      - "admin-server:172.30.0.4"
     container_name: whair-db
     environment:
       POSTGRES_DB: wh_air
-      POSTGRES_USER: wh_air_user
-      POSTGRES_PASSWORD: wh_air_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - int-net
+      int-net:
+        ipv4_address: 172.30.0.3
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wh_air_user -d wh_air"]
+      test: ["CMD-SHELL", "pg_isready -U wh_manager -d wh_air"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -69,7 +76,8 @@ services:
     depends_on:
       - db-server
     networks:
-      - int-net
+      int-net:
+        ipv4_address: 172.30.0.4
     restart: unless-stopped
 
 # 볼륨 정의
