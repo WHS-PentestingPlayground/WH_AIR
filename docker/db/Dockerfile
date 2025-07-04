@@ -9,8 +9,8 @@ ENV POSTGRES_DB=wh_air
 ENV POSTGRES_USER=wh_air_user
 ENV POSTGRES_PASSWORD=wh_air_password
 
-# 초기화 스크립트 복사
-COPY ../../db/01_init.sql /docker-entrypoint-initdb.d/
+# 초기화 스크립트 디렉토리 복사
+COPY ../../data/db/ /docker-entrypoint-initdb.d/
 
 # PostgreSQL 설정 최적화
 RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample && \
