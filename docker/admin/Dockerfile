@@ -11,6 +11,10 @@ COPY gradle ./gradle
 COPY gradlew ./gradlew
 COPY gradlew.bat ./gradlew.bat
 
+# Windows에서 생성된 스크립트를 Linux에서 실행하기 위한 필수 단계
+RUN chmod +x ./gradlew && \
+    (apt-get update && apt-get install -y dos2unix && dos2unix ./gradlew || sed -i 's/\r$//' ./gradlew)
+
 # admin 소스 복사
 COPY data/admin ./data/admin
 
