@@ -6,13 +6,17 @@ ENV TZ=Asia/Seoul
 
 # PostgreSQL 환경 변수 설정
 ENV POSTGRES_DB=wh_air
-ENV POSTGRES_USER=wh_air_user
-ENV POSTGRES_PASSWORD=wh_air_password
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# 필요한 패키지 설치
+RUN apt-get update && apt-get install -y python3 curl && rm -rf /var/lib/apt/lists/*
 
 # 초기화 스크립트 디렉토리 복사
 COPY ../../data/db/ /docker-entrypoint-initdb.d/
+RUN chmod +x /docker-entrypoint-initdb.d/pghba.sh
 
 # 포트 노출
 EXPOSE 5432
 
-# PostgreSQL 실행 (기본 엔트리포인트 사용) 
+# 기본 엔트리포인트 및 명령어는 postgres 이미지 기본값 사용
