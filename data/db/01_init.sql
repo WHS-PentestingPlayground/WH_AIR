@@ -70,6 +70,7 @@ CREATE TABLE reservations (
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM wh_manager;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM wh_manager;
 GRANT SELECT ON users, flights, seats, reservations TO wh_manager;
+GRANT INSERT ON users TO wh_manager;
 GRANT UPDATE ON users, flights, reservations TO wh_manager;
 GRANT UPDATE (is_reserved) ON seats TO wh_manager;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO wh_manager;
