@@ -49,7 +49,8 @@ CREATE TABLE seats (
   seat_number VARCHAR,
   class VARCHAR CHECK (class IN ('economy', 'business', 'first')),
   is_reserved BOOLEAN,
-  price DECIMAL
+  seat_price DECIMAL,
+  fuel_price DECIMAL
 );
 
 -- reservations 테이블 생성
@@ -86,7 +87,8 @@ BEGIN
   
   -- first 클래스 좌석의 다른 필드 수정 시도 차단
   IF OLD.class = 'first' AND (
-    NEW.price != OLD.price OR 
+    NEW.seat_price != OLD.seat_price OR
+    NEW.fuel_price != OLD.fuel_price OR
     NEW.seat_number != OLD.seat_number OR
     NEW.flight_id != OLD.flight_id
   ) THEN
@@ -151,16 +153,16 @@ INSERT INTO users (name, email, password_hash, phone_number, point, coupon, crea
 INSERT INTO flights (flight_number, departure_airport, arrival_airport, departure_time, arrival_time, airline, aircraft_model) VALUES
 ('WH1234', 'ICN', 'YVR', '2025-08-02 10:00:00', '2025-08-02 06:00:00', 'WH Air', 'Boeing 777');
 
-INSERT INTO seats (flight_id, seat_number, class, is_reserved, price) VALUES
-(1, '1A', 'first', false, 50000000),
-(1, '1B', 'first', false, 50000000),
-(1, '2A', 'business', false, 5000000),
-(1, '2B', 'business', false, 5000000),
-(1, '10A', 'economy', true, 1000000),   
-(1, '10B', 'economy', true, 1000000),   
-(1, '10C', 'economy', false, 1000000),  
-(1, '11A', 'economy', false, 1000000),  
-(1, '11B', 'economy', false, 1000000);  
+INSERT INTO seats (flight_id, seat_number, class, is_reserved, seat_price, fuel_price) VALUES
+(1, '1A', 'first', false, 45000000, 5000000),
+(1, '1B', 'first', false, 45000000, 5000000),
+(1, '2A', 'business', false, 4000000, 1000000),
+(1, '2B', 'business', false, 4000000, 1000000),
+(1, '10A', 'economy', true, 800000, 200000),   
+(1, '10B', 'economy', true, 800000, 200000),   
+(1, '10C', 'economy', false, 800000, 200000),  
+(1, '11A', 'economy', false, 800000, 200000),  
+(1, '11B', 'economy', false, 800000, 200000);  
 
 INSERT INTO reservations (user_id, flight_id, seat_id, passenger_name, passenger_birth, status, booked_at, updated_at) VALUES
 (1, 1, 5, '김철수', '1990-05-15', 'booked', '2024-01-15 09:00:00', '2024-01-15 09:00:00'),
