@@ -103,11 +103,11 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     
     // 항공편 전체 좌석 조회
     @Query("SELECT seat FROM Seat seat WHERE seat.flight.id = :flightId ORDER BY seat.seatNumber")
-    List<Seat> findByFlightIdOrderBySeatNumber(@Param("flightId") Long flightId);
+    List<Seat> findAllSeatsByFlightId(@Param("flightId") Long flightId);
     
     // 항공편 특정 클래스 좌석 조회
     @Query("SELECT seat FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatClass = :seatClass ORDER BY seat.seatNumber")
-    List<Seat> findByFlightIdAndSeatClassOrderBySeatNumber(@Param("flightId") Long flightId, @Param("seatClass") String seatClass);
+    List<Seat> findSeatsByFlightIdAndClass(@Param("flightId") Long flightId, @Param("seatClass") String seatClass);
     
     /**
      * 예약된 좌석 번호 목록 조회
