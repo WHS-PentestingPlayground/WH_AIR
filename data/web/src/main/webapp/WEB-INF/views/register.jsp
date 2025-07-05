@@ -8,12 +8,17 @@
   <link rel="stylesheet" href="/static/css/header.css">
   <link rel="stylesheet" href="/static/css/login.css">
   <link rel="stylesheet" href="/static/css/register.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <%@ include file="header.jsp" %>
 <div class="login-section">
+  <div class="login-background">
+    <div class="login-overlay"></div>
+  </div>
   <div class="login-container">
     <div class="logo-section">
+      <div class="logo-icon">✈</div>
       <h1 class="airline-logo">WH_AIR</h1>
       <p class="airline-slogan">세계를 연결하는 항공사</p>
     </div>
@@ -25,31 +30,42 @@
       </div>
     <% } %>
     
-    <form action="/users/register" method="post" class="register-form">
+    <form action="/register" method="post" class="register-form">
       <div class="form-group">
         <label for="name" class="form-label">사용자명</label>
-        <input type="text" id="name" name="name" class="form-input" required 
-               placeholder="사용자명을 입력하세요">
+        <div class="input-wrapper">
+          <input type="text" id="name" name="name" class="form-input" required 
+                 placeholder="사용자명을 입력하세요">
+        </div>
       </div>
       <div class="form-group">
         <label for="password" class="form-label">비밀번호</label>
-        <input type="password" id="password" name="password" class="form-input" required
-               placeholder="비밀번호를 입력하세요">
+        <div class="input-wrapper">
+          <input type="password" id="password" name="password" class="form-input" required
+                 placeholder="비밀번호를 입력하세요">
+        </div>
         <div class="password-requirements">
           영문, 숫자를 포함한 8자 이상
         </div>
       </div>
       <div class="form-group">
         <label for="email" class="form-label">이메일</label>
-        <input type="email" id="email" name="email" class="form-input" required
-               placeholder="이메일을 입력하세요">
+        <div class="input-wrapper">
+          <input type="email" id="email" name="email" class="form-input" required
+                 placeholder="이메일을 입력하세요">
+        </div>
       </div>
       <div class="form-group">
         <label for="phoneNumber" class="form-label">전화번호</label>
-        <input type="text" id="phoneNumber" name="phoneNumber" class="form-input" required
-               placeholder="전화번호를 입력하세요">
+        <div class="input-wrapper">
+          <input type="text" id="phoneNumber" name="phoneNumber" class="form-input" required
+                 placeholder="전화번호를 입력하세요">
+        </div>
       </div>
-      <button type="submit" class="form-button">회원가입</button>
+      <button type="submit" class="form-button">
+        <span class="btn-icon">🎫</span>
+        회원가입
+      </button>
     </form>
     
     <div class="form-links">

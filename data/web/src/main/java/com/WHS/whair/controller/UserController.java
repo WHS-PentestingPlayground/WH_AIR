@@ -39,7 +39,7 @@ public class UserController {
             User user = userService.authenticate(name, password);
             if (user == null) {
                 redirectAttributes.addFlashAttribute("error", "아이디 또는 비밀번호가 틀렸습니다.");
-                return "redirect:/users/login";
+                return "redirect:/login";
             }
 
             String token = jwtUtil.generateToken(user.getName());
@@ -54,7 +54,7 @@ public class UserController {
             return "redirect:/";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addAttribute("error", e.getMessage());
-            return "redirect:/users/login";
+            return "redirect:/login";
         }
     }
 
@@ -87,7 +87,7 @@ public class UserController {
             return "redirect:/";
         } catch (Exception e) {
             redirectAttributes.addAttribute("error", e.getMessage());
-            return "redirect:/users/register";
+            return "redirect:/register";
         }
     }
 
@@ -106,7 +106,7 @@ public class UserController {
     public String myPage(HttpServletRequest request, Model model) {
         String token = extractTokenFromCookie(request);
         String name = jwtUtil.validateAndExtractUsername(token);
-        if (name == null) return "redirect:/users/login";
+        if (name == null) return "redirect:/login";
 
         User user = userService.findByName(name);
         model.addAttribute("user", user);

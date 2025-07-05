@@ -7,12 +7,17 @@
   <title>로그인 - WH_AIR</title>
   <link rel="stylesheet" href="/static/css/header.css">
   <link rel="stylesheet" href="/static/css/login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <%@ include file="header.jsp" %>
 <div class="login-section">
+  <div class="login-background">
+    <div class="login-overlay"></div>
+  </div>
   <div class="login-container">
     <div class="logo-section">
+      <div class="logo-icon">✈</div>
       <h1 class="airline-logo">WH_AIR</h1>
       <p class="airline-slogan">세계를 연결하는 항공사</p>
     </div>
@@ -24,18 +29,24 @@
       </div>
     <% } %>
     
-    <form action="/users/login" method="post" class="login-form">
+    <form action="/login" method="post" class="login-form">
       <div class="form-group">
         <label for="name" class="form-label">사용자명</label>
-        <input type="text" id="name" name="name" class="form-input" required 
-               placeholder="사용자명을 입력하세요">
+        <div class="input-wrapper">
+          <input type="text" id="name" name="name" class="form-input" required 
+                 placeholder="사용자명을 입력하세요">
+        </div>
       </div>
       <div class="form-group">
         <label for="password" class="form-label">비밀번호</label>
-        <input type="password" id="password" name="password" class="form-input" required
-               placeholder="비밀번호를 입력하세요">
+        <div class="input-wrapper">
+          <input type="password" id="password" name="password" class="form-input" required
+                 placeholder="비밀번호를 입력하세요">
+        </div>
       </div>
-      <button type="submit" class="form-button">로그인</button>
+      <button type="submit" class="form-button">
+        로그인
+      </button>
     </form>
     
     <div class="form-links">
