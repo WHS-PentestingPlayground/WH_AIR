@@ -24,8 +24,8 @@ dependencies {
     implementation 'org.springframework:spring-webmvc:5.3.17'
 
     // lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     // JPA (Entity에 javax/jakarta 어노테이션이 있으면 필요)
     implementation 'javax.persistence:javax.persistence-api:2.2'
