@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * =================================================================
@@ -75,46 +74,37 @@ public class FlightService {
         Map<String, Object> seatData = new HashMap<>();
         
         try {
-            // 실제 DB에서 좌석 정보 조회
-            System.out.println("=== DB 좌석 정보 조회 시작 ===");
-            System.out.println("flightId: " + flightId + ", seatClass: " + seatClass);
-            
             List<String> reservedSeats = flightRepository.findReservedSeatNumbersByClass(flightId, seatClass);
             List<String> availableSeats = flightRepository.findAvailableSeatNumbersByClass(flightId, seatClass);
             
-            System.out.println("예약된 좌석 (DB): " + reservedSeats);
-            System.out.println("선택 가능한 좌석 (DB): " + availableSeats.size() + "개");
-            
             seatData.put("flightId", flightId);
             seatData.put("seatClass", seatClass);
             seatData.put("reservedSeats", reservedSeats);
             seatData.put("availableSeats", availableSeats);
-            seatData.put("totalSeats", reservedSeats.size() + availableSeats.size());
-            seatData.put("dataSource", "database"); // 실제 DB 데이터임을 표시
-            
-            System.out.println("=== DB 좌석 정보 조회 성공 ===");
             
         } catch (Exception e) {
-            // 데이터베이스 조회 실패 시 실제 예약 정보를 반영한 모의 데이터로 대체
-            System.err.println("=== DB 좌석 정보 조회 실패 ===");
-            System.err.println("에러: " + e.getMessage());
-            e.printStackTrace();
-            
-            List<String> reservedSeats = generateReservedSeatsWithRealData(seatClass);
-            List<String> availableSeats = generateAvailableSeats(seatClass, reservedSeats);
-            
             seatData.put("flightId", flightId);
             seatData.put("seatClass", seatClass);
-            seatData.put("reservedSeats", reservedSeats);
-            seatData.put("availableSeats", availableSeats);
-            seatData.put("totalSeats", reservedSeats.size() + availableSeats.size());
-            seatData.put("dataSource", "mock_with_real_data"); // 실제 예약 정보 반영된 모의 데이터 사용
-            seatData.put("error", e.getMessage()); // 에러 메시지 포함
-            
-            System.out.println("예약된 좌석 (모의데이터): " + reservedSeats);
+            seatData.put("reservedSeats", new ArrayList<>());
+            seatData.put("availableSeats", new ArrayList<>());
         }
         
         return seatData;
+    }
+
+    /**
+     * 예약 가능한 좌석 조회 - FlightRepository 메서드 활용
+     * 
+     * [사용되는 Repository 메서드]
+     * - findAvailableSeatNumbersByClass(): 특정 클래스의 선택 가능한 좌석 조회
+     */
+    public List<String> getAvailableSeats(Long flightId, String seatClass) {
+        try {
+            return flightRepository.findAvailableSeatNumbersByClass(flightId, seatClass);
+        } catch (Exception e) {
+            // 에러 발생 시 빈 리스트 반환
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -168,17 +158,12 @@ public class FlightService {
             // }
             */
             
-            // 현재는 Repository 컴파일 에러로 인해 임시 처리
-            String bookingReference = generateBookingReference();
-            
             // 5. 예약 완료 응답
             result.put("success", true);
             result.put("message", "예약이 완료되었습니다.");
-            result.put("bookingReference", bookingReference);
             result.put("selectedSeats", selectedSeats);
             result.put("passengers", passengers);
             result.put("flightId", flightId);
-            result.put("processingMode", "mock"); // 현재 모의 처리 모드임을 표시
             
         } catch (Exception e) {
             result.put("success", false);
@@ -224,18 +209,8 @@ public class FlightService {
             // }
             */
             
-            // 현재는 Repository 컴파일 에러로 인해 모의 검증 사용
-            Map<String, Object> seatMap = getSeatMap(flightId, "economy"); // 기본값으로 economy 사용
-            List<String> reservedSeats = (List<String>) seatMap.get("reservedSeats");
-            
-            // 선택한 좌석이 이미 예약된 좌석인지 확인
-            for (String seat : selectedSeats) {
-                if (reservedSeats.contains(seat)) {
-                    return false;
-                }
-            }
-            
-            return true;
+            // Repository 메서드 구현 완료 전까지는 기본 검증만 수행
+            return selectedSeats != null && !selectedSeats.isEmpty();
             
         } catch (Exception e) {
             // 검증 과정에서 오류 발생 시 안전을 위해 false 반환
@@ -243,161 +218,7 @@ public class FlightService {
         }
     }
 
-    // =================================================================
-    // 유틸리티 메서드 (Utility Methods)
-    // =================================================================
-    
-    /**
-     * 예약 번호 생성
-     * 
-     * [생성 규칙]
-     * - 접두사: "WH" (WH Air 식별자)
-     * - 형식: WH + 6자리 영숫자 조합
-     * - 예시: WH7A9K2L, WHBX5M8P
-     * 
-     * [실제 운영환경에서는]
-     * - UUID 또는 Sequence 기반 생성 권장
-     * - 중복 방지를 위한 DB 유니크 제약 필요
-     * - 예약 시간, 항공편 정보 등을 포함한 의미있는 코드 생성 고려
-     */
-    private String generateBookingReference() {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder sb = new StringBuilder();
-        Random random = new Random();
-        
-        for (int i = 0; i < 6; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        
-        return "WH" + sb.toString();
-    }
 
-    // =================================================================
-    // 모의 데이터 생성 메서드 (Mock Data Generation)
-    // - Repository 구현 완료 후 제거 예정
-    // =================================================================
-    
-    /**
-     * 실제 예약 정보를 반영한 좌석 목록 생성 (모의 데이터)
-     * 
-     * [실제 예약 정보]
-     * - 김철수: 11A (이코노미)
-     * - 이영희: 12F (이코노미)
-     * 
-     * [실제 대체될 Repository 메서드]
-     * - flightRepository.findReservedSeatNumbersByClass(flightId, seatClass)
-     */
-    private List<String> generateReservedSeatsWithRealData(String seatClass) {
-        List<String> reservedSeats = new ArrayList<>();
-        
-        // 실제 DB에 있는 예약 정보를 반영
-        if ("economy".equalsIgnoreCase(seatClass)) {
-            // 김철수: 11A, 이영희: 12F
-            reservedSeats.add("11A");
-            reservedSeats.add("12F");
-        }
-        // 다른 클래스(first, business)는 예약된 좌석이 없음
-        
-        System.out.println("실제 예약 정보 반영된 좌석: " + reservedSeats);
-        return reservedSeats;
-    }
 
-    /**
-     * 이미 예약된 좌석 목록 생성 (기존 랜덤 모의 데이터)
-     * 
-     * [실제 대체될 Repository 메서드]
-     * - flightRepository.findReservedSeatNumbersByClass(flightId, seatClass)
-     * 
-     * [좌석 배치 규칙]
-     * - First Class: 1-3열, A-B (2석/열, 총 6석)
-     * - Business Class: 4-10열, A-D (4석/열, 총 28석)  
-     * - Economy Class: 11-30열, A-F (6석/열, 총 120석)
-     * 
-     * [모의 예약률]
-     * - 25% 확률로 랜덤 예약 설정
-     * - 실제로는 DB에서 is_reserved = true인 좌석 조회
-     */
-    private List<String> generateReservedSeats(String seatClass) {
-        List<String> reservedSeats = new ArrayList<>();
-        Random random = new Random();
-        
-        // 좌석 클래스별 범위 설정
-        int startRow, endRow;
-        char[] letters;
-        
-        switch (seatClass.toLowerCase()) {
-            case "first":
-                startRow = 1; endRow = 3;
-                letters = new char[]{'A', 'B'};
-                break;
-            case "business":
-                startRow = 4; endRow = 10;
-                letters = new char[]{'A', 'B', 'C', 'D'};
-                break;
-            default: // economy
-                startRow = 11; endRow = 30;
-                letters = new char[]{'A', 'B', 'C', 'D', 'E', 'F'};
-                break;
-        }
-        
-        // 랜덤하게 25% 정도의 좌석을 예약된 상태로 설정
-        for (int row = startRow; row <= endRow; row++) {
-            for (char letter : letters) {
-                if (random.nextDouble() < 0.25) { // 25% 확률로 예약됨
-                    reservedSeats.add(row + String.valueOf(letter));
-                }
-            }
-        }
-        
-        return reservedSeats;
-    }
 
-    /**
-     * 선택 가능한 좌석 목록 생성 (모의 데이터)
-     * 
-     * [실제 대체될 Repository 메서드]
-     * - flightRepository.findAvailableSeatNumbersByClass(flightId, seatClass)
-     * 
-     * [생성 로직]
-     * - 전체 좌석에서 예약된 좌석을 제외한 나머지
-     * - 실제로는 DB에서 is_reserved = false인 좌석 조회
-     * 
-     * [사용 목적]
-     * - 좌석 선택 UI에서 선택 가능한 옵션 제공
-     * - 예약 가능 좌석 수 계산
-     */
-    private List<String> generateAvailableSeats(String seatClass, List<String> reservedSeats) {
-        List<String> availableSeats = new ArrayList<>();
-        
-        // 좌석 클래스별 범위 설정 (위와 동일)
-        int startRow, endRow;
-        char[] letters;
-        
-        switch (seatClass.toLowerCase()) {
-            case "first":
-                startRow = 1; endRow = 3;
-                letters = new char[]{'A', 'B'};
-                break;
-            case "business":
-                startRow = 4; endRow = 10;
-                letters = new char[]{'A', 'B', 'C', 'D'};
-                break;
-            default: // economy
-                startRow = 11; endRow = 30;
-                letters = new char[]{'A', 'B', 'C', 'D', 'E', 'F'};
-                break;
-        }
-        
-        // 모든 좌석에서 예약된 좌석 제외
-        for (int row = startRow; row <= endRow; row++) {
-            for (char letter : letters) {
-                String seat = row + String.valueOf(letter);
-                if (!reservedSeats.contains(seat)) {
-                    availableSeats.add(seat);
-                }
-            }
-        }
-        
-        return availableSeats;
-    }
 } 

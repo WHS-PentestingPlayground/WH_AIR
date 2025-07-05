@@ -5,7 +5,7 @@
 class SeatBookingManager {
     constructor() {
         this.selectedSeats = [];
-        this.maxSeats = 2; // 최대 선택 가능 좌석 수
+        this.maxSeats = 1; // 최대 선택 가능 좌석 수
         this.passengers = []; // 탑승자 정보
         
         // HTML 데이터 속성에서 서버 데이터 가져오기 (window 객체 대신)
@@ -95,8 +95,8 @@ class SeatBookingManager {
             seat.dataset.letter = letter;
             seat.dataset.class = seatClass;
             
-            // 모든 좌석을 기본적으로 선택 가능하게 설정 (서버에서 좌석 상태 가져옴)
-            seat.classList.add('available');
+            // 기본적으로 모든 좌석을 비활성화 상태로 설정
+            seat.classList.add('disabled');
             
             group.appendChild(seat);
         });
@@ -141,11 +141,9 @@ class SeatBookingManager {
 
     toggleSeat(seatElement) {
         const seatId = seatElement.id;
-        console.log('좌석 클릭:', seatId);
         
         if (seatElement.classList.contains('selected')) {
             // 선택 해제
-            console.log('좌석 선택 해제:', seatId);
             seatElement.classList.remove('selected');
             this.selectedSeats = this.selectedSeats.filter(seat => seat.id !== seatId);
         } else {
@@ -155,7 +153,6 @@ class SeatBookingManager {
                 return;
             }
             
-            console.log('좌석 선택:', seatId);
             seatElement.classList.add('selected');
             this.selectedSeats.push({
                 id: seatId,
@@ -172,12 +169,9 @@ class SeatBookingManager {
         const selectedSeatsDisplay = document.getElementById('selected-seats-display');
         const confirmBtn = document.getElementById('confirm-seat-btn');
         
-        console.log('좌석 선택 디스플레이 업데이트:', this.selectedSeats.length, '개 좌석 선택됨');
-        
         if (this.selectedSeats.length === 0) {
             selectedSeatsDisplay.innerHTML = '선택된 좌석이 없습니다.';
             confirmBtn.disabled = true;
-            console.log('확정 버튼 비활성화됨');
         } else {
             const seatTags = this.selectedSeats.map(seat => 
                 `<span class="seat-tag">${seat.id} (${this.getClassDisplayName(seat.class)})</span>`
@@ -185,7 +179,6 @@ class SeatBookingManager {
             
             selectedSeatsDisplay.innerHTML = seatTags;
             confirmBtn.disabled = false;
-            console.log('확정 버튼 활성화됨');
         }
     }
 
@@ -229,12 +222,11 @@ class SeatBookingManager {
     }
 
     /**
-     * 서버에서 좌석 상태 로드
+     * 서버에서 좌석 상태(전체, 예약됨, 예약 가능) 정보 로드
      */
     async loadSeatStatus() {
         try {
             const url = `/flights/api/${this.flightId}/seats?seatClass=${this.selectedSeatClass}`;
-            console.log('좌석 상태 API 호출:', url);
             
             const response = await fetch(url);
             if (!response.ok) {
@@ -242,28 +234,40 @@ class SeatBookingManager {
             }
             
             const seatData = await response.json();
-            console.log('서버에서 받은 좌석 데이터:', seatData);
             
-            this.updateSeatStatus(seatData.reservedSeats || []);
+            // allSeats, reservedSeats, availableSeats 모두 내려온다고 가정
+            this.updateSeatStatus(seatData.allSeats || [], seatData.reservedSeats || [], seatData.availableSeats || []);
         } catch (error) {
-            console.error('좌석 상태 로드 실패:', error);
-            // 에러 발생 시 기본 상태 유지
+            // 에러 발생 시 모든 좌석을 비활성화 상태로 유지
         }
     }
 
     /**
-     * 좌석 상태 업데이트
+     * 전체 좌석, 예약된 좌석, 예약 가능한 좌석을 구분해서 표시
      */
-    updateSeatStatus(occupiedSeats) {
-        console.log('서버에서 받은 예약된 좌석:', occupiedSeats);
-        occupiedSeats.forEach(seatId => {
-            const seatElement = document.getElementById(seatId);
-            if (seatElement) {
-                console.log(`좌석 ${seatId}를 예약됨으로 변경`);
-                seatElement.classList.remove('available');
-                seatElement.classList.add('occupied');
-            } else {
-                console.warn(`좌석 ${seatId}에 해당하는 DOM 요소를 찾을 수 없음`);
+    updateSeatStatus(allSeats, reservedSeats, availableSeats) {
+        // 1. 전체 좌석을 disabled(회색)로 초기화
+        allSeats.forEach(seatId => {
+            const seat = document.getElementById(seatId);
+            if (seat) {
+                seat.classList.remove('available', 'occupied', 'disabled');
+                seat.classList.add('disabled');
+            }
+        });
+        // 2. 예약된 좌석은 occupied(빨간색)로 표시
+        reservedSeats.forEach(seatId => {
+            const seat = document.getElementById(seatId);
+            if (seat) {
+                seat.classList.remove('available', 'disabled');
+                seat.classList.add('occupied');
+            }
+        });
+        // 3. 예약 가능한 좌석은 available(파란색)로 표시
+        availableSeats.forEach(seatId => {
+            const seat = document.getElementById(seatId);
+            if (seat) {
+                seat.classList.remove('disabled', 'occupied');
+                seat.classList.add('available');
             }
         });
     }
@@ -308,9 +312,6 @@ function closeStep(stepId) {
 
 function confirmSeatSelection() {
     try {
-        console.log('confirmSeatSelection 함수 호출됨');
-        console.log('선택된 좌석:', seatBookingManager.selectedSeats);
-        
         if (seatBookingManager.selectedSeats.length === 0) {
             alert('좌석을 선택해주세요.');
             return;
@@ -324,8 +325,6 @@ function confirmSeatSelection() {
         );
 
         if (confirmation) {
-            console.log('사용자가 좌석 선택을 확정함');
-            
             // 선택된 좌석을 occupied 상태로 변경 (시각적 효과)
             seatBookingManager.selectedSeats.forEach(seat => {
                 const seatElement = document.getElementById(seat.id);
@@ -339,11 +338,8 @@ function confirmSeatSelection() {
             
             // 탑승자 정보 폼 생성
             generatePassengerForms();
-            
-            console.log('STEP2로 이동 완료');
         }
     } catch (error) {
-        console.error('confirmSeatSelection 에러:', error);
         alert('좌석 선택 처리 중 오류가 발생했습니다: ' + error.message);
     }
 }
@@ -420,8 +416,6 @@ function updatePaymentInfo() {
     const totalFuelPrice = fuelPricePerPerson * passengerCount;
     const totalPayment = totalSeatPrice + totalFuelPrice;
     
-    console.log(`가격 계산: 탑승자 ${passengerCount}명, 좌석요금 ${seatPricePerPerson.toLocaleString()}/인, 유류할증료 ${fuelPricePerPerson.toLocaleString()}/인`);
-    
     document.getElementById('seat-price').textContent = `₩${totalSeatPrice.toLocaleString()}`;
     document.getElementById('fuel-price').textContent = `₩${totalFuelPrice.toLocaleString()}`;
     document.getElementById('total-payment').textContent = `₩${totalPayment.toLocaleString()}`;
@@ -470,13 +464,10 @@ async function processPayment() {
                 alert(`예약 실패: ${result.message}`);
             }
         } catch (error) {
-            console.error('예약 처리 중 오류:', error);
             alert('예약 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
     }
 }
-
-
 
 // 전역 변수
 let seatBookingManager;

@@ -297,7 +297,7 @@ INSERT INTO seats (flight_id, seat_number, class, is_reserved, seat_price, fuel_
 (1, '27E', 'economy', false, 800000, 200000),
 (1, '27F', 'economy', false, 800000, 200000),
 (1, '28A', 'economy', false, 800000, 200000),
-(1, '28B', 'economy', false, 350000, 120000),
+(1, '28B', 'economy', false, 800000, 200000),
 (1, '28C', 'economy', false, 800000, 200000),
 (1, '28D', 'economy', false, 800000, 200000),
 (1, '28E', 'economy', false, 800000, 200000),

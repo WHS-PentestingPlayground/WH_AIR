@@ -101,21 +101,13 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     // 2. 좌석 현황 조회 관련 (신규 추가)
     // =================================================================
     
-    /**
-     * 특정 항공편의 모든 좌석 조회
-     * - 좌석 번호, 클래스, 예약 상태 등 전체 정보 조회
-     * - 좌석 배치도 생성에 사용
-     */
+    // 항공편 전체 좌석 조회
     @Query("SELECT seat FROM Seat seat WHERE seat.flight.id = :flightId ORDER BY seat.seatNumber")
-    List<Seat> findAllSeatsByFlightId(@Param("flightId") Long flightId);
+    List<Seat> findByFlightIdOrderBySeatNumber(@Param("flightId") Long flightId);
     
-    /**
-     * 특정 항공편의 특정 클래스 좌석만 조회
-     * - 선택한 좌석 클래스에 해당하는 좌석만 필터링
-     * - 좌석 선택 UI에서 사용
-     */
+    // 항공편 특정 클래스 좌석 조회
     @Query("SELECT seat FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatClass = :seatClass ORDER BY seat.seatNumber")
-    List<Seat> findSeatsByFlightIdAndClass(@Param("flightId") Long flightId, @Param("seatClass") String seatClass);
+    List<Seat> findByFlightIdAndSeatClassOrderBySeatNumber(@Param("flightId") Long flightId, @Param("seatClass") String seatClass);
     
     /**
      * 예약된 좌석 번호 목록 조회

@@ -77,6 +77,7 @@ public class FlightController {
         return "flightSearch";
     }
 
+    // 항공권 예매 폼
     @GetMapping("/booking")
     public String showBookingPage(@RequestParam("flightId") Long flightId, 
                                  @RequestParam("seatClass") String seatClass, 
@@ -88,7 +89,6 @@ public class FlightController {
             return "redirect:/flights/search";
         }
         
-        // JSP에 필요한 데이터만 전달
         model.addAttribute("flight", flight);
         model.addAttribute("flightId", flightId);
         model.addAttribute("selectedSeatClass", seatClass);
@@ -140,6 +140,29 @@ public class FlightController {
     }
 
     /**
+     * 예약 가능한 좌석 조회 API
+     */
+    @GetMapping("/api/{flightId}/available-seats")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAvailableSeats(@PathVariable Long flightId,
+                                                                @RequestParam String seatClass) {
+        try {
+            List<String> availableSeats = flightService.getAvailableSeats(flightId, seatClass);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("availableSeats", availableSeats);
+            response.put("count", availableSeats.size());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "좌석 정보를 가져오는데 실패했습니다.");
+            return ResponseEntity.internalServerError().body(error);
+        }
+    }
+
+    /**
      * 좌석 예약 처리 API
      */
     @PostMapping("/api/{flightId}/book")
@@ -158,7 +181,7 @@ public class FlightController {
                 return ResponseEntity.badRequest().body(error);
             }
             
-            // 서버 사이드 예약 처리
+            // 예약 처리
             Map<String, Object> result = flightService.bookSeats(flightId, selectedSeats, passengers);
             
             if ((Boolean) result.get("success")) {
