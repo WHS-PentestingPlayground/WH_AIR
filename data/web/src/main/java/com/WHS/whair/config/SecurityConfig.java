@@ -15,11 +15,16 @@ public class SecurityConfig {
         http
             .authorizeRequests()
                 .antMatchers("/").permitAll()  // 루트 경로 허용
-                .antMatchers("/flights/search").permitAll()  // 항공편 페이지 허용
+                .antMatchers("/flights/search").permitAll()  // 항공편 검색 페이지 허용
+                .antMatchers("/flights/booking").permitAll()  // 항공편 예약 페이지 허용
+                .antMatchers("/flights").permitAll()  // 항공편 POST 검색 허용
+                .antMatchers("/flights/api/**").permitAll()  // 항공편 API 엔드포인트 허용
                 .antMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()  // 정적 리소스 허용
                 .antMatchers("/favicon.ico").permitAll()  // favicon 허용
                 .anyRequest().authenticated()  // 나머지는 인증 필요
             .and()
+            .csrf()
+                .disable()  // CSRF 보호 비활성화 (API 테스트용)
             .formLogin()
                 .disable()  // 기본 로그인 폼 비활성화
             .httpBasic()
