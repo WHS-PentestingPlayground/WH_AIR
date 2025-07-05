@@ -1,99 +1,99 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>항공권 검색 - WH Air</title>
-    <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/flight.css">
-</head>
-<body>
-<div class="container">
-    <div class="search-section">
-        <h1 class="search-title">항공권 검색</h1>
-        <form class="search-form" action="/flights/search" method="get">
-            <div class="search-row">
-                <div class="search-field search-departure">
-                    <label for="departure-airport" class="search-label">출발지</label>
-                    <input type="text" id="departure-airport" name="departure_airport" class="search-input" value="${param.departure_airport != null ? param.departure_airport : 'ICN'}" required>
-                </div>
-                <div class="search-field search-arrival">
-                    <label for="arrival-airport" class="search-label">도착지</label>
-                    <input type="text" id="arrival-airport" name="arrival_airport" class="search-input" value="${param.arrival_airport != null ? param.arrival_airport : 'YVR'}" required>
-                </div>
-                <div class="search-field search-departure-date">
-                    <label for="departure-date" class="search-label">가는 편</label>
-                    <input type="date" id="departure-date" name="departure_date" class="search-input" value="${param.departure_date != null ? param.departure_date : '2025-08-02'}" required>
-                </div>
-                <div class="search-field search-arrival-date">
-                    <label for="arrival-date" class="search-label">오는 편</label>
-                    <input type="date" id="arrival-date" name="arrival_date" class="search-input" value="${param.arrival_date != null ? param.arrival_date : '2025-08-02'}" required>
-                </div>
-                <div class="search-field search-seat-class">
-                    <label for="seat-class" class="search-label">여행자 및 좌석 등급</label>
-                    <select id="seat-class" name="class" class="search-select">
-                        <option value="economy" ${param['class'] == 'economy' ? 'selected' : ''}>일등석</option>
-                        <option value="business" ${param['class'] == 'business' ? 'selected' : ''}>비즈니스</option>
-                        <option value="first" ${param['class'] == 'first' ? 'selected' : ''}>퍼스트</option>
-                    </select>
-                </div>
-                <button type="submit" class="search-btn">검색하기</button>
-            </div>
-        </form>
-    </div>
-    <div class="results-section">
-        <h2 class="results-title">검색 결과</h2>
-        <c:if test="${not empty flights}">
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>항공편 번호</th>
-                        <th>출발</th>
-                        <th>도착</th>
-                        <th>출발 시간</th>
-                        <th>도착 시간</th>
-                        <th>항공사</th>
-                        <th>항공기</th>
-                        <th>좌석 등급</th>
-                        <th>가격</th>
-                        <th>예매</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="flight" items="${flights}">
-                        <tr>
-                            <td>${flight.flightNumber}</td>
-                            <td>${flight.departureAirport}</td>
-                            <td>${flight.arrivalAirport}</td>
-                            <td>${flight.formattedDepartureTime}</td>
-                            <td>${flight.formattedArrivalTime}</td>
-                            <td>${flight.airline}</td>
-                            <td>${flight.aircraftModel}</td>
-                            <td>${flight.seatClass}</td>
-                            <td><fmt:formatNumber value="${flight.price}" type="currency" currencySymbol="₩"/></td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${flight.reserved}">
-                                        <span class="reserved">예약됨</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <a href="/flight/booking?flightId=${flight.flightId}" class="book-btn">예매</a>
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-        </c:if>
-        <c:if test="${empty flights}">
-            <div class="no-results">
-                <p>검색 결과가 없습니다.</p>
-            </div>
-        </c:if>
-    </div>
-</div>
-</body>
-</html> 
+<%--<%@ page contentType="text/html;charset=UTF-8" language="java" %>--%>
+<%--<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>--%>
+<%--<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>--%>
+<%--<!DOCTYPE html>--%>
+<%--<html>--%>
+<%--<head>--%>
+<%--    <title>항공권 검색 - WH Air</title>--%>
+<%--    <meta charset="UTF-8">--%>
+<%--    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">--%>
+<%--    <link rel="stylesheet" href="/static/css/flight.css">--%>
+<%--</head>--%>
+<%--<body>--%>
+<%--<div class="container">--%>
+<%--    <div class="search-section">--%>
+<%--        <h1 class="search-title">항공권 검색</h1>--%>
+<%--        <form class="search-form" action="/flights/search" method="get">--%>
+<%--            <div class="search-row">--%>
+<%--                <div class="search-field search-departure">--%>
+<%--                    <label for="departure-airport" class="search-label">출발지</label>--%>
+<%--                    <input type="text" id="departure-airport" name="departure_airport" class="search-input" value="${param.departure_airport != null ? param.departure_airport : 'ICN'}" required>--%>
+<%--                </div>--%>
+<%--                <div class="search-field search-arrival">--%>
+<%--                    <label for="arrival-airport" class="search-label">도착지</label>--%>
+<%--                    <input type="text" id="arrival-airport" name="arrival_airport" class="search-input" value="${param.arrival_airport != null ? param.arrival_airport : 'YVR'}" required>--%>
+<%--                </div>--%>
+<%--                <div class="search-field search-departure-date">--%>
+<%--                    <label for="departure-date" class="search-label">가는 편</label>--%>
+<%--                    <input type="date" id="departure-date" name="departure_date" class="search-input" value="${param.departure_date != null ? param.departure_date : '2025-08-02'}" required>--%>
+<%--                </div>--%>
+<%--                <div class="search-field search-arrival-date">--%>
+<%--                    <label for="arrival-date" class="search-label">오는 편</label>--%>
+<%--                    <input type="date" id="arrival-date" name="arrival_date" class="search-input" value="${param.arrival_date != null ? param.arrival_date : '2025-08-02'}" required>--%>
+<%--                </div>--%>
+<%--                <div class="search-field search-seat-class">--%>
+<%--                    <label for="seat-class" class="search-label">여행자 및 좌석 등급</label>--%>
+<%--                    <select id="seat-class" name="class" class="search-select">--%>
+<%--                        <option value="economy" ${param['class'] == 'economy' ? 'selected' : ''}>일등석</option>--%>
+<%--                        <option value="business" ${param['class'] == 'business' ? 'selected' : ''}>비즈니스</option>--%>
+<%--                        <option value="first" ${param['class'] == 'first' ? 'selected' : ''}>퍼스트</option>--%>
+<%--                    </select>--%>
+<%--                </div>--%>
+<%--                <button type="submit" class="search-btn">검색하기</button>--%>
+<%--            </div>--%>
+<%--        </form>--%>
+<%--    </div>--%>
+<%--    <div class="results-section">--%>
+<%--        <h2 class="results-title">검색 결과</h2>--%>
+<%--        <c:if test="${not empty flights}">--%>
+<%--            <table class="results-table">--%>
+<%--                <thead>--%>
+<%--                    <tr>--%>
+<%--                        <th>항공편 번호</th>--%>
+<%--                        <th>출발</th>--%>
+<%--                        <th>도착</th>--%>
+<%--                        <th>출발 시간</th>--%>
+<%--                        <th>도착 시간</th>--%>
+<%--                        <th>항공사</th>--%>
+<%--                        <th>항공기</th>--%>
+<%--                        <th>좌석 등급</th>--%>
+<%--                        <th>가격</th>--%>
+<%--                        <th>예매</th>--%>
+<%--                    </tr>--%>
+<%--                </thead>--%>
+<%--                <tbody>--%>
+<%--                    <c:forEach var="flight" items="${flights}">--%>
+<%--                        <tr>--%>
+<%--                            <td>${flight.flightNumber}</td>--%>
+<%--                            <td>${flight.departureAirport}</td>--%>
+<%--                            <td>${flight.arrivalAirport}</td>--%>
+<%--                            <td>${flight.formattedDepartureTime}</td>--%>
+<%--                            <td>${flight.formattedArrivalTime}</td>--%>
+<%--                            <td>${flight.airline}</td>--%>
+<%--                            <td>${flight.aircraftModel}</td>--%>
+<%--                            <td>${flight.seatClass}</td>--%>
+<%--                            <td><fmt:formatNumber value="${flight.price}" type="currency" currencySymbol="₩"/></td>--%>
+<%--                            <td>--%>
+<%--                                <c:choose>--%>
+<%--                                    <c:when test="${flight.reserved}">--%>
+<%--                                        <span class="reserved">예약됨</span>--%>
+<%--                                    </c:when>--%>
+<%--                                    <c:otherwise>--%>
+<%--                                        <a href="/flight/booking?flightId=${flight.flightId}" class="book-btn">예매</a>--%>
+<%--                                    </c:otherwise>--%>
+<%--                                </c:choose>--%>
+<%--                            </td>--%>
+<%--                        </tr>--%>
+<%--                    </c:forEach>--%>
+<%--                </tbody>--%>
+<%--            </table>--%>
+<%--        </c:if>--%>
+<%--        <c:if test="${empty flights}">--%>
+<%--            <div class="no-results">--%>
+<%--                <p>검색 결과가 없습니다.</p>--%>
+<%--            </div>--%>
+<%--        </c:if>--%>
+<%--    </div>--%>
+<%--</div>--%>
+<%--</body>--%>
+<%--</html>--%>
