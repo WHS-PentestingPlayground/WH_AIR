@@ -25,5 +25,9 @@ public class Seat {
     @Column(name = "is_reserved")
     private boolean isReserved;
 
-    private BigDecimal price;
+    @Column(name = "seat_price")
+    private BigDecimal seatPrice;
+
+    @Column(name = "fuel_price") 
+    private BigDecimal fuelPrice;
 } 
