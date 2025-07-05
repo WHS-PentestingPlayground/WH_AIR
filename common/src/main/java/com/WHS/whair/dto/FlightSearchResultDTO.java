@@ -16,8 +16,8 @@ public class FlightSearchResultDTO {
     private String airline;
     private String aircraftModel;
     private String seatClass;
-    private BigDecimal price;
-    private boolean isReserved;
+    private BigDecimal seatPrice;
+    private BigDecimal fuelPrice;
 
     // 날짜 포맷터
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -25,7 +25,7 @@ public class FlightSearchResultDTO {
     // JPA 쿼리에서 사용할 생성자
     public FlightSearchResultDTO(Long flightId, String flightNumber, String departureAirport, String arrivalAirport,
                                 LocalDateTime departureTime, LocalDateTime arrivalTime, String airline, String aircraftModel,
-                                String seatClass, BigDecimal price, boolean isReserved) {
+                                String seatClass, BigDecimal seatPrice, BigDecimal fuelPrice) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
         this.departureAirport = departureAirport;
@@ -35,8 +35,8 @@ public class FlightSearchResultDTO {
         this.airline = airline;
         this.aircraftModel = aircraftModel;
         this.seatClass = seatClass;
-        this.price = price;
-        this.isReserved = isReserved;
+        this.seatPrice = seatPrice;
+        this.fuelPrice = fuelPrice;
     }
 
     // 포맷팅된 날짜 문자열 반환 메서드

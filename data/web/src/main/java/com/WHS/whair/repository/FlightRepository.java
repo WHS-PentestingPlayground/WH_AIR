@@ -32,18 +32,20 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     @Query("SELECT new com.WHS.whair.dto.FlightSearchResultDTO(" +
            "flight.id, flight.flightNumber, flight.departureAirport, flight.arrivalAirport, " +
            "flight.departureTime, flight.arrivalTime, flight.airline, flight.aircraftModel, " +
-           "seat.seatClass, seat.price, seat.isReserved) " +
+           "seat.seatClass, MIN(seat.seatPrice), MIN(seat.fuelPrice)) " +
            "FROM Flight flight JOIN flight.seats seat " +
            "WHERE flight.departureAirport = :departureAirport " +
            "AND flight.arrivalAirport = :arrivalAirport " +
            "AND FUNCTION('DATE', flight.departureTime) = :departureDate " +
            "AND FUNCTION('DATE', flight.arrivalTime) = :arrivalDate " +
-           "AND seat.seatClass = :seatClass")
+           "AND seat.seatClass IN :seatClasses " +
+           "GROUP BY flight.id, flight.flightNumber, flight.departureAirport, flight.arrivalAirport, " +
+           "flight.departureTime, flight.arrivalTime, flight.airline, flight.aircraftModel, seat.seatClass")
     List<FlightSearchResultDTO> searchFlightsWithPrice(
         @Param("departureAirport") String departureAirport,
         @Param("arrivalAirport") String arrivalAirport,
         @Param("departureDate") LocalDate departureDate,
         @Param("arrivalDate") LocalDate arrivalDate,
-        @Param("seatClass") String seatClass
+        @Param("seatClasses") List<String> seatClasses
     );
 } 

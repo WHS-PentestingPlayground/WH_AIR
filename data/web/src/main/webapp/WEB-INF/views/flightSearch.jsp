@@ -8,6 +8,7 @@
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/flight.css">
+    <script src="/static/js/flight.js"></script>
 </head>
 <body>
 <div class="container">
@@ -24,17 +25,17 @@
                     <input type="text" id="arrival-airport" name="arrival_airport" class="search-input" value="${param.arrival_airport != null ? param.arrival_airport : 'YVR'}" required>
                 </div>
                 <div class="search-field search-departure-date">
-                    <label for="departure-date" class="search-label">가는 편</label>
+                    <label for="departure-date" class="search-label">출발 일시</label>
                     <input type="date" id="departure-date" name="departure_date" class="search-input" value="${param.departure_date != null ? param.departure_date : '2025-08-02'}" required>
                 </div>
                 <div class="search-field search-arrival-date">
-                    <label for="arrival-date" class="search-label">오는 편</label>
+                    <label for="arrival-date" class="search-label">도착 일시</label>
                     <input type="date" id="arrival-date" name="arrival_date" class="search-input" value="${param.arrival_date != null ? param.arrival_date : '2025-08-02'}" required>
                 </div>
                 <div class="search-field search-seat-class">
                     <label for="seat-class" class="search-label">여행자 및 좌석 등급</label>
                     <select id="seat-class" name="class" class="search-select">
-                        <option value="economy" ${param['class'] == 'economy' ? 'selected' : ''}>일등석</option>
+                        <option value="economy" ${param['class'] == 'economy' ? 'selected' : ''}>이코노미</option>
                         <option value="business" ${param['class'] == 'business' ? 'selected' : ''}>비즈니스</option>
                         <option value="first" ${param['class'] == 'first' ? 'selected' : ''}>퍼스트</option>
                     </select>
@@ -57,7 +58,6 @@
                         <th>항공사</th>
                         <th>항공기</th>
                         <th>좌석 등급</th>
-                        <th>가격</th>
                         <th>예매</th>
                     </tr>
                 </thead>
@@ -71,18 +71,19 @@
                             <td>${flight.formattedArrivalTime}</td>
                             <td>${flight.airline}</td>
                             <td>${flight.aircraftModel}</td>
-                            <td>${flight.seatClass}</td>
-                            <td><fmt:formatNumber value="${flight.price}" type="currency" currencySymbol="₩"/></td>
+                            <td>${flight.seatClass.substring(0,1).toUpperCase()}${flight.seatClass.substring(1)}</td>
                             <td>
-                                <c:choose>
-                                    <c:when test="${flight.reserved}">
-                                        <span class="reserved">예약됨</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <a href="/flight/booking?flightId=${flight.flightId}" class="book-btn">예매</a>
-                                    </c:otherwise>
-                                </c:choose>
+                                <button type="button" class="book-btn"
+                                        data-seat-price="${flight.seatPrice}"
+                                        data-fuel-price="${flight.fuelPrice}"
+                                        data-flight-id="${flight.flightId}"
+                                        data-seat-class="${flight.seatClass}">
+                                    조회
+                                </button>
                             </td>
+                        </tr>
+                        <tr class="price-info-row" style="display:none;">
+                            <td colspan="9" class="price-info-cell"></td>
                         </tr>
                     </c:forEach>
                 </tbody>

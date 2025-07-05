@@ -20,7 +20,7 @@ public class FlightService {
     }
 
     // 항공권 검색 (DTO 반환 - 가격 정보 포함)
-    public List<FlightSearchResultDTO> searchFlightsWithPrice(String departureAirport, String arrivalAirport, LocalDate departureDate, LocalDate arrivalDate, String seatClass) {
-        return flightRepository.searchFlightsWithPrice(departureAirport, arrivalAirport, departureDate, arrivalDate, seatClass);
+    public List<FlightSearchResultDTO> searchFlightsWithPrice(String departureAirport, String arrivalAirport, LocalDate departureDate, LocalDate arrivalDate, List<String> seatClasses) {
+        return flightRepository.searchFlightsWithPrice(departureAirport, arrivalAirport, departureDate, arrivalDate, seatClasses);
     }
 } 
