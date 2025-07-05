@@ -140,8 +140,7 @@ public class FlightService {
                 return result;
             }
             
-            // 3. 실제 DB 예약 처리 (Repository 메서드 활용 예정)
-            /*
+            // 3. 실제 DB 예약 처리 (Repository 메서드 활용)
             int reservedCount = flightRepository.reserveSeats(flightId, selectedSeats);
             
             if (reservedCount != selectedSeats.size()) {
@@ -156,7 +155,6 @@ public class FlightService {
             //     String passengerName = passengers.get(i).get("name");
             //     // reservationRepository.save(new Reservation(...));
             // }
-            */
             
             // 5. 예약 완료 응답
             result.put("success", true);
@@ -188,8 +186,8 @@ public class FlightService {
      */
     private boolean validateSeatSelection(Long flightId, List<String> selectedSeats) {
         try {
-            // 실제 DB 검증 로직 (Repository 메서드 활용 예정)
-            /*
+            // 실제 DB 검증 로직 (Repository 메서드 활용)
+            
             // 1. 좌석 존재 여부 확인
             long existingSeatsCount = flightRepository.countExistingSeats(flightId, selectedSeats);
             if (existingSeatsCount != selectedSeats.size()) {
@@ -202,15 +200,13 @@ public class FlightService {
                 return false; // 이미 예약된 좌석이 포함됨
             }
             
-            // 3. 추가 검증: 좌석 클래스 일치 여부 확인 (필요시)
-            // List<String> seatClasses = flightRepository.findSeatClassesBySeatNumbers(flightId, selectedSeats);
-            // if (seatClasses.size() > 1) {
-            //     return false; // 서로 다른 클래스의 좌석이 혼합됨
-            // }
-            */
+            // 3. 추가 검증: 좌석 클래스 일치 여부 확인
+            List<String> seatClasses = flightRepository.findSeatClassesBySeatNumbers(flightId, selectedSeats);
+            if (seatClasses.size() > 1) {
+                return false; // 서로 다른 클래스의 좌석이 혼합됨
+            }
             
-            // Repository 메서드 구현 완료 전까지는 기본 검증만 수행
-            return selectedSeats != null && !selectedSeats.isEmpty();
+            return true;
             
         } catch (Exception e) {
             // 검증 과정에서 오류 발생 시 안전을 위해 false 반환

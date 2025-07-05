@@ -458,7 +458,6 @@ async function processPayment() {
             const result = await response.json();
             
             if (result.success) {
-                alert(`예약이 완료되었습니다!\n\n예약 번호: ${result.bookingReference}\n\n예약 확인서를 이메일로 발송해드렸습니다.`);
                 window.location.href = '/flights/search';
             } else {
                 alert(`예약 실패: ${result.message}`);
