@@ -15,7 +15,9 @@ public class SecurityConfig {
         http
             .authorizeRequests()
                 .antMatchers("/").permitAll()  // 루트 경로 허용
-                .antMatchers("/css/**", "/js/**", "/images/**").permitAll()  // 정적 리소스 허용
+                .antMatchers("/flights/search").permitAll()  // 항공편 페이지 허용
+                .antMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()  // 정적 리소스 허용
+                .antMatchers("/favicon.ico").permitAll()  // favicon 허용
                 .anyRequest().authenticated()  // 나머지는 인증 필요
             .and()
             .formLogin()
