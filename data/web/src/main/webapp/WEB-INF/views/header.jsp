@@ -32,7 +32,7 @@
         </c:when>
         <c:otherwise>
           <span class="header-welcome">안녕하세요, ${user.name}님</span>
-          <a href="/api/logout" class="header-logout-btn">로그아웃</a>
+          <a href="/logout" class="header-logout-btn">로그아웃</a>
         </c:otherwise>
       </c:choose>
     </div>

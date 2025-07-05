@@ -205,8 +205,9 @@ body {
 }
 
 .error-message {
-    background: #f0f9ff;
-    color: #1e3a8a;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
     padding: 1rem 1.5rem;
     border-radius: 12px;
     margin-bottom: 1.5rem;
@@ -214,7 +215,20 @@ body {
     font-weight: 500;
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid #dbeafe;
+    backdrop-filter: blur(10px);
+}
+
+.success-message {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    width: 100%;
+    box-sizing: border-box;
     backdrop-filter: blur(10px);
 }
 

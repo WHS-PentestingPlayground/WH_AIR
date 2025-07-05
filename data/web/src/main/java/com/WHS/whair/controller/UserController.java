@@ -1,8 +1,10 @@
 package com.WHS.whair.controller;
 
 import com.WHS.whair.dto.RegisterRequestDto;
+import com.WHS.whair.dto.MyPageDto;
 import com.WHS.whair.entity.User;
 import com.WHS.whair.service.UserService;
+import com.WHS.whair.service.MyPageService;
 import com.WHS.whair.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,12 +17,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final MyPageService myPageService;
     private final JwtUtil jwtUtil;
 
     // 로그인 폼
@@ -35,8 +39,20 @@ public class UserController {
                         @RequestParam String password,
                         HttpServletResponse response,
                         RedirectAttributes redirectAttributes) {
+        
+        // 입력값 검증
+        if (name == null || name.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "사용자명을 입력해주세요.");
+            return "redirect:/login";
+        }
+        
+        if (password == null || password.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "비밀번호를 입력해주세요.");
+            return "redirect:/login";
+        }
+        
         try {
-            User user = userService.authenticate(name, password);
+            User user = userService.authenticate(name.trim(), password);
             if (user == null) {
                 redirectAttributes.addFlashAttribute("error", "아이디 또는 비밀번호가 틀렸습니다.");
                 return "redirect:/login";
@@ -52,8 +68,8 @@ public class UserController {
             response.addCookie(cookie);
 
             return "redirect:/";
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
             return "redirect:/login";
         }
     }
@@ -72,21 +88,51 @@ public class UserController {
                            @RequestParam String phoneNumber,
                            HttpServletResponse response,
                            RedirectAttributes redirectAttributes) {
+        
+        // 입력값 검증
+        if (name == null || name.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "사용자명을 입력해주세요.");
+            return "redirect:/register";
+        }
+        
+        if (password == null || password.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "비밀번호를 입력해주세요.");
+            return "redirect:/register";
+        }
+        
+        if (email == null || email.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "이메일을 입력해주세요.");
+            return "redirect:/register";
+        }
+        
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "전화번호를 입력해주세요.");
+            return "redirect:/register";
+        }
+        
+        // 비밀번호 길이 검증
+        if (password.length() < 8) {
+            redirectAttributes.addFlashAttribute("error", "비밀번호는 8자 이상이어야 합니다.");
+            return "redirect:/register";
+        }
+        
+        // 이메일 형식 검증 (간단한 검증)
+        if (!email.contains("@")) {
+            redirectAttributes.addFlashAttribute("error", "올바른 이메일 형식을 입력해주세요.");
+            return "redirect:/register";
+        }
+        
         try {
-            RegisterRequestDto dto = new RegisterRequestDto(name, password, email, phoneNumber);
+            RegisterRequestDto dto = new RegisterRequestDto(name.trim(), password, email.trim(), phoneNumber.trim());
             userService.register(dto);
 
-            // 자동 로그인
-            String token = jwtUtil.generateToken(name);
-            Cookie cookie = new Cookie("jwt_token", token);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(86400);
-            response.addCookie(cookie);
-
-            return "redirect:/";
+            redirectAttributes.addFlashAttribute("success", "회원가입이 완료되었습니다. 로그인해주세요.");
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/register";
         } catch (Exception e) {
-            redirectAttributes.addAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
             return "redirect:/register";
         }
     }
@@ -108,9 +154,16 @@ public class UserController {
         String name = jwtUtil.validateAndExtractUsername(token);
         if (name == null) return "redirect:/login";
 
-        User user = userService.findByName(name);
-        model.addAttribute("user", user);
-        return "mypage";
+        try {
+            User user = myPageService.getUserInfo(name);
+            List<MyPageDto> reservations = myPageService.getUserReservations(name);
+            
+            model.addAttribute("user", user);
+            model.addAttribute("reservations", reservations);
+            return "mypage";
+        } catch (Exception e) {
+            return "redirect:/login";
+        }
     }
 
     // JWT 토큰 꺼내는 도우미

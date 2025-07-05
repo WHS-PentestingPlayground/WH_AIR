@@ -23,9 +23,15 @@
     </div>
     <h2 class="form-title">로그인</h2>
     
-    <% if (request.getParameter("error") != null) { %>
+    <% if (request.getAttribute("error") != null) { %>
       <div class="error-message">
-        아이디 또는 비밀번호가 올바르지 않습니다.
+        <%= request.getAttribute("error") %>
+      </div>
+    <% } %>
+    
+    <% if (request.getAttribute("success") != null) { %>
+      <div class="success-message">
+        <%= request.getAttribute("success") %>
       </div>
     <% } %>
     

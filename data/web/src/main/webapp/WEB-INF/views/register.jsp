@@ -24,9 +24,15 @@
     </div>
     <h2 class="form-title">회원가입</h2>
     
-    <% if (request.getParameter("error") != null) { %>
+    <% if (request.getAttribute("error") != null) { %>
       <div class="error-message">
-        <%= request.getParameter("error") %>
+        <%= request.getAttribute("error") %>
+      </div>
+    <% } %>
+    
+    <% if (request.getAttribute("success") != null) { %>
+      <div class="success-message">
+        <%= request.getAttribute("success") %>
       </div>
     <% } %>
     

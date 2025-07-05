@@ -18,6 +18,7 @@ public class UserService {
 
     @Transactional
     public void register(RegisterRequestDto dto) {
+        // 사용자명 중복 검사
         if (userRepository.existsByName(dto.getName())) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다.");
         }
