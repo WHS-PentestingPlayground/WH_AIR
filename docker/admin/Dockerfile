@@ -4,7 +4,7 @@ FROM gradle:jdk17 AS builder
 # 작업 디렉토리 설정
 WORKDIR /home/gradle/src
 
-# 루트 gradle 설정 복사 (admin은 common 모듈을 사용하지 않음)
+# 루트 gradle 설정 복사
 COPY build.gradle ./build.gradle
 COPY settings.gradle ./settings.gradle
 COPY gradle ./gradle

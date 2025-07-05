@@ -17,7 +17,6 @@ docker-compose up -d --build
 ```
 
 ### 모듈 구성
-- **common**: 공통 엔티티 및 유틸리티
 - **data/web**: Spring Boot 웹 애플리케이션 (메인 서비스)
 - **data/admin**: JSP + Tomcat 관리자 서버 (내부망 전용)
 - **db**: PostgreSQL 14.15 데이터베이스
