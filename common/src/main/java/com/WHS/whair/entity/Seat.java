@@ -1,0 +1,29 @@
+package com.WHS.whair.entity;
+
+import lombok.Data;
+import javax.persistence.*;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "seats")
+@Data
+public class Seat {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "flight_id")
+    private Flight flight;
+
+    @Column(name = "seat_number")
+    private String seatNumber;
+
+    @Column(name = "class")
+    private String seatClass;
+
+    @Column(name = "is_reserved")
+    private boolean isReserved;
+
+    private BigDecimal price;
+} 
