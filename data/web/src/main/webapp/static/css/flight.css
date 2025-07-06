@@ -1,19 +1,19 @@
-/*body {*/
-/*  font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;*/
-/*  background: linear-gradient(135deg, #fafdff 0%, #eaf6fb 100%);*/
-/*  color: #23272f;*/
-/*  margin: 0;*/
-/*  padding: 0;*/
-/*}*/
+body {
+font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+background: linear-gradient(135deg, #fafdff 0%, #eaf6fb 100%);
+color: #23272f;
+margin: 0;
+padding: 0;
+}
 
-/*.container {*/
-/*  max-width: 950px;*/
-/*  margin: 40px auto;*/
-/*  background: #fff;*/
-/*  border-radius: 18px;*/
-/*  box-shadow: 0 6px 24px 0 rgba(0, 80, 180, 0.06);*/
-/*  padding: 2.5em 2em 2em 2em;*/
-/*}*/
+.container {
+max-width: 950px;
+margin: 40px auto;
+ background: #fff;
+border-radius: 18px;
+box-shadow: 0 6px 24px 0 rgba(0, 80, 180, 0.06);
+padding: 2.5em 2em 2em 2em;
+}
 
 .search-section {
   margin-bottom: 2em;
