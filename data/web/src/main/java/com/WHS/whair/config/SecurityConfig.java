@@ -2,6 +2,7 @@ package com.WHS.whair.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -13,16 +14,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
-                .antMatchers("/").permitAll()  // 루트 경로 허용
-                .antMatchers("/css/**", "/js/**", "/images/**").permitAll()  // 정적 리소스 허용
-                .anyRequest().authenticated()  // 나머지는 인증 필요
-            .and()
-            .formLogin()
-                .disable()  // 기본 로그인 폼 비활성화
-            .httpBasic()
-                .disable();  // HTTP Basic 인증 비활성화
-        
+                .authorizeRequests()
+                .antMatchers("/", "/login", "/register", "/logout", "/flights", "/flights/search", "/flights/booking","/flights/api/**", "/mypage").permitAll()
+                .antMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable();
         return http.build();
     }
-} 
+}
+

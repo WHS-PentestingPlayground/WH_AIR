@@ -1,0 +1,279 @@
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.6;
+    color: #1e3a8a;
+    background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+}
+
+.login-section, .register-section {
+    min-height: calc(100vh - 72px);
+    padding-top: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-background, .register-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="%23f0f9ff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>');
+    background-size: cover;
+}
+
+.login-overlay, .register-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.3);
+}
+
+.login-container, .register-container {
+    background: rgba(255,255,255,0.98);
+    backdrop-filter: blur(20px);
+    padding: 3rem 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(30, 58, 138, 0.08);
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    z-index: 2;
+    border: 1px solid #dbeafe;
+}
+
+.logo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo-icon {
+    font-size: 3rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.1);
+    color: #3b82f6;
+    border: 2px solid #dbeafe;
+}
+
+.airline-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.airline-slogan {
+    color: #1e40af;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.form-title {
+    font-size: 1.8rem;
+    color: #1e3a8a;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: #1e3a8a;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    font-size: 1.2rem;
+    color: #3b82f6;
+    z-index: 2;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #dbeafe;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(10px);
+}
+
+.form-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+    background: #ffffff;
+}
+
+.form-button {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.15);
+}
+
+.form-button:hover {
+    background: linear-gradient(90deg, #1e40af 0%, #60a5fa 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(30, 58, 138, 0.2);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+.form-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.form-link {
+    color: #1e3a8a;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: #f0f9ff;
+    border: 1px solid #dbeafe;
+}
+
+.form-link:hover {
+    background: #dbeafe;
+    color: #1e40af;
+    transform: translateY(-1px);
+}
+
+.divider {
+    color: #dbeafe;
+    font-weight: 300;
+}
+
+.error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    width: 100%;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+}
+
+.success-message {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    width: 100%;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+}
+
+.password-requirements {
+    font-size: 0.85rem;
+    color: #1e40af;
+    margin-top: 0.6rem;
+    padding: 0.5rem 1rem;
+    background: #f0f9ff;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-section, .register-section {
+        padding: 1rem;
+    }
+    .login-container, .register-container {
+        padding: 2rem 1.5rem;
+        max-width: 400px;
+    }
+    .logo-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    .airline-logo {
+        font-size: 1.6rem;
+    }
+    .form-title {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container, .register-container {
+        padding: 1.5rem 1rem;
+        max-width: 350px;
+    }
+    .form-links {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .divider {
+        display: none;
+    }
+}

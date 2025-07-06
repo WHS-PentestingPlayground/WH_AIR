@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>좌석 선택 및 결제 - WH Air</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+            background: linear-gradient(135deg, #fafdff 0%, #eaf6fb 100%);
+            color: #23272f;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px 0 rgba(0, 80, 180, 0.06);
+            padding: 2.5em 2em 2em 2em;
+        }
+
+        .search-title {
+            color: #3a5e8c;
+            font-size: 2.1em;
+            font-weight: 700;
+            margin-bottom: 1.2em;
+            letter-spacing: -1px;
+        }
+
+        .flight-info {
+            background: #f4f8fb;
+            border-radius: 10px;
+            padding: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #d6e6f7;
+            margin-bottom: 2em;
+        }
+
+        .flight-details {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #3a5e8c;
+        }
+
+        .flight-time {
+            font-size: 1em;
+            color: #5a6d85;
+        }
+
+        /* 단계별 토글 섹션 */
+        .step-section {
+            margin-bottom: 1.5em;
+            border: 1px solid #d6e6f7;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 80, 180, 0.04);
+        }
+
+        .step-header {
+            background: #f4f8fb;
+            padding: 1.2em 1.5em;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d6e6f7;
+            transition: background 0.2s;
+        }
+
+        .step-header:hover {
+            background: #e8f4f8;
+        }
+
+        .step-header.active {
+            background: #3a5e8c;
+            color: white;
+        }
+
+        .step-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8em;
+        }
+
+        .step-number {
+            background: #3a5e8c;
+            color: white;
+            padding: 0.4em 0.8em;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .step-header.active .step-number {
+            background: white;
+            color: #3a5e8c;
+        }
+
+        .step-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #3a5e8c;
+        }
+
+        .step-header.active .step-title {
+            color: white;
+        }
+
+        .step-toggle {
+            font-size: 1.2em;
+            color: #5a6d85;
+            transition: transform 0.2s;
+        }
+
+        .step-header.active .step-toggle {
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .step-content {
+            padding: 2em;
+            background: white;
+        }
+
+        /* 항공기 좌석 배치 */
+        .aircraft-container {
+            background: #fafdff;
+            border-radius: 15px;
+            padding: 2em;
+            margin-bottom: 2em;
+        }
+
+        .aircraft-body {
+            background: white;
+            border-radius: 20px;
+            padding: 2em;
+            box-shadow: 0 5px 15px rgba(0, 80, 180, 0.08);
+        }
+
+        .cockpit {
+            width: 60px;
+            height: 30px;
+            background: #3a5e8c;
+            border-radius: 30px 30px 0 0;
+            margin: 0 auto 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cockpit-icon {
+            font-size: 16px;
+            color: white;
+        }
+
+        .class-section {
+            margin-bottom: 2em;
+        }
+
+        .class-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 1em;
+            padding: 0.8em;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .first-class .class-title {
+            background: #09b7e2;
+        }
+
+        .business-class .class-title {
+            background: #2d5be3;
+        }
+
+        .economy-class .class-title {
+            background: #5a6d85;
+        }
+
+        .seats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .row-number {
+            width: 30px;
+            text-align: center;
+            font-weight: 600;
+            color: #5a6d85;
+            font-size: 0.9em;
+        }
+
+        .seat-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .aisle {
+            width: 20px;
+        }
+
+        .seat {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #d6e6f7;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            position: relative;
+            background: white;
+        }
+
+        /* 좌석 상태별 스타일 */
+        .seat.available {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #1976d2;
+        }
+
+        .seat.available:hover {
+            background: #bbdefb;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .seat.selected {
+            background: #1976d2;
+            border-color: #1565c0;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+        }
+
+        .seat.disabled {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+            color: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        /* 범례 */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5em;
+            margin-top: 2em;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            font-size: 0.9em;
+            color: #5a6d85;
+        }
+
+        .legend-seat {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-seat.available {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .legend-seat.selected {
+            background: #1976d2;
+            border-color: #1565c0;
+        }
+
+        .legend-seat.disabled {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+
+        /* 좌석 선택 정보 */
+        .selection-info {
+            background: #f4f8fb;
+            padding: 1.5em;
+            border-radius: 10px;
+            border: 1px solid #d6e6f7;
+        }
+
+        .selected-seats {
+            margin-bottom: 1em;
+        }
+
+        .selected-seats strong {
+            color: #3a5e8c;
+            font-size: 1.05em;
+        }
+
+        #selected-seats-display {
+            margin-top: 0.5em;
+            min-height: 2em;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5em;
+        }
+
+        .seat-tag {
+            display: inline-block;
+            background: #2196f3;
+            color: white;
+            padding: 0.4em 0.8em;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 1em;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .confirm-btn:hover:not(:disabled) {
+            background: #1976d2;
+        }
+
+        .confirm-btn:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        /* 탑승자 정보 섹션 */
+        .passenger-info-section {
+            background: #fafdff;
+            padding: 1.5em;
+            border-radius: 10px;
+            border: 1px solid #d6e6f7;
+        }
+
+        .passenger-info-section h3 {
+            color: #3a5e8c;
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+        .passenger-form {
+            background: white;
+            padding: 1.5em;
+            border-radius: 8px;
+            margin-bottom: 1em;
+            border: 1px solid #d6e6f7;
+        }
+
+        .passenger-form h4 {
+            color: #3a5e8c;
+            margin-bottom: 1em;
+            font-size: 1.1em;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+
+        .form-field {
+            flex: 1;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 0.4em;
+            font-weight: 500;
+            color: #5a6d85;
+            font-size: 0.95em;
+        }
+
+        .form-field input {
+            width: 100%;
+            height: 42px;
+            padding: 0 1em;
+            border: 1.2px solid #d6e6f7;
+            border-radius: 6px;
+            font-size: 1em;
+            background: #fafdff;
+            transition: border 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-field input:focus {
+            border-color: #2196f3;
+            outline: none;
+        }
+
+        /* 결제 섹션 */
+        .payment-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2em;
+        }
+
+        .payment-summary {
+            background: #f4f8fb;
+            padding: 1.5em;
+            border-radius: 10px;
+            border: 1px solid #d6e6f7;
+        }
+
+        .payment-summary h3 {
+            color: #3a5e8c;
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+        .price-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8em;
+        }
+
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5em 0;
+            border-bottom: 1px solid #e3f2fd;
+        }
+
+        .price-item.total {
+            border-bottom: none;
+            border-top: 2px solid #3a5e8c;
+            padding-top: 1em;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #3a5e8c;
+        }
+
+        .payment-form {
+            background: #fafdff;
+            padding: 1.5em;
+            border-radius: 10px;
+            border: 1px solid #d6e6f7;
+        }
+
+        .payment-form h3 {
+            color: #3a5e8c;
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+        .point-payment {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            margin-bottom: 1.5em;
+        }
+
+        .point-info, .point-usage {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8em;
+            background: white;
+            border: 1px solid #d6e6f7;
+            border-radius: 8px;
+        }
+
+        .point-label {
+            font-weight: 500;
+            color: #5a6d85;
+        }
+
+        .point-value {
+            font-weight: 600;
+            color: #3a5e8c;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .step-content {
+                padding: 1em;
+            }
+            
+            .aircraft-container {
+                padding: 1em;
+            }
+            
+            .aircraft-body {
+                padding: 1em;
+            }
+            
+            .seat {
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            
+            .flight-info {
+                flex-direction: column;
+                gap: 0.5em;
+            }
+            
+            .payment-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .legend {
+                gap: 1em;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="flight-booking-app">
+        <div class="booking-header">
+            <h1 class="search-title">좌석 선택 및 결제</h1>
+            <div class="flight-info">
+                <div class="flight-details">
+                    <strong>KE123</strong> | 서울(ICN) → 밴쿠버(JFK)
+                </div>
+                <div class="flight-time">
+                    2025년 7월 15일 | 14:30 출발
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 1: 좌석 선택 -->
+        <div class="step-section" id="step1">
+            <div class="step-header" onclick="toggleStep('step1')">
+                <div class="step-info">
+                    <span class="step-number">STEP 1</span>
+                    <span class="step-title">좌석 선택</span>
+                </div>
+                <span class="step-toggle">▼</span>
+            </div>
+            <div class="step-content">
+                <div class="aircraft-container">
+                    <div class="aircraft-body">
+                        <div class="cockpit">
+                            <span class="cockpit-icon">✈️</span>
+                        </div>
+                        
+                        <!-- 퍼스트 클래스 -->
+                        <div class="class-section first-class">
+                            <div class="class-title">First Class</div>
+                            <div id="first-class-seats" class="seats-container"></div>
+                        </div>
+
+                        <!-- 비즈니스 클래스 -->
+                        <div class="class-section business-class">
+                            <div class="class-title">Business Class</div>
+                            <div id="business-class-seats" class="seats-container"></div>
+                        </div>
+
+                        <!-- 이코노미 클래스 -->
+                        <div class="class-section economy-class">
+                            <div class="class-title">Economy Class</div>
+                            <div id="economy-class-seats" class="seats-container"></div>
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-seat available"></div>
+                            <span>선택 가능</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-seat selected"></div>
+                            <span>선택됨</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-seat disabled"></div>
+                            <span>선택 불가</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="selection-info">
+                    <div class="selected-seats">
+                        <strong>선택한 좌석:</strong>
+                        <div id="selected-seats-display">선택된 좌석이 없습니다.</div>
+                    </div>
+                    <button class="confirm-btn" id="confirm-seat-btn" onclick="confirmSeatSelection()" disabled>
+                        좌석 선택 확정
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: 탑승자 정보 -->
+        <div class="step-section" id="step2">
+            <div class="step-header" onclick="toggleStep('step2')">
+                <div class="step-info">
+                    <span class="step-number">STEP 2</span>
+                    <span class="step-title">탑승자 정보</span>
+                </div>
+                <span class="step-toggle">▼</span>
+            </div>
+            <div class="step-content" style="display: none;">
+                <div class="passenger-info-section">
+                    <h3>탑승자 정보 입력</h3>
+                    <div id="passenger-forms">
+                        <!-- 탑승자 정보 폼이 동적으로 생성됩니다 -->
+                    </div>
+                    <button class="confirm-btn" id="confirm-passenger-btn" onclick="confirmPassengerInfo()" disabled>
+                        탑승자 정보 확정
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: 결제 -->
+        <div class="step-section" id="step3">
+            <div class="step-header" onclick="toggleStep('step3')">
+                <div class="step-info">
+                    <span class="step-number">STEP 3</span>
+                    <span class="step-title">결제</span>
+                </div>
+                <span class="step-toggle">▼</span>
+            </div>
+            <div class="step-content" style="display: none;">
+                <div class="payment-section">
+                    <div class="payment-summary">
+                        <h3>결제 정보</h3>
+                        <div class="price-breakdown">
+                            <div class="price-item">
+                                <span class="price-label">기본 운임</span>
+                                <span class="price-value" id="seat-price">₩0</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">유류할증료</span>
+                                <span class="price-value" id="fuel-price">₩0</span>
+                            </div>
+                            <div class="price-item total">
+                                <span class="price-label">총 결제 금액</span>
+                                <span class="price-value" id="total-payment">₩0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payment-form">
+                        <h3>포인트 결제</h3>
+                        <div class="point-payment">
+                            <div class="point-info">
+                                <span class="point-label">보유 포인트:</span>
+                                <span class="point-value" id="available-points">1,000,000P</span>
+                            </div>
+                            <div class="point-usage">
+                                <span class="point-label">사용할 포인트:</span>
+                                <span class="point-value" id="use-points">0P</span>
+                            </div>
+                        </div>
+                        <button class="confirm-btn" id="final-payment-btn" onclick="processPayment()">
+                            포인트 결제하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 좌석 선택 및 결제 관련 JavaScript
+         */
+
+        class SeatBookingManager {
+            constructor() {
+                this.selectedSeats = [];
+                this.maxSeats = 2; // 최대 선택 가능 좌석 수
+                this.passengers = []; // 탑승자 정보
+                
+                // HTML 데이터 속성에서 서버 데이터 가져오기 (window 객체 대신)
+                const appElement = document.getElementById('flight-booking-app');
+                this.flightId = appElement?.dataset.flightId || 1;
+                this.selectedSeatClass = appElement?.dataset.selectedSeatClass || 'economy';
+                this.seatPrice = parseInt(appElement?.dataset.seatPrice) || 350000;
+                this.fuelPrice = parseInt(appElement?.dataset.fuelPrice) || 120000;
+                
+                this.init();
+            }
+
+            init() {
+                this.initializeSeats();
+                this.setupEventListeners();
+                this.updateStep1Toggle();
+                
+                // 페이지 로드 시 STEP1 열기
+                this.openStep('step1');
+                
+                // 테스트용 좌석 상태 로드 (모의 서버 응답)
+                this.loadMockSeatStatus();
+            }
+
+            initializeSeats() {
+                // 퍼스트 클래스 (1-3열, A-B 배치)
+                this.createSeatSection('first-class-seats', 'first', 1, 3, ['A', 'B']);
+                
+                // 비즈니스 클래스 (4-10열, A-D 배치)
+                this.createSeatSection('business-class-seats', 'business', 4, 10, ['A', 'B', 'C', 'D']);
+                
+                // 이코노미 클래스 (11-30열, A-F 배치)
+                this.createSeatSection('economy-class-seats', 'economy', 11, 30, ['A', 'B', 'C', 'D', 'E', 'F']);
+                
+                // 선택된 좌석 클래스에 따라 제한 적용
+                this.applySeatClassRestrictions();
+            }
+
+            createSeatSection(containerId, seatClass, startRow, endRow, seatLetters) {
+                const container = document.getElementById(containerId);
+                
+                for (let row = startRow; row <= endRow; row++) {
+                    const seatRow = document.createElement('div');
+                    seatRow.className = 'seat-row';
+                    
+                    // 행 번호
+                    const rowNumber = document.createElement('div');
+                    rowNumber.className = 'row-number';
+                    rowNumber.textContent = row;
+                    seatRow.appendChild(rowNumber);
+
+                    // 좌석 그룹 생성
+                    if (seatClass === 'first') {
+                        // 퍼스트: A | B
+                        this.createSeatGroup(seatRow, row, ['A'], seatClass);
+                        this.createAisle(seatRow);
+                        this.createSeatGroup(seatRow, row, ['B'], seatClass);
+                    } else if (seatClass === 'business') {
+                        // 비즈니스: A-B | C-D
+                        this.createSeatGroup(seatRow, row, ['A', 'B'], seatClass);
+                        this.createAisle(seatRow);
+                        this.createSeatGroup(seatRow, row, ['C', 'D'], seatClass);
+                    } else {
+                        // 이코노미: A-B-C | D-E-F
+                        this.createSeatGroup(seatRow, row, ['A', 'B', 'C'], seatClass);
+                        this.createAisle(seatRow);
+                        this.createSeatGroup(seatRow, row, ['D', 'E', 'F'], seatClass);
+                    }
+
+                    container.appendChild(seatRow);
+                }
+            }
+
+            createSeatGroup(parent, row, letters, seatClass) {
+                const group = document.createElement('div');
+                group.className = 'seat-group';
+                
+                letters.forEach(letter => {
+                    const seat = document.createElement('div');
+                    const seatId = `${row}${letter}`;
+                    
+                    seat.className = 'seat';
+                    seat.id = seatId;
+                    seat.textContent = letter;
+                    seat.dataset.row = row;
+                    seat.dataset.letter = letter;
+                    seat.dataset.class = seatClass;
+                    
+                    // 모든 좌석을 기본적으로 선택 가능하게 설정
+                    seat.classList.add('available');
+                    
+                    group.appendChild(seat);
+                });
+                
+                parent.appendChild(group);
+            }
+
+            createAisle(parent) {
+                const aisle = document.createElement('div');
+                aisle.className = 'aisle';
+                parent.appendChild(aisle);
+            }
+
+            applySeatClassRestrictions() {
+                const selectedClass = this.selectedSeatClass;
+                
+                if (selectedClass === 'economy') {
+                    // 이코노미 선택 시 퍼스트와 비즈니스 클래스 비활성화
+                    document.querySelectorAll('.seat[data-class="first"], .seat[data-class="business"]').forEach(seat => {
+                        seat.classList.remove('available');
+                        seat.classList.add('disabled');
+                    });
+                } else if (selectedClass === 'business') {
+                    // 비즈니스 선택 시 퍼스트 클래스 비활성화
+                    document.querySelectorAll('.seat[data-class="first"]').forEach(seat => {
+                        seat.classList.remove('available');
+                        seat.classList.add('disabled');
+                    });
+                }
+                // 퍼스트 클래스 선택 시에는 모든 좌석 이용 가능
+            }
+
+            setupEventListeners() {
+                // 좌석 클릭 이벤트
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('seat') && e.target.classList.contains('available')) {
+                        this.toggleSeat(e.target);
+                    }
+                });
+            }
+
+            toggleSeat(seatElement) {
+                const seatId = seatElement.id;
+                
+                if (seatElement.classList.contains('selected')) {
+                    // 선택 해제
+                    seatElement.classList.remove('selected');
+                    this.selectedSeats = this.selectedSeats.filter(seat => seat.id !== seatId);
+                } else {
+                    // 새로 선택
+                    if (this.selectedSeats.length >= this.maxSeats) {
+                        alert(`최대 ${this.maxSeats}개의 좌석만 선택할 수 있습니다.`);
+                        return;
+                    }
+                    
+                    seatElement.classList.add('selected');
+                    this.selectedSeats.push({
+                        id: seatId,
+                        row: seatElement.dataset.row,
+                        letter: seatElement.dataset.letter,
+                        class: seatElement.dataset.class
+                    });
+                }
+                
+                this.updateSeatSelectionDisplay();
+            }
+
+            updateSeatSelectionDisplay() {
+                const selectedSeatsDisplay = document.getElementById('selected-seats-display');
+                const confirmBtn = document.getElementById('confirm-seat-btn');
+                
+                if (this.selectedSeats.length === 0) {
+                    selectedSeatsDisplay.innerHTML = '선택된 좌석이 없습니다.';
+                    confirmBtn.disabled = true;
+                } else {
+                    const seatTags = this.selectedSeats.map(seat => 
+                        `<span class="seat-tag">${seat.id} (${this.getClassDisplayName(seat.class)})</span>`
+                    ).join('');
+                    
+                    selectedSeatsDisplay.innerHTML = seatTags;
+                    confirmBtn.disabled = false;
+                }
+            }
+
+            getClassDisplayName(seatClass) {
+                const classNames = {
+                    'first': '퍼스트',
+                    'business': '비즈니스',
+                    'economy': '이코노미'
+                };
+                return classNames[seatClass] || seatClass;
+            }
+
+            updateStep1Toggle() {
+                const step1Header = document.querySelector('#step1 .step-header');
+                const step1Content = document.querySelector('#step1 .step-content');
+                
+                if (this.selectedSeats.length > 0) {
+                    step1Header.classList.add('active');
+                    step1Content.style.display = 'block';
+                }
+            }
+
+            openStep(stepId) {
+                const stepHeader = document.querySelector(`#${stepId} .step-header`);
+                const stepContent = document.querySelector(`#${stepId} .step-content`);
+                const stepToggle = document.querySelector(`#${stepId} .step-toggle`);
+                
+                stepContent.style.display = 'block';
+                stepHeader.classList.add('active');
+                stepToggle.style.transform = 'rotate(180deg)';
+            }
+
+            closeStep(stepId) {
+                const stepHeader = document.querySelector(`#${stepId} .step-header`);
+                const stepContent = document.querySelector(`#${stepId} .step-content`);
+                const stepToggle = document.querySelector(`#${stepId} .step-toggle`);
+                
+                stepContent.style.display = 'none';
+                stepHeader.classList.remove('active');
+                stepToggle.style.transform = 'rotate(0deg)';
+            }
+
+            /**
+             * 테스트용 좌석 상태 로드 (모의 서버 응답)
+             */
+            loadMockSeatStatus() {
+                // 모의 서버 응답 데이터
+                const mockReservedSeats = this.generateMockReservedSeats();
+                this.updateSeatStatus(mockReservedSeats);
+            }
+
+            /**
+             * 모의 예약된 좌석 생성
+             */
+            generateMockReservedSeats() {
+                const reservedSeats = [];
+                const random = Math.random;
+                
+                // 좌석 클래스별 모의 예약 좌석 생성
+                const seatRanges = {
+                    'first': { start: 1, end: 3, letters: ['A', 'B'] },
+                    'business': { start: 4, end: 10, letters: ['A', 'B', 'C', 'D'] },
+                    'economy': { start: 11, end: 30, letters: ['A', 'B', 'C', 'D', 'E', 'F'] }
+                };
+                
+                Object.keys(seatRanges).forEach(seatClass => {
+                    const range = seatRanges[seatClass];
+                    for (let row = range.start; row <= range.end; row++) {
+                        range.letters.forEach(letter => {
+                            if (random() < 0.25) { // 25% 확률로 예약됨
+                                reservedSeats.push(`${row}${letter}`);
+                            }
+                        });
+                    }
+                });
+                
+                return reservedSeats;
+            }
+
+            /**
+             * 좌석 상태 업데이트
+             */
+            updateSeatStatus(reservedSeats) {
+                reservedSeats.forEach(seatId => {
+                    const seatElement = document.getElementById(seatId);
+                    if (seatElement) {
+                        seatElement.classList.remove('available');
+                        seatElement.classList.add('occupied');
+                    }
+                });
+            }
+        }
+
+        // 전역 함수들
+        function toggleStep(stepId) {
+            const stepHeader = document.querySelector(`#${stepId} .step-header`);
+            const stepContent = document.querySelector(`#${stepId} .step-content`);
+            const stepToggle = document.querySelector(`#${stepId} .step-toggle`);
+            
+            if (stepContent.style.display === 'none' || stepContent.style.display === '') {
+                stepContent.style.display = 'block';
+                stepHeader.classList.add('active');
+                stepToggle.style.transform = 'rotate(180deg)';
+            } else {
+                stepContent.style.display = 'none';
+                stepHeader.classList.remove('active');
+                stepToggle.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function confirmSeatSelection() {
+            if (seatBookingManager.selectedSeats.length === 0) {
+                alert('좌석을 선택해주세요.');
+                return;
+            }
+
+            const confirmation = confirm(
+                `다음 좌석을 선택하시겠습니까?\n\n` +
+                seatBookingManager.selectedSeats.map(seat => 
+                    `${seat.id} (${seatBookingManager.getClassDisplayName(seat.class)})`
+                ).join('\n')
+            );
+
+            if (confirmation) {
+                // 선택된 좌석을 disabled 상태로 변경 (시각적 효과)
+                seatBookingManager.selectedSeats.forEach(seat => {
+                    const seatElement = document.getElementById(seat.id);
+                    seatElement.classList.remove('available');
+                    seatElement.classList.add('disabled');
+                });
+
+                // STEP1 닫고 STEP2 열기
+                seatBookingManager.closeStep('step1');
+                seatBookingManager.openStep('step2');
+                
+                // 탑승자 정보 폼 생성
+                generatePassengerForms();
+            }
+        }
+
+        function generatePassengerForms() {
+            const passengerFormsContainer = document.getElementById('passenger-forms');
+            const numPassengers = seatBookingManager.selectedSeats.length;
+            
+            passengerFormsContainer.innerHTML = '';
+            
+            for (let i = 0; i < numPassengers; i++) {
+                const seat = seatBookingManager.selectedSeats[i];
+                const passengerForm = document.createElement('div');
+                passengerForm.className = 'passenger-form';
+                passengerForm.innerHTML = `
+                    <h4>탑승자 ${i + 1} (좌석 ${seat.id})</h4>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="passenger-name-${i}">성명</label>
+                            <input type="text" id="passenger-name-${i}" name="passengerName" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="passenger-birth-${i}">생년월일</label>
+                            <input type="date" id="passenger-birth-${i}" name="passengerBirth" required>
+                        </div>
+                    </div>
+                `;
+                passengerFormsContainer.appendChild(passengerForm);
+            }
+            
+            // 탑승자 정보 확정 버튼 활성화
+            document.getElementById('confirm-passenger-btn').disabled = false;
+        }
+
+        function confirmPassengerInfo() {
+            const passengerData = [];
+            const numPassengers = seatBookingManager.selectedSeats.length;
+            
+            // 탑승자 정보 유효성 검사
+            for (let i = 0; i < numPassengers; i++) {
+                const name = document.getElementById(`passenger-name-${i}`).value.trim();
+                const birth = document.getElementById(`passenger-birth-${i}`).value;
+                
+                if (!name || !birth) {
+                    alert('모든 탑승자 정보를 입력해주세요.');
+                    return;
+                }
+                
+                passengerData.push({
+                    seatId: seatBookingManager.selectedSeats[i].id,
+                    name: name,
+                    birth: birth
+                });
+            }
+            
+            // 탑승자 정보 저장
+            seatBookingManager.passengers = passengerData;
+            
+            // STEP2 닫고 STEP3 열기
+            seatBookingManager.closeStep('step2');
+            seatBookingManager.openStep('step3');
+            
+            // 결제 정보 업데이트
+            updatePaymentInfo();
+        }
+
+        function updatePaymentInfo() {
+            const seatPrice = seatBookingManager.seatPrice;
+            const fuelPrice = seatBookingManager.fuelPrice;
+            const totalPayment = seatPrice + fuelPrice;
+            
+            document.getElementById('seat-price').textContent = `₩${seatPrice.toLocaleString()}`;
+            document.getElementById('fuel-price').textContent = `₩${fuelPrice.toLocaleString()}`;
+            document.getElementById('total-payment').textContent = `₩${totalPayment.toLocaleString()}`;
+            
+            // 포인트 사용 정보 업데이트
+            document.getElementById('use-points').textContent = `${totalPayment.toLocaleString()}P`;
+        }
+
+        async function processPayment() {
+            const totalAmount = seatBookingManager.seatPrice + seatBookingManager.fuelPrice;
+            const requiredPoints = totalAmount;
+            
+            const confirmation = confirm(
+                `포인트 결제를 진행하시겠습니까?\n\n` +
+                `결제 금액: ₩${totalAmount.toLocaleString()}\n` +
+                `사용 포인트: ${requiredPoints.toLocaleString()}P\n\n` +
+                `선택된 좌석: ${seatBookingManager.selectedSeats.map(seat => seat.id).join(', ')}\n` +
+                `탑승자: ${seatBookingManager.passengers.map(p => p.name).join(', ')}`
+            );
+            
+            if (confirmation) {
+                try {
+                    // 테스트 환경에서는 모의 서버 응답 시뮬레이션
+                    const mockBookingResult = await simulateBookingAPI();
+                    
+                    if (mockBookingResult.success) {
+                        alert(`예약이 완료되었습니다!\n\n예약 번호: ${mockBookingResult.bookingReference}\n\n예약 확인서를 이메일로 발송해드렸습니다.`);
+                        // 테스트 환경에서는 페이지 새로고침
+                        location.reload();
+                    } else {
+                        alert(`예약 실패: ${mockBookingResult.message}`);
+                    }
+                } catch (error) {
+                    console.error('예약 처리 중 오류:', error);
+                    alert('예약 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+                }
+            }
+        }
+
+        // 테스트용 예약 API 모의
+        async function simulateBookingAPI() {
+            // 서버 API 호출 시뮬레이션 (1초 지연)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 모의 성공 응답
+            return {
+                success: true,
+                bookingReference: 'WH' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+                message: '예약이 완료되었습니다.'
+            };
+        }
+
+        // 전역 변수
+        let seatBookingManager;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 테스트용 서버 데이터를 HTML 데이터 속성으로 설정
+            const appElement = document.getElementById('flight-booking-app');
+            appElement.dataset.flightId = '1';
+            appElement.dataset.selectedSeatClass = 'economy';
+            appElement.dataset.seatPrice = '350000';
+            appElement.dataset.fuelPrice = '120000';
+            
+            seatBookingManager = new SeatBookingManager();
+        });
+    </script>
+</body>
+</html> 

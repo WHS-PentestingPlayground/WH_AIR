@@ -23,13 +23,17 @@ repositories {
 dependencies {
   // Web, JSP/JSTL
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-  implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+  	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
 	implementation 'javax.servlet:jstl:1.2'
 
   // Security, Data, Validation
-  implementation 'org.springframework.boot:spring-boot-starter-security'
+  	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	
+	// JPA (Entity에 javax/jakarta 어노테이션이 있으면 필요)
+	implementation 'javax.persistence:javax.persistence-api:2.2'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
 		
 	// PostgreSQL Driver
 	implementation 'org.postgresql:postgresql'
@@ -52,9 +56,12 @@ dependencies {
   implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
   implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
   implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+}
 
-	// module
-	implementation project(':common')
+processResources {
+	from('keys') {
+		into 'keys'
+	}
 }
 
 // WAR 파일명 설정
