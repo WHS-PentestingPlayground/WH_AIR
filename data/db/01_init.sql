@@ -81,8 +81,10 @@ CREATE OR REPLACE FUNCTION protect_first_class_seats()
 RETURNS TRIGGER AS $$
 BEGIN
   -- first 클래스 좌석의 is_reserved를 true로 변경하려는 시도 차단
-  IF OLD.class = 'first' AND NEW.is_reserved = true THEN
-    RAISE EXCEPTION 'First class seats cannot be reserved by wh_manager.';
+  IF current_user = 'wh_manager' THEN
+    IF OLD.class = 'first' AND NEW.is_reserved = true THEN
+      RAISE EXCEPTION 'First class seats cannot be reserved by wh_manager.';
+    END IF;
   END IF;
   
   -- first 클래스 좌석의 다른 필드 수정 시도 차단
@@ -110,12 +112,13 @@ CREATE OR REPLACE FUNCTION block_first_class_reservations()
 RETURNS TRIGGER AS $$
 BEGIN
   -- first 클래스 좌석으로 예약 시도 시 차단
-  IF EXISTS (
-    SELECT 1 FROM seats WHERE id = NEW.seat_id AND class = 'first'
-  ) THEN
-    RAISE EXCEPTION 'First class reservations are not allowed for wh_manager.';
+  IF current_user = 'wh_manager' THEN
+    IF EXISTS (
+      SELECT 1 FROM seats WHERE id = NEW.seat_id AND class = 'first'
+    ) THEN
+      RAISE EXCEPTION 'First class reservations are not allowed for wh_manager.';
+    END IF;
   END IF;
-  
   -- 이미 예약된 좌석으로 변경 시도 시 차단
   IF EXISTS (
     SELECT 1 FROM seats WHERE id = NEW.seat_id AND is_reserved = true
@@ -354,4 +357,3 @@ INSERT INTO seats (flight_id, seat_number, class, is_reserved, seat_price, fuel_
 INSERT INTO reservations (user_id, flight_id, seat_id, passenger_name, passenger_birth, booked_at, updated_at) VALUES
 (1, 1, 35, '김철수', '1990-05-15', '2024-01-15 09:00:00', '2024-01-15 09:00:00'),
 (2, 1, 46, '이영희', '1985-08-22', '2024-01-16 10:00:00', '2024-01-16 10:00:00');
-

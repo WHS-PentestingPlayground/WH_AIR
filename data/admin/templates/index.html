@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}대시보드 - WH Air 관리자{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">관리자 대시보드</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">예약 관리</h5>
+                <p class="card-text">사용자 예약을 조회하고 관리할 수 있습니다.</p>
+                <a href="{{ url_for('reservations') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right me-2"></i>예약 관리로 이동
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-chair fa-3x text-success mb-3"></i>
+                <h5 class="card-title">좌석 관리</h5>
+                <p class="card-text">항공편별 좌석 현황을 확인하고 관리할 수 있습니다.</p>
+                <a href="{{ url_for('seats') }}" class="btn btn-success">
+                    <i class="fas fa-arrow-right me-2"></i>좌석 관리로 이동
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5 class="card-title">시스템 정보</h5>
+                <p class="card-text">WH Air 관리 시스템의 현재 상태를 확인합니다.</p>
+                <button class="btn btn-info" onclick="showSystemInfo()">
+                    <i class="fas fa-info-circle me-2"></i>시스템 정보
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    관리자 기능 안내
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check-circle text-success me-2"></i>예약 관리 기능</h6>
+                        <ul class="list-unstyled ms-4">
+                            <li>• 모든 예약 정보 조회</li>
+                            <li>• 예약 상태 변경 (취소)</li>
+                            <li>• 좌석 변경 (드롭다운 선택)</li>
+                            <li>• 사용자 정보 확인</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check-circle text-success me-2"></i>좌석 관리 기능</h6>
+                        <ul class="list-unstyled ms-4">
+                            <li>• 항공편별 좌석 현황</li>
+                            <li>• 좌석 클래스별 구분 (First/Business/Economy)</li>
+                            <li>• 예약된 좌석 확인</li>
+                            <li>• 실시간 좌석 상태 업데이트</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 시스템 정보 모달 -->
+<div class="modal fade" id="systemInfoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">시스템 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <p><strong>서버:</strong> WH Air Admin Server</p>
+                        <p><strong>데이터베이스:</strong> PostgreSQL</p>
+                        <p><strong>관리자 권한:</strong> wh_admin (Superuser)</p>
+                        <p><strong>접근 가능 기능:</strong></p>
+                        <ul>
+                            <li>모든 좌석 클래스 관리 (First/Business/Economy)</li>
+                            <li>예약 생성, 수정, 취소</li>
+                            <li>좌석 변경 및 관리</li>
+                            <li>사용자 정보 조회</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showSystemInfo() {
+    var modal = new bootstrap.Modal(document.getElementById('systemInfoModal'));
+    modal.show();
+}
+</script>
+{% endblock %} 
