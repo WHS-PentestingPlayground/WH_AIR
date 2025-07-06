@@ -8,9 +8,11 @@
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/flight.css">
+    <link rel="stylesheet" href="/static/css/header.css">
     <script src="/static/js/flightSearch.js"></script>
 </head>
 <body>
+    <%@ include file="header.jsp" %>
 <div class="container">
     <div class="search-section">
         <h1 class="search-title">항공권 검색</h1>

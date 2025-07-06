@@ -9,8 +9,10 @@
     <title>좌석 선택 및 결제 - WH Air</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/flight.css">
+    <link rel="stylesheet" href="/static/css/header.css">
 </head>
 <body>
+    <%@ include file="header.jsp" %>
     <div class="container" id="flight-booking-app">
         <div class="booking-header">
             <h1 class="booking-title">좌석 선택 및 결제</h1>
