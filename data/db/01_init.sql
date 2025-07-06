@@ -61,7 +61,6 @@ CREATE TABLE reservations (
   seat_id BIGINT REFERENCES seats(id),
   passenger_name VARCHAR,
   passenger_birth DATE,
-  status VARCHAR CHECK (status IN ('booked', 'canceled')),
   booked_at TIMESTAMP,
   updated_at TIMESTAMP
 );
@@ -70,7 +69,7 @@ CREATE TABLE reservations (
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM wh_manager;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM wh_manager;
 GRANT SELECT ON users, flights, seats, reservations TO wh_manager;
-GRANT INSERT ON users TO wh_manager;
+GRANT INSERT ON users, reservations TO wh_manager;
 GRANT UPDATE ON users, flights, reservations TO wh_manager;
 GRANT UPDATE (is_reserved) ON seats TO wh_manager;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO wh_manager;
@@ -141,6 +140,42 @@ CREATE TRIGGER trg_block_first_class_reservations
   BEFORE UPDATE OF seat_id ON reservations
   FOR EACH ROW
   EXECUTE FUNCTION block_first_class_reservations();
+
+-- wh_manager는 economy class 좌석에 대해서만 예약 생성 가능 트리거
+CREATE OR REPLACE FUNCTION only_economy_reservation_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF current_user = 'wh_manager' THEN
+    IF EXISTS (
+      SELECT 1 FROM seats WHERE id = NEW.seat_id AND class <> 'economy'
+    ) THEN
+      RAISE EXCEPTION 'wh_manager can only create reservations for economy class seats.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_only_economy_reservation_insert ON reservations;
+CREATE TRIGGER trg_only_economy_reservation_insert
+  BEFORE INSERT ON reservations
+  FOR EACH ROW
+  EXECUTE FUNCTION only_economy_reservation_insert();
+
+-- 예약 삭제 시 좌석 예약 해제 트리거
+CREATE OR REPLACE FUNCTION unreserve_seat_on_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE seats SET is_reserved = false WHERE id = OLD.seat_id;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_unreserve_seat_on_delete ON reservations;
+CREATE TRIGGER trg_unreserve_seat_on_delete
+  AFTER DELETE ON reservations
+  FOR EACH ROW
+  EXECUTE FUNCTION unreserve_seat_on_delete();
 
 -- 예시 데이터 삽입
 
@@ -316,7 +351,7 @@ INSERT INTO seats (flight_id, seat_number, class, is_reserved, seat_price, fuel_
 (1, '30E', 'economy', false, 800000, 200000),
 (1, '30F', 'economy', false, 800000, 200000);
 
-INSERT INTO reservations (user_id, flight_id, seat_id, passenger_name, passenger_birth, status, booked_at, updated_at) VALUES
-(1, 1, 35, '김철수', '1990-05-15', 'booked', '2024-01-15 09:00:00', '2024-01-15 09:00:00'),
-(2, 1, 46, '이영희', '1985-08-22', 'booked', '2024-01-16 10:00:00', '2024-01-16 10:00:00');
+INSERT INTO reservations (user_id, flight_id, seat_id, passenger_name, passenger_birth, booked_at, updated_at) VALUES
+(1, 1, 35, '김철수', '1990-05-15', '2024-01-15 09:00:00', '2024-01-15 09:00:00'),
+(2, 1, 46, '이영희', '1985-08-22', '2024-01-16 10:00:00', '2024-01-16 10:00:00');
 
