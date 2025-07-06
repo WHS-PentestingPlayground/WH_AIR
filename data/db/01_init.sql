@@ -22,7 +22,7 @@ DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR,
-  email VARCHAR UNIQUE,
+  email VARCHAR,
   password_hash VARCHAR,
   phone_number VARCHAR,
   point INT DEFAULT 100000,
