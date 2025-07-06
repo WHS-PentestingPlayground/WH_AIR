@@ -15,13 +15,10 @@ COPY gradlew.bat ./gradlew.bat
 RUN chmod +x ./gradlew && \
     (apt-get update && apt-get install -y dos2unix && dos2unix ./gradlew || sed -i 's/\r$//' ./gradlew)
 
-# common 모듈 복사 (web에서 의존하는 모듈)
-COPY common ./common
-
 # web 소스 복사
 COPY data/web ./data/web
 
-# 빌드 실행 (web 모듈 빌드, common도 함께 빌드됨)
+# 빌드 실행 (web 모듈 빌드)
 RUN ./gradlew :data:web:clean :data:web:build --no-daemon -x test
 
 # ---
@@ -39,5 +36,4 @@ EXPOSE 8080
 CMD ["catalina.sh", "run"]
 
 # ---
-# 이 Dockerfile은 DMZ망 웹 서버(JSP+Tomcat) 컨테이너용입니다.
-# web은 common 모듈을 의존하므로 멀티모듈 빌드가 필요합니다. 
+# 이 Dockerfile은 DMZ망 웹 서버(JSP+Tomcat) 컨테이너용입니다. 

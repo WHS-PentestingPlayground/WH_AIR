@@ -1,18 +1,13 @@
 package com.WHS.whair.entity;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
 @Table(name = "flights")
+@Data
+
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +29,10 @@ public class Flight {
     private LocalDateTime arrivalTime;
 
     private String airline;
-    
+
     @Column(name = "aircraft_model")
     private String aircraftModel;
-}
+
+    @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+    private List<Seat> seats;
+} 

@@ -15,15 +15,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/", "/login", "/register", "/logout", "/flights/search", "/mypage").permitAll()
-                .antMatchers(HttpMethod.POST, "/login", "/register").permitAll()
+                .antMatchers("/", "/login", "/register", "/logout", "/flights", "/flights/search", "/flights/booking","/flights/api/**", "/mypage").permitAll()
                 .antMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable();
-
         return http.build();
     }
 }
