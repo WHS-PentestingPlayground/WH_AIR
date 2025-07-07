@@ -118,10 +118,6 @@
             <div class="cta-content">
                 <h2 class="cta-title">지금 바로 여행을 시작하세요</h2>
                 <p class="cta-description">WH_AIR와 함께 특별한 여행 경험을 만들어보세요</p>
-                <a href="/flights/search" class="cta-button">
-                    <span class="btn-icon">🎫</span>
-                    항공권 예약하기
-                </a>
             </div>
         </div>
     </section>

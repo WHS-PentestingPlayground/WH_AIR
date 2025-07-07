@@ -38,3 +38,5 @@
     </div>
   </nav>
 </header>
+<script src="/static/js/logout.js"></script>
+

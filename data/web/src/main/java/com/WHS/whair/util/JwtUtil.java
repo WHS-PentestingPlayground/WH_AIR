@@ -50,9 +50,10 @@ public class JwtUtil {
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setSubject(username)                           // sub (사용자 식별자)
+                .claim("managedBy", "wh_manager")   // 커스텀 클레임(관리자 ID)
+                .setIssuedAt(now)                              // iat (발행 시간)
+                .setExpiration(expiryDate)                     // exp (만료 시간)
                 .signWith(privateKey, SignatureAlgorithm.RS256) // 생성은 여전히 안전하게
                 .compact();
     }
