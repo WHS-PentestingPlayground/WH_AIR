@@ -25,7 +25,7 @@
                     <p class="hero-subtitle">세계를 연결하는 프리미엄 항공사</p>
                     <p class="hero-description">안전하고 편안한 여행을 위한 최고의 서비스를 제공합니다</p>
                     <div class="hero-buttons">
-                        <a href="/flightSearch" class="hero-btn hero-btn-primary">
+                        <a href="/flights/search" class="hero-btn hero-btn-primary">
                             <span class="btn-icon">✈</span>
                             항공편 검색
                         </a>
@@ -118,10 +118,6 @@
             <div class="cta-content">
                 <h2 class="cta-title">지금 바로 여행을 시작하세요</h2>
                 <p class="cta-description">WH_AIR와 함께 특별한 여행 경험을 만들어보세요</p>
-                <a href="/flightSearch" class="cta-button">
-                    <span class="btn-icon">🎫</span>
-                    항공권 예약하기
-                </a>
             </div>
         </div>
     </section>
