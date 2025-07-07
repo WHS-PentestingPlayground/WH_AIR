@@ -226,19 +226,27 @@ class SeatBookingManager {
      */
     async loadSeatStatus() {
         try {
-            const url = `/flights/api/${this.flightId}/seats?seatClass=${this.selectedSeatClass}`;
+            const url = `/api/seats/${this.flightId}/map?seatClass=${this.selectedSeatClass}`;
+            console.log('좌석 정보 요청 URL:', url);
             
             const response = await fetch(url);
+            console.log('좌석 정보 응답 상태:', response.status);
+            
             if (!response.ok) {
                 throw new Error(`좌석 정보를 가져오는데 실패했습니다. Status: ${response.status}`);
             }
             
             const seatData = await response.json();
+            console.log('좌석 데이터:', seatData);
             
-            // allSeats, reservedSeats, availableSeats 모두 내려온다고 가정
-            this.updateSeatStatus(seatData.allSeats || [], seatData.reservedSeats || [], seatData.availableSeats || []);
+            // reservedSeats, availableSeats 사용
+            this.updateSeatStatus([], seatData.reservedSeats || [], seatData.availableSeats || []);
+            console.log('좌석 상태 업데이트 완료');
         } catch (error) {
-            // 에러 발생 시 모든 좌석을 비활성화 상태로 유지
+            console.error('좌석 정보 로드 실패:', error);
+            // 에러 발생 시 기본 상태로 설정 (모든 좌석을 available로)
+            console.log('기본 좌석 상태로 설정합니다.');
+            this.updateSeatStatus([], [], []);
         }
     }
 
@@ -246,30 +254,37 @@ class SeatBookingManager {
      * 전체 좌석, 예약된 좌석, 예약 가능한 좌석을 구분해서 표시
      */
     updateSeatStatus(allSeats, reservedSeats, availableSeats) {
-        // 1. 전체 좌석을 disabled(회색)로 초기화
-        allSeats.forEach(seatId => {
-            const seat = document.getElementById(seatId);
-            if (seat) {
-                seat.classList.remove('available', 'occupied', 'disabled');
-                seat.classList.add('disabled');
-            }
+        console.log('좌석 상태 업데이트 시작');
+        console.log('예약된 좌석:', reservedSeats);
+        console.log('예약 가능 좌석:', availableSeats);
+        
+        // 1. 모든 좌석을 기본적으로 disabled로 설정
+        const allSeatElements = document.querySelectorAll('.seat');
+        allSeatElements.forEach(seat => {
+            seat.classList.remove('available', 'occupied', 'disabled');
+            seat.classList.add('disabled');
         });
-        // 2. 예약된 좌석은 occupied(빨간색)로 표시
+        
+        // 2. 선택된 좌석 클래스의 좌석들을 available로 설정
+        const selectedClassSeats = document.querySelectorAll(`.seat[data-class="${this.selectedSeatClass}"]`);
+        selectedClassSeats.forEach(seat => {
+            seat.classList.remove('disabled', 'occupied');
+            seat.classList.add('available');
+        });
+        
+        // 3. 예약된 좌석은 occupied(빨간색)로 표시
         reservedSeats.forEach(seatId => {
             const seat = document.getElementById(seatId);
             if (seat) {
                 seat.classList.remove('available', 'disabled');
                 seat.classList.add('occupied');
+                console.log(`좌석 ${seatId}를 occupied로 설정`);
+            } else {
+                console.warn(`좌석 ${seatId}를 찾을 수 없습니다`);
             }
         });
-        // 3. 예약 가능한 좌석은 available(파란색)로 표시
-        availableSeats.forEach(seatId => {
-            const seat = document.getElementById(seatId);
-            if (seat) {
-                seat.classList.remove('disabled', 'occupied');
-                seat.classList.add('available');
-            }
-        });
+        
+        console.log('좌석 상태 업데이트 완료');
     }
 }
 
@@ -420,34 +435,198 @@ function updatePaymentInfo() {
     document.getElementById('fuel-price').textContent = `₩${totalFuelPrice.toLocaleString()}`;
     document.getElementById('total-payment').textContent = `₩${totalPayment.toLocaleString()}`;
     
-    // 포인트 사용 정보 업데이트
-    document.getElementById('use-points').textContent = `${totalPayment.toLocaleString()}P`;
+    // 결제 정보 초기화
+    seatBookingManager.totalAmount = totalPayment;
+    seatBookingManager.usedPoints = 0;
+    seatBookingManager.couponCode = null;
+    seatBookingManager.couponDiscount = 0;
+    
+    // 사용자 정보 로드
+    loadUserPaymentInfo();
+}
+
+// 사용자 포인트/쿠폰 정보 로드
+async function loadUserPaymentInfo() {
+    try {
+        // JSP에서 전달받은 사용자 정보 확인
+        const appElement = document.getElementById('flight-booking-app');
+        const userId = appElement.dataset.userId;
+        
+        if (!userId) {
+            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            window.location.href = '/login';
+            return;
+        }
+        
+        seatBookingManager.currentUserId = parseInt(userId);
+        
+        // 포인트 조회
+        const pointsResponse = await fetch(`/api/reservations/users/${userId}/points`);
+        if (pointsResponse.ok) {
+            const pointsData = await pointsResponse.json();
+            document.getElementById('available-points').textContent = `${pointsData.points.toLocaleString()}P`;
+            seatBookingManager.availablePoints = pointsData.points;
+        }
+        
+        // 쿠폰 조회
+        const couponResponse = await fetch(`/api/reservations/users/${userId}/coupon`);
+        if (couponResponse.ok) {
+            const couponData = await couponResponse.json();
+            if (couponData.coupon) {
+                document.getElementById('available-coupon').textContent = couponData.coupon;
+                document.getElementById('coupon-code-input').value = couponData.coupon;
+                seatBookingManager.availableCoupon = couponData.coupon;
+            } else {
+                document.getElementById('available-coupon').textContent = '보유 쿠폰 없음';
+            }
+        }
+        
+        updateFinalPayment();
+    } catch (error) {
+        console.error('사용자 정보 로드 실패:', error);
+        document.getElementById('available-points').textContent = '로드 실패';
+        document.getElementById('available-coupon').textContent = '로드 실패';
+    }
+}
+
+// 포인트 전액 사용
+function useAllPoints() {
+    const availablePoints = seatBookingManager.availablePoints || 0;
+    const totalAmount = seatBookingManager.totalAmount || 0;
+    const maxUsablePoints = Math.min(availablePoints, totalAmount);
+    
+    document.getElementById('use-points-input').value = maxUsablePoints;
+    seatBookingManager.usedPoints = maxUsablePoints;
+    updateFinalPayment();
+}
+
+// 쿠폰 적용
+async function applyCoupon() {
+    const couponCode = document.getElementById('coupon-code-input').value.trim();
+    if (!couponCode) {
+        alert('쿠폰 코드를 입력해주세요.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/reservations/calculate-price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                totalAmount: seatBookingManager.totalAmount,
+                usedPoints: seatBookingManager.usedPoints,
+                couponCode: couponCode
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                seatBookingManager.couponCode = couponCode;
+                seatBookingManager.couponDiscount = result.couponDiscount || 0;
+                updateFinalPayment();
+                alert('쿠폰이 적용되었습니다.');
+            } else {
+                alert(result.message || '쿠폰 적용에 실패했습니다.');
+            }
+        } else {
+            alert('쿠폰 적용 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        alert('쿠폰 적용 중 오류가 발생했습니다.');
+    }
+}
+
+// 최종 결제 금액 업데이트
+function updateFinalPayment() {
+    const totalAmount = seatBookingManager.totalAmount || 0;
+    const usedPoints = seatBookingManager.usedPoints || 0;
+    const couponDiscount = seatBookingManager.couponDiscount || 0;
+    
+    // 할인 정보 표시
+    const discountInfo = document.getElementById('discount-info');
+    if (usedPoints > 0 || couponDiscount > 0) {
+        discountInfo.style.display = 'block';
+        document.getElementById('point-discount').textContent = `-₩${usedPoints.toLocaleString()}`;
+        document.getElementById('coupon-discount').textContent = `-₩${couponDiscount.toLocaleString()}`;
+    } else {
+        discountInfo.style.display = 'none';
+    }
+    
+    // 최종 결제 금액 계산
+    const finalAmount = Math.max(0, totalAmount - usedPoints - couponDiscount);
+    document.getElementById('final-payment-amount').textContent = `₩${finalAmount.toLocaleString()}`;
+    
+    // 포인트 사용량 입력 필드 이벤트 리스너
+    const pointsInput = document.getElementById('use-points-input');
+    pointsInput.oninput = function() {
+        const inputValue = parseInt(this.value) || 0;
+        const availablePoints = seatBookingManager.availablePoints || 0;
+        const totalAmount = seatBookingManager.totalAmount || 0;
+        
+        // 입력값 검증
+        if (inputValue > availablePoints) {
+            this.value = availablePoints;
+            seatBookingManager.usedPoints = availablePoints;
+        } else if (inputValue > totalAmount) {
+            this.value = totalAmount;
+            seatBookingManager.usedPoints = totalAmount;
+        } else {
+            seatBookingManager.usedPoints = inputValue;
+        }
+        
+        updateFinalPayment();
+    };
 }
 
 async function processPayment() {
-    const passengerCount = seatBookingManager.selectedSeats.length;
-    const totalAmount = (seatBookingManager.seatPrice + seatBookingManager.fuelPrice) * passengerCount;
-    const requiredPoints = totalAmount;
+    // 입력값 검증
+    const usedPoints = parseInt(document.getElementById('use-points-input').value) || 0;
+    const couponCode = document.getElementById('coupon-code-input').value.trim();
+    
+    if (seatBookingManager.selectedSeats.length === 0) {
+        alert('좌석을 선택해주세요.');
+        return;
+    }
+    
+    if (!seatBookingManager.passengers || seatBookingManager.passengers.length === 0) {
+        alert('탑승자 정보를 입력해주세요.');
+        return;
+    }
+    
+    const finalAmount = parseInt(document.getElementById('final-payment-amount').textContent.replace(/[^\d]/g, ''));
     
     const confirmation = confirm(
-        `포인트 결제를 진행하시겠습니까?\n\n` +
-        `결제 금액: ₩${totalAmount.toLocaleString()}\n` +
-        `사용 포인트: ${requiredPoints.toLocaleString()}P\n\n` +
+        `결제를 진행하시겠습니까?\n\n` +
         `선택된 좌석: ${seatBookingManager.selectedSeats.map(seat => seat.id).join(', ')}\n` +
-        `탑승자: ${seatBookingManager.passengers.map(p => p.name).join(', ')}`
+        `탑승자: ${seatBookingManager.passengers.map(p => p.name).join(', ')}\n` +
+        `사용 포인트: ${usedPoints.toLocaleString()}P\n` +
+        `쿠폰: ${couponCode || '없음'}\n` +
+        `최종 결제 금액: ₩${finalAmount.toLocaleString()}`
     );
     
     if (confirmation) {
         try {
+            // 현재 사용자 ID 확인
+            if (!seatBookingManager.currentUserId) {
+                alert('사용자 정보를 가져올 수 없습니다. 다시 시도해주세요.');
+                return;
+            }
+            
             // 서버에 예약 요청 전송
             const bookingData = {
+                flightId: seatBookingManager.flightId,
                 selectedSeats: seatBookingManager.selectedSeats.map(seat => seat.id),
                 passengers: seatBookingManager.passengers,
-                paymentMethod: 'point',
-                totalAmount: totalAmount
+                usedPoints: usedPoints,
+                couponCode: couponCode || null,
+                totalAmount: seatBookingManager.totalAmount,
+                paymentMethod: 'point'
             };
             
-            const response = await fetch(`/flights/api/${seatBookingManager.flightId}/book`, {
+            const response = await fetch(`/api/reservations/process?userId=${seatBookingManager.currentUserId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -458,11 +637,13 @@ async function processPayment() {
             const result = await response.json();
             
             if (result.success) {
+                alert('예약이 완료되었습니다!');
                 window.location.href = '/flights/search';
             } else {
                 alert(`예약 실패: ${result.message}`);
             }
         } catch (error) {
+            console.error('예약 처리 오류:', error);
             alert('예약 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
     }

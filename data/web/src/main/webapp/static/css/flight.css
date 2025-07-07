@@ -657,30 +657,147 @@ padding: 2.5em 2em 2em 2em;
 }
 
 .point-payment {
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
     margin-bottom: 1.5em;
+    padding: 1.2em;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e3e8ff;
 }
 
 .point-info, .point-usage {
+    margin-bottom: 0.8em;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.8em;
-    background: white;
-    border: 1px solid #d6e6f7;
-    border-radius: 8px;
+    gap: 0.5em;
 }
 
 .point-label {
-    font-weight: 500;
-    color: #5a6d85;
+    font-weight: 600;
+    color: #3a5e8c;
+    min-width: 120px;
 }
 
 .point-value {
+    font-weight: 700;
+    color: #2d5be3;
+}
+
+/* 쿠폰 관련 스타일 */
+.coupon-payment {
+    margin-bottom: 1.5em;
+    padding: 1.2em;
+    background: #fff8f0;
+    border-radius: 8px;
+    border: 1px solid #ffe4c4;
+}
+
+.coupon-info, .coupon-usage {
+    margin-bottom: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.coupon-label {
     font-weight: 600;
-    color: #3a5e8c;
+    color: #8b4513;
+    min-width: 120px;
+}
+
+.coupon-value {
+    font-weight: 700;
+    color: #d2691e;
+}
+
+/* 입력 필드 스타일 */
+.point-usage input, .coupon-usage input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d6e6f7;
+    border-radius: 6px;
+    font-size: 0.95em;
+    background: #fff;
+    transition: border 0.2s;
+}
+
+.point-usage input:focus, .coupon-usage input:focus {
+    border: 1px solid #8ec3f7;
+    outline: none;
+}
+
+/* 작은 버튼 스타일 */
+.small-btn {
+    padding: 6px 12px;
+    background: #3a5e8c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.small-btn:hover {
+    background: #2d5be3;
+}
+
+/* 할인 정보 스타일 */
+.discount-info {
+    margin: 1em 0;
+    padding: 1em;
+    background: #f0f8ff;
+    border-radius: 8px;
+    border: 1px solid #b3d9ff;
+}
+
+.discount-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5em;
+}
+
+.discount-item:last-child {
+    margin-bottom: 0;
+}
+
+.discount-label {
+    font-weight: 600;
+    color: #0066cc;
+}
+
+.discount-value {
+    font-weight: 700;
+    color: #ff4444;
+}
+
+/* 최종 결제 금액 스타일 */
+.final-payment {
+    margin: 1.5em 0;
+    padding: 1.2em;
+    background: #e8f5e8;
+    border-radius: 8px;
+    border: 2px solid #4caf50;
+}
+
+.final-price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.final-price-label {
+    font-weight: 700;
+    color: #2e7d32;
+    font-size: 1.1em;
+}
+
+.final-price-value {
+    font-weight: 700;
+    color: #2e7d32;
+    font-size: 1.2em;
 }
 
 /* 반응형 디자인 */

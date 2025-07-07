@@ -18,7 +18,7 @@
             <h1 class="booking-title">좌석 선택 및 결제</h1>
             <div class="flight-info">
                 <div class="flight-details">
-                    <strong>${flight.flightNumber}</strong> | ${flight.departureAirport} → ${flight.arrivalAirport}
+                    <strong>항공편 : ${flight.flightNumber}</strong> | 출발지 : ${flight.departureAirport} → 도착지 : ${flight.arrivalAirport}
                 </div>
                 <div class="flight-time">
                     ${flight.formattedDepartureTime}
@@ -145,18 +145,55 @@
                     </div>
                     <div class="payment-form">
                         <h3>포인트 결제</h3>
+                        
+                        <!-- 포인트 정보 -->
                         <div class="point-payment">
                             <div class="point-info">
                                 <span class="point-label">보유 포인트:</span>
-                                <span class="point-value" id="available-points">1,000,000P</span>
+                                <span class="point-value" id="available-points">로딩 중...</span>
                             </div>
                             <div class="point-usage">
-                                <span class="point-label">사용할 포인트:</span>
-                                <span class="point-value" id="use-points">0P</span>
+                                <label for="use-points-input">사용할 포인트:</label>
+                                <input type="number" id="use-points-input" min="0" step="1000" placeholder="사용할 포인트를 입력하세요">
+                                <button type="button" onclick="useAllPoints()" class="small-btn">전액 사용</button>
                             </div>
                         </div>
+                        
+                        <!-- 쿠폰 정보 -->
+                        <div class="coupon-payment">
+                            <div class="coupon-info">
+                                <span class="coupon-label">보유 쿠폰:</span>
+                                <span class="coupon-value" id="available-coupon">로딩 중...</span>
+                            </div>
+                            <div class="coupon-usage">
+                                <label for="coupon-code-input">쿠폰 코드:</label>
+                                <input type="text" id="coupon-code-input" placeholder="쿠폰 코드를 입력하세요">
+                                <button type="button" onclick="applyCoupon()" class="small-btn">적용</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 할인 정보 -->
+                        <div class="discount-info" id="discount-info" style="display: none;">
+                            <div class="discount-item">
+                                <span class="discount-label">포인트 할인:</span>
+                                <span class="discount-value" id="point-discount">₩0</span>
+                            </div>
+                            <div class="discount-item">
+                                <span class="discount-label">쿠폰 할인:</span>
+                                <span class="discount-value" id="coupon-discount">₩0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 최종 결제 금액 -->
+                        <div class="final-payment">
+                            <div class="final-price-item">
+                                <span class="final-price-label">최종 결제 금액:</span>
+                                <span class="final-price-value" id="final-payment-amount">₩0</span>
+                            </div>
+                        </div>
+                        
                         <button class="confirm-btn" id="final-payment-btn" onclick="processPayment()">
-                            포인트 결제하기
+                            결제 완료
                         </button>
                     </div>
                 </div>
@@ -171,6 +208,12 @@
         document.getElementById('flight-booking-app').dataset.selectedSeatClass = '${selectedSeatClass}';
         document.getElementById('flight-booking-app').dataset.seatPrice = '${flight.seatPrice}';
         document.getElementById('flight-booking-app').dataset.fuelPrice = '${flight.fuelPrice}';
+        
+        // 현재 사용자 정보 (JWT 토큰에서 추출된 정보)
+        <c:if test="${not empty user}">
+            document.getElementById('flight-booking-app').dataset.userId = '${user.id}';
+            document.getElementById('flight-booking-app').dataset.username = '${user.name}';
+        </c:if>
     </script>
 </body>
 </html> 
