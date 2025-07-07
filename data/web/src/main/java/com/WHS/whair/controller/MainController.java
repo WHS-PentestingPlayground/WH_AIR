@@ -4,6 +4,8 @@ import com.WHS.whair.entity.User;
 import com.WHS.whair.service.UserService;
 import com.WHS.whair.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,33 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class MainController {
 
-  private final UserService userService;
-  private final JwtUtil jwtUtil;
-
   @GetMapping("/")
   public String main(HttpServletRequest request, Model model) {
-    String token = extractTokenFromCookie(request);
-    if (token != null) {
-      String name = jwtUtil.validateAndExtractUsername(token);
-      if (name != null) {
-        try {
-          User currentUser = userService.findByName(name);
-          model.addAttribute("user", currentUser);
-        } catch (Exception ignored) {
-        }
-      }
+    Object user = request.getSession().getAttribute("user");
+    if (user != null) {
+      model.addAttribute("user", user);  // JSP에서 ${user.name} 가능
     }
     return "main";
   }
 
-  // 공통 JWT 추출 함수
-  private String extractTokenFromCookie(HttpServletRequest request) {
-    if (request.getCookies() == null) return null;
-    for (Cookie cookie : request.getCookies()) {
-      if ("jwt_token".equals(cookie.getName())) {
-        return cookie.getValue();
-      }
-    }
-    return null;
-  }
 }

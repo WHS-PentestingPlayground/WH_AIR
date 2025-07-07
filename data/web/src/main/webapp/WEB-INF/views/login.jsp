@@ -62,5 +62,6 @@
     </div>
   </div>
 </div>
+<script src="/static/js/login.js"></script>
 </body>
 </html>
