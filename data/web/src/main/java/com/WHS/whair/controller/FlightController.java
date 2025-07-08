@@ -2,13 +2,18 @@ package com.WHS.whair.controller;
 
 import com.WHS.whair.dto.FlightSearchResultDTO;
 import com.WHS.whair.service.FlightService;
+import com.WHS.whair.repository.UserRepository;
+import com.WHS.whair.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -20,6 +25,9 @@ public class FlightController {
 
     @Autowired
     private FlightService flightService;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     // 항공권 검색 폼
     @GetMapping("/search")
@@ -77,7 +85,8 @@ public class FlightController {
 
     // 항공권 예매 폼
     @GetMapping("/booking")
-    public String showBookingPage(@RequestParam("flightId") Long flightId, @RequestParam("seatClass") String seatClass, Model model) {
+    public String showBookingPage(@RequestParam("flightId") Long flightId, @RequestParam("seatClass") String seatClass, 
+                                  HttpServletRequest request, Model model) {
         
         FlightSearchResultDTO flight = flightService.getFlightDetail(flightId, seatClass);
         if (flight == null) {
@@ -85,9 +94,24 @@ public class FlightController {
             return "redirect:/search";
         }
         
+        // 세션에서 사용자 정보 가져오기
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null) {
+            model.addAttribute("error", "로그인이 필요합니다.");
+            return "redirect:/login";
+        }
+        
+        // DB에서 최신 사용자 정보 조회 (동기화)
+        User user = userRepository.findById(sessionUser.getId()).orElse(null);
+        if (user == null) {
+            model.addAttribute("error", "사용자 정보를 찾을 수 없습니다.");
+            return "redirect:/login";
+        }
+        
         model.addAttribute("flight", flight);
         model.addAttribute("flightId", flightId);
         model.addAttribute("selectedSeatClass", seatClass);
+        model.addAttribute("user", user);
         
         return "flightBooking";
     }

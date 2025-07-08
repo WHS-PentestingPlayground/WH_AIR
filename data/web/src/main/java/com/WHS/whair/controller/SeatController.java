@@ -57,14 +57,12 @@ public class SeatController {
       }
   }
 
-  // 좌석 예약 처리 API
-  @PostMapping("/{flightId}/book")
+  // STEP 1: 좌석 선택 검증 API  
+  @PostMapping("/{flightId}/validate")
   @ResponseBody
-  public ResponseEntity<Map<String, Object>> bookSeats(@PathVariable Long flightId, @RequestBody Map<String, Object> bookingData) {
+  public ResponseEntity<Map<String, Object>> validateSeats(@PathVariable Long flightId, @RequestBody Map<String, Object> requestData) {
     try {
-      // 예약 데이터 검증
-      List<String> selectedSeats = (List<String>) bookingData.get("selectedSeats");
-      List<Map<String, String>> passengers = (List<Map<String, String>>) bookingData.get("passengers");
+      List<String> selectedSeats = (List<String>) requestData.get("selectedSeats");
       
       if (selectedSeats == null || selectedSeats.isEmpty()) {
           Map<String, Object> error = new HashMap<>();
@@ -74,32 +72,22 @@ public class SeatController {
       }
       
       // 좌석 유효성 검증
-      if (!seatService.validateSeatSelection(flightId, selectedSeats)) {
-          Map<String, Object> error = new HashMap<>();
-          error.put("success", false);
-          error.put("message", "선택한 좌석이 유효하지 않습니다.");
-          return ResponseEntity.badRequest().body(error);
-      }
-      
-      // 좌석 예약 처리
-      boolean reservationSuccess = seatService.reserveSeats(flightId, selectedSeats);
-      
-      if (reservationSuccess) {
+      if (seatService.validateSeatSelection(flightId, selectedSeats)) {
           Map<String, Object> result = new HashMap<>();
           result.put("success", true);
-          result.put("message", "예약이 완료되었습니다.");
-          result.put("reservedSeats", selectedSeats);
+          result.put("message", "선택한 좌석이 예약 가능합니다.");
+          result.put("validatedSeats", selectedSeats);
           return ResponseEntity.ok(result);
       } else {
           Map<String, Object> error = new HashMap<>();
           error.put("success", false);
-          error.put("message", "좌석 예약에 실패했습니다.");
+          error.put("message", "선택한 좌석이 유효하지 않거나 이미 예약되었습니다.");
           return ResponseEntity.badRequest().body(error);
       }
     } catch (Exception e) {
       Map<String, Object> error = new HashMap<>();
       error.put("success", false);
-      error.put("message", "예약 처리 중 오류가 발생했습니다.");
+      error.put("message", "좌석 검증 중 오류가 발생했습니다.");
       return ResponseEntity.internalServerError().body(error);
     }
   }

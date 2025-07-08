@@ -55,22 +55,21 @@ public class SeatService {
           return false;
       }
       
-      // 2. 예약 가능 여부 확인
-      long availableSeatsCount = seatRepository.countAvailableSeats(flightId, selectedSeats);
-      if (availableSeatsCount != selectedSeats.size()) {
+      // 2. 좌석 예약 가능 여부 확인
+      long availableSeats = seatRepository.countAvailableSeats(flightId, selectedSeats);
+      if (availableSeats != selectedSeats.size()) {
           return false;
       }
-      
+
       // 3. 추가 검증: 좌석 클래스 일치 여부 확인
       List<String> seatClasses = seatRepository.findSeatClassesBySeatNumbers(flightId, selectedSeats);
       if (seatClasses.size() > 1) {
-          return false;
-      }
-      
-      return true;
-      
-    } catch (Exception e) {
         return false;
+      }
+        
+      return true;
+    } catch (Exception e) {
+      return false;
     }
   }
 

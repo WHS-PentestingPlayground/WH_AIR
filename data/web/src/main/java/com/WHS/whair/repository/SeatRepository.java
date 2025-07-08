@@ -57,6 +57,10 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
   @Query("SELECT seat.seatNumber, seat.isReserved FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatNumber IN :seatNumbers")
   List<Object[]> findSeatStatusBySeatNumbers(@Param("flightId") Long flightId, @Param("seatNumbers") List<String> seatNumbers);
   
+  // 특정 좌석 번호들로 좌석 엔티티 조회
+  @Query("SELECT seat FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatNumber IN :seatNumbers")
+  List<Seat> findSeatsByFlightIdAndNumbers(@Param("flightId") Long flightId, @Param("seatNumbers") List<String> seatNumbers);
+  
   /* 좌석 예약 상태 업데이트 */
  
   // 좌석 예약 처리
