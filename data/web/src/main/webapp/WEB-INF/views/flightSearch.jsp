@@ -16,7 +16,7 @@
 <div class="container">
     <div class="search-section">
         <h1 class="search-title">항공권 검색</h1>
-        <form class="search-form" action="/flights/search" method="post">
+        <form class="search-form" action="/search" method="post">
             <div class="search-row">
                 <div class="search-field search-departure">
                     <label for="departure-airport" class="search-label">출발지</label>

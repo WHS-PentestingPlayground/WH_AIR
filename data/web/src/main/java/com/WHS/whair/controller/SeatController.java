@@ -17,7 +17,7 @@ import java.util.HashMap;
 import org.springframework.http.ResponseEntity;
 import com.WHS.whair.service.SeatService;
 
-@RequestMapping("/flights")
+@RequestMapping("/api/flights")
 @RestController
 public class SeatController {
 
@@ -25,7 +25,7 @@ public class SeatController {
   private SeatService seatService;
 
   // 좌석 현황 조회 API
-  @GetMapping("/api/{flightId}/seats")
+  @GetMapping("/{flightId}/seats")
   public ResponseEntity<Map<String, List<String>>> getSeatMap(@PathVariable Long flightId, @RequestParam String seatClass) {
     try {
       Map<String, List<String>> seatData = seatService.getSeatStatus(flightId, seatClass);
@@ -36,7 +36,7 @@ public class SeatController {
   }
 
   // 예약 가능한 좌석 조회 API
-  @GetMapping("/api/{flightId}/available-seats")
+  @GetMapping("/{flightId}/available-seats")
   @ResponseBody
   public ResponseEntity<Map<String, Object>> getAvailableSeats(@PathVariable Long flightId, @RequestParam String seatClass) {
       try {
@@ -58,7 +58,7 @@ public class SeatController {
   }
 
   // 좌석 예약 처리 API
-  @PostMapping("/api/{flightId}/book")
+  @PostMapping("/{flightId}/book")
   @ResponseBody
   public ResponseEntity<Map<String, Object>> bookSeats(@PathVariable Long flightId, @RequestBody Map<String, Object> bookingData) {
     try {

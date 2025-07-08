@@ -226,7 +226,7 @@ class SeatBookingManager {
      */
     async loadSeatStatus() {
         try {
-            const url = `/flights/api/${this.flightId}/seats?seatClass=${this.selectedSeatClass}`;
+            const url = `/api/flights/${this.flightId}/seats?seatClass=${this.selectedSeatClass}`;
             
             const response = await fetch(url);
             if (!response.ok) {
@@ -447,7 +447,7 @@ async function processPayment() {
                 totalAmount: totalAmount
             };
             
-            const response = await fetch(`/flights/api/${seatBookingManager.flightId}/book`, {
+            const response = await fetch(`/api/flights/${seatBookingManager.flightId}/book`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -458,7 +458,7 @@ async function processPayment() {
             const result = await response.json();
             
             if (result.success) {
-                window.location.href = '/flights/search';
+                window.location.href = '/search';
             } else {
                 alert(`예약 실패: ${result.message}`);
             }

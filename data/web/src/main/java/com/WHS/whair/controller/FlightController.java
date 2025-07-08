@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.time.LocalDate;
 
-@RequestMapping("/flights")
 @Controller
 public class FlightController {
 
@@ -83,7 +82,7 @@ public class FlightController {
         FlightSearchResultDTO flight = flightService.getFlightDetail(flightId, seatClass);
         if (flight == null) {
             model.addAttribute("error", "항공편을 찾을 수 없습니다.");
-            return "redirect:/flights/search";
+            return "redirect:/search";
         }
         
         model.addAttribute("flight", flight);
@@ -96,10 +95,9 @@ public class FlightController {
     /* REST API 엔드포인트들 */
     
     // 항공편 가격 정보 조회 API
-    @GetMapping("/api/{flightId}/pricing")
+    @GetMapping("/api/flights/{flightId}/pricing")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getFlightPricing(@PathVariable Long flightId, 
-                                                               @RequestParam String seatClass) {
+    public ResponseEntity<Map<String, Object>> getFlightPricing(@PathVariable Long flightId, @RequestParam String seatClass) {
         try {
             FlightSearchResultDTO flight = flightService.getFlightDetail(flightId, seatClass);
             if (flight == null) {
