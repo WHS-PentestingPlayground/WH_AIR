@@ -126,16 +126,39 @@
             </div>
             <div class="step-content" style="display: none;">
                 <div class="payment-section">
+                    <!-- 결제 정보 -->
                     <div class="payment-summary">
                         <h3>결제 정보</h3>
                         <div class="price-breakdown">
                             <div class="price-item">
-                                <span class="price-label">기본 운임</span>
-                                <span class="price-value" id="seat-price">₩0</span>
+                                <div class="price-row">
+                                    <span class="price-label">운임비</span>
+                                    <div class="coupon-section">
+                                        <select id="seat-coupon-select" class="coupon-dropdown" onchange="applyCoupon('seat')">
+                                            <option value="">쿠폰 선택</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="price-values">
+                                    <span class="original-price" id="seat-original-price">₩0</span>
+                                    <span class="discount-price" id="seat-discount-price" style="display: none;">-₩0</span>
+                                    <span class="price-value" id="seat-price">₩0</span>
+                                </div>
                             </div>
                             <div class="price-item">
-                                <span class="price-label">유류할증료</span>
-                                <span class="price-value" id="fuel-price">₩0</span>
+                                <div class="price-row">
+                                    <span class="price-label">유류할증료</span>
+                                    <div class="coupon-section">
+                                        <select id="fuel-coupon-select" class="coupon-dropdown" onchange="applyCoupon('fuel')">
+                                            <option value="">쿠폰 선택</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="price-values">
+                                    <span class="original-price" id="fuel-original-price">₩0</span>
+                                    <span class="discount-price" id="fuel-discount-price" style="display: none;">-₩0</span>
+                                    <span class="price-value" id="fuel-price">₩0</span>
+                                </div>
                             </div>
                             <div class="price-item total">
                                 <span class="price-label">총 결제 금액</span>
@@ -143,12 +166,14 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- 포인트 결제 -->
                     <div class="payment-form">
                         <h3>포인트 결제</h3>
                         <div class="point-payment">
                             <div class="point-info">
                                 <span class="point-label">보유 포인트:</span>
-                                <span class="point-value" id="available-points">1,000,000P</span>
+                                <span class="point-value" id="available-points">0P</span>
                             </div>
                             <div class="point-usage">
                                 <span class="point-label">사용할 포인트:</span>
@@ -171,6 +196,7 @@
         document.getElementById('flight-booking-app').dataset.selectedSeatClass = '${selectedSeatClass}';
         document.getElementById('flight-booking-app').dataset.seatPrice = '${flight.seatPrice}';
         document.getElementById('flight-booking-app').dataset.fuelPrice = '${flight.fuelPrice}';
+        document.getElementById('flight-booking-app').dataset.userId = '${user.id}';
     </script>
 </body>
 </html> 
