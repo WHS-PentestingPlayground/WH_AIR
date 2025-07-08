@@ -7,7 +7,7 @@
     <title>항공권 검색 - WH Air</title>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/flight.css">
+    <link rel="stylesheet" href="/static/css/flightSearch.css">
     <link rel="stylesheet" href="/static/css/header.css">
     <script src="/static/js/flightSearch.js"></script>
 </head>
