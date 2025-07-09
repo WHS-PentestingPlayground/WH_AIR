@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import abort
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
@@ -22,6 +23,14 @@ DB_CONFIG = {
 def get_db_connection():
     """데이터베이스 연결을 반환합니다."""
     return psycopg2.connect(**DB_CONFIG)
+
+# DB 서버 IP에서 직접 접근 시 차단
+@app.before_request
+def block_db_server_curl():
+    if request.remote_addr == "172.30.0.3":
+        user_agent = request.headers.get("User-Agent", "")
+        if user_agent.lower().startswith("curl"):
+            abort(403, description="You'd better find another approach")
 
 @app.route('/')
 def index():

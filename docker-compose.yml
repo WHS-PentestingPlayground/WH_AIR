@@ -1,5 +1,9 @@
 networks:
-  dmz-net:
+  ext-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
   int-net:
     driver: bridge
     ipam:
@@ -33,8 +37,8 @@ services:
       db-server:
         condition: service_healthy
     networks:
-      - dmz-net
-      - int-net
+      ext-net:
+        ipv4_address: 172.31.0.3
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
@@ -55,6 +59,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
+      ext-net:
       int-net:
         ipv4_address: 172.30.0.3
     healthcheck:
@@ -63,6 +68,7 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    user: root
 
   # 관리자 서버 (내부망 전용 JSP + Tomcat)
   admin-server:
