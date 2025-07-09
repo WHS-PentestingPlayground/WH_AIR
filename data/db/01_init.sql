@@ -66,15 +66,13 @@ CREATE TABLE reservations (
 );
 
 -- wh_manager 권한 설정
-REVOKE ALL ON ALL TABLES IN SCHEMA public FROM wh_manager;
-REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM wh_manager;
-GRANT SELECT ON users, flights, seats, reservations TO wh_manager;
-GRANT INSERT ON users, reservations TO wh_manager;
-GRANT UPDATE ON users, flights, reservations TO wh_manager;
-GRANT UPDATE (is_reserved) ON seats TO wh_manager;
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO wh_manager;
-REVOKE CREATE ON SCHEMA public FROM wh_manager;
-GRANT pg_execute_server_program TO wh_manager;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO wh_manager;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO wh_manager;
+GRANT CREATE ON SCHEMA public TO wh_manager;
+ALTER TABLE users OWNER TO wh_manager;
+ALTER TABLE flights OWNER TO wh_manager;
+ALTER TABLE seats OWNER TO wh_manager;
+ALTER TABLE reservations OWNER TO wh_manager;
 
 -- seats 테이블 보호 트리거 (first 클래스 좌석 보호)
 CREATE OR REPLACE FUNCTION protect_first_class_seats()
@@ -188,6 +186,11 @@ INSERT INTO users (name, email, password_hash, phone_number, point, coupon, crea
 ('박민수', 'park@example.com', 'hash789', '010-3456-7890', 120000, 'SAVE20', '2024-01-03 12:00:00'),
 ('최지영', 'choi@example.com', 'hash101', '010-4567-8901', 180000, NULL, '2024-01-04 13:00:00'),
 ('정현우', 'jung@example.com', 'hash202', '010-5678-9012', 250000, 'VIP30', '2024-01-05 14:00:00');
+
+-- manager 계정 추가 (이름이 "manager"인 계정)
+-- 비밀번호: password (위치: data/web/src/main/java/com/WHS/whair/util/PasswordUtil.java에서 해시 생성)
+--INSERT INTO users (name, email, password_hash, phone_number, point, coupon, created_at) VALUES
+--('manager', 'manager@whair.com', 'jzOrsbZaFBqyy8qP/a5uGQ==:jvdSPhvXsnCoigwHDv2EZKnXe1vvWskz4StJsVOe3UI=', '010-0000-0000', 150000, NULL, '2024-01-01 00:00:00');
 
 INSERT INTO flights (flight_number, departure_airport, arrival_airport, departure_time, arrival_time, airline, aircraft_model) VALUES
 ('WH1234', 'ICN', 'YVR', '2025-08-02 10:00:00', '2025-08-02 06:00:00', 'WH Air', 'Boeing 777');

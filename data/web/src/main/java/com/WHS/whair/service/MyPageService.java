@@ -58,7 +58,6 @@ public class MyPageService {
         dto.setSeatNumber(reservation.getSeat().getSeatNumber());
         dto.setSeatClass(reservation.getSeat().getSeatClass());
         dto.setPassengerName(reservation.getPassengerName());
-        dto.setStatus(reservation.getStatus());
         dto.setBookedAt(reservation.getBookedAt());
         
         // 총 가격 계산 (좌석 가격 + 연료 가격)

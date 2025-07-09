@@ -55,6 +55,12 @@ public class UserController {
 
             String token = jwtUtil.generateToken(user.getName());
             request.getSession().setAttribute("user", user);//세션에도 저장
+            
+            // 이름이 "manager"인 경우 manager 페이지로 리다이렉트
+            if ("manager".equals(user.getName())) {
+                return ResponseEntity.ok(Map.of("token", token, "redirect", "/manager"));
+            }
+            
             return ResponseEntity.ok(Map.of("token", token));
 
         } catch (Exception e) {

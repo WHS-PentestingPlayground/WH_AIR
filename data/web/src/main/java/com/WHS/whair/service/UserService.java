@@ -22,6 +22,11 @@ public class UserService {
         if (userRepository.existsByName(dto.getName())) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다.");
         }
+        
+        // manager 이름 사용 금지
+       // if ("manager".equals(dto.getName())) {
+            //throw new IllegalArgumentException("manager는 사용할 수 없는 이름입니다.");
+        //}
 
         User user = new User();
         user.setName(dto.getName());
