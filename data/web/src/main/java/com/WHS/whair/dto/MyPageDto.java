@@ -14,7 +14,7 @@ public class MyPageDto {
     private Integer point;
     private String coupon;
     private LocalDateTime createdAt;
-    
+
     // 예약 정보
     private Long reservationId;
     private String flightNumber;
