@@ -38,7 +38,7 @@
       </div>
       <div class="info-item">
         <label>가입일</label>
-        <span><fmt:formatDate value="${user.createdAt}" pattern="yyyy년 MM월 dd일"/></span>
+        <span>${user.formattedCreatedAt}</span>
       </div>
     </div>
   </div>
@@ -81,18 +81,18 @@
             <div class="reservation-card">
               <div class="reservation-header">
                 <h3>예약 번호: ${reservation.reservationId}</h3>
-                <span class="status-badge ${reservation.status.toLowerCase()}">${reservation.status}</span>
+                <span class="status-badge booked">예약완료</span>
               </div>
               <div class="flight-info">
                 <div class="route-info">
                   <div class="departure">
                     <span class="airport">${reservation.departureAirport}</span>
-                    <span class="time"><fmt:formatDate value="${reservation.departureTime}" pattern="MM/dd HH:mm"/></span>
+                    <span class="time">${reservation.departureTime}</span>
                   </div>
                   <div class="flight-arrow">✈</div>
                   <div class="arrival">
                     <span class="airport">${reservation.arrivalAirport}</span>
-                    <span class="time"><fmt:formatDate value="${reservation.arrivalTime}" pattern="MM/dd HH:mm"/></span>
+                    <span class="time">${reservation.arrivalTime}</span>
                   </div>
                 </div>
                 <div class="flight-details">
@@ -103,7 +103,7 @@
               <div class="passenger-info">
                 <p><strong>승객:</strong> ${reservation.passengerName}</p>
                 <p><strong>총 금액:</strong> <fmt:formatNumber value="${reservation.totalPrice}" type="currency" currencySymbol="₩"/></p>
-                <p><strong>예약일:</strong> <fmt:formatDate value="${reservation.bookedAt}" pattern="yyyy년 MM월 dd일"/></p>
+                <p><strong>예약일:</strong> ${reservation.bookedAt}</p>
               </div>
             </div>
           </c:forEach>

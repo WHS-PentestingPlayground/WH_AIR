@@ -21,7 +21,7 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/login", "/register", "/logout", "/flights", "/search", "/booking", "/api/**", "/mypage").permitAll()
+                .antMatchers("/", "/login", "/register", "/logout", "/flights", "/search", "/booking", "/api/**", "/mypage", "/.well-known/jwks.json").permitAll()
                 .antMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
                 .anyRequest().authenticated()
                 .and()

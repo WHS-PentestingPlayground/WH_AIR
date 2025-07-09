@@ -1,24 +1,17 @@
 package com.WHS.whair.controller;
 
 import com.WHS.whair.dto.RegisterRequestDto;
-import com.WHS.whair.dto.MyPageDto;
 import com.WHS.whair.entity.User;
 import com.WHS.whair.service.UserService;
-import com.WHS.whair.service.MyPageService;
 import com.WHS.whair.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -26,7 +19,6 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final MyPageService myPageService;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/login")
@@ -109,25 +101,6 @@ public class UserController {
     public String logout(HttpServletRequest request) {
         request.getSession().invalidate();
         return "redirect:/";
-    }
-
-    @GetMapping("/mypage")
-    public String myPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        if (userDetails == null) {
-            return "redirect:/login";
-        }
-        String name = userDetails.getUsername();
-
-        try {
-            User user = myPageService.getUserInfo(name);
-            List<MyPageDto> reservations = myPageService.getUserReservations(name);
-
-            model.addAttribute("user", user);
-            model.addAttribute("reservations", reservations);
-            return "mypage";
-        } catch (Exception e) {
-            return "redirect:/login";
-        }
     }
 
     private String redirectWithError(String message, RedirectAttributes redirectAttributes) {
