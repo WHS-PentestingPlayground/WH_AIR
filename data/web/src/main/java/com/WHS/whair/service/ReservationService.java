@@ -85,16 +85,12 @@ public class ReservationService {
         }).toList();
     }
     
-    /**
-     * 사용자별 예약 목록 조회
-     */
+    // 사용자별 예약 목록 조회
     public List<Reservation> getUserReservations(Long userId) {
         return reservationRepository.findByUserIdWithFlightAndSeat(userId);
     }
     
-    /**
-     * 예약 취소
-     */
+    // 예약 취소
     @Transactional
     public void cancelReservation(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
