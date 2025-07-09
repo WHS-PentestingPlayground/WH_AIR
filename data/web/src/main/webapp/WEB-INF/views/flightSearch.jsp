@@ -7,7 +7,7 @@
     <title>항공권 검색 - WH Air</title>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/flight.css">
+    <link rel="stylesheet" href="/static/css/flightSearch.css">
     <link rel="stylesheet" href="/static/css/header.css">
     <script src="/static/js/flightSearch.js"></script>
 </head>
@@ -16,7 +16,7 @@
 <div class="container">
     <div class="search-section">
         <h1 class="search-title">항공권 검색</h1>
-        <form class="search-form" action="/flights/search" method="post">
+        <form class="search-form" action="/search" method="post">
             <div class="search-row">
                 <div class="search-field search-departure">
                     <label for="departure-airport" class="search-label">출발지</label>

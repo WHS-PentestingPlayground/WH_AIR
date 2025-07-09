@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="equal">=</span>
                     <span class="total-label">지불 예상 총액</span>
                     <span class="total-value">${total.toLocaleString()}원</span>
-                    <form action="/flights/booking" method="get" style="display:inline;">
+                    <form action="/booking" method="get" style="display:inline;">
                         <input type="hidden" name="flightId" value="${flightId}">
                         <input type="hidden" name="seatClass" value="${seatClass}">
                         <button type="submit" class="pay-btn">예매</button>

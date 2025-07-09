@@ -113,7 +113,7 @@
         <div class="no-reservations">
           <div class="no-data-icon">✈</div>
           <p>아직 예약한 항공편이 없습니다.</p>
-          <a href="/flights/search" class="search-flight-btn">항공편 검색하기</a>
+          <a href="/search" class="search-flight-btn">항공편 검색하기</a>
         </div>
       </c:otherwise>
     </c:choose>

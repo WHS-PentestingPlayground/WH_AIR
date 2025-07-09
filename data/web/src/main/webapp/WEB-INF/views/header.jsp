@@ -12,7 +12,7 @@
 
     <div class="header-menu">
       <a href="/" class="header-menu-item">홈</a>
-      <a href="/flights/search" class="header-menu-item">항공편 검색</a>
+      <a href="/search" class="header-menu-item">항공편 검색</a>
       <c:choose>
         <c:when test="${empty user}">
           <!-- 로그인 전: 로그인, 회원가입 -->
