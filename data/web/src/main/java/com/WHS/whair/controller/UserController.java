@@ -113,6 +113,9 @@ public class UserController {
 
     @GetMapping("/mypage")
     public String myPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
         String name = userDetails.getUsername();
 
         try {

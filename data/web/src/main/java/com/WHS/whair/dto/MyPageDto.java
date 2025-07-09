@@ -26,6 +26,5 @@ public class MyPageDto {
     private String seatClass;
     private BigDecimal totalPrice;
     private String passengerName;
-    private String status;
     private LocalDateTime bookedAt;
 }

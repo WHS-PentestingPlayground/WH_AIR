@@ -37,16 +37,10 @@ public class Reservation {
     @Column(name = "passenger_birth")
     private LocalDate passengerBirth;
 
-    @Column(name = "status")
-    private String status;
-
     @Column(name = "booked_at")
     private LocalDateTime bookedAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public enum ReservationStatus {
-        BOOKED, CANCELED
-    }
 }

@@ -23,7 +23,7 @@ import java.math.BigDecimal;
  * [예약 관리 구조]
  * - 좌석 예약 상태: seats.is_reserved (true/false)
  * - 예약자 정보: reservations 테이블에서 관리
- * - 예약 세부사항: user_id, passenger_name, status, booked_at 등
+ * - 예약 세부사항: user_id, passenger_name, booked_at 등
  */
 @Entity
 @Table(name = "seats")
