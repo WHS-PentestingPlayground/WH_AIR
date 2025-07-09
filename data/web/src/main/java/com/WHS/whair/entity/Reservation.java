@@ -42,4 +42,5 @@ public class Reservation {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
 }

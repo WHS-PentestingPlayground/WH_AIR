@@ -103,8 +103,6 @@ public class UserController {
         return "redirect:/";
     }
 
-
-
     private String redirectWithError(String message, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error", message);
         return "redirect:/register";
