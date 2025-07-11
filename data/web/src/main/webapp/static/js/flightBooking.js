@@ -13,17 +13,16 @@ const bookingState = {
     userPoints: 0,
     totalAmount: 0,
     paymentPoints: 0,
-    coupons: {},
+    userCoupon: null,
     appliedCoupons: {
         seat: null,
         fuel: null
+    },
+    discountAmounts: {
+        seat: 0,
+        fuel: 0
     }
 };
-
-// 쿠폰 데이터 및 적용 상태
-let availableCoupons = {};
-let appliedCoupons = { seat: null, fuel: null };
-let couponRates = {};
 
 // 스텝 토글 함수
 function toggleStep(stepId) {
@@ -335,15 +334,15 @@ async function loadCouponsAndUpdatePayment() {
         const response = await fetch(`/api/flights/${bookingState.flightId}/pricing?seatClass=${bookingState.selectedSeatClass}`);
         if (response.ok) {
             const pricingData = await response.json();
-            bookingState.seatPrice = pricingData.seatPrice;
-            bookingState.fuelPrice = pricingData.fuelPrice;
+            bookingState.seatPrice = Math.floor(Number(pricingData.seatPrice));
+            bookingState.fuelPrice = Math.floor(Number(pricingData.fuelPrice));
         }
         
         // 사용자 쿠폰 정보 로드
-        const couponResponse = await fetch(`/api/flights/${bookingState.flightId}/user-coupons?seatClass=${bookingState.selectedSeatClass}`);
+        const couponResponse = await fetch('/api/user/coupons');
         if (couponResponse.ok) {
             const couponData = await couponResponse.json();
-            bookingState.coupons = couponData.availableCoupons || {};
+            bookingState.userCoupon = couponData.userCoupon;
             bookingState.userPoints = couponData.points || 0;
             
             // 쿠폰 드롭다운 업데이트
@@ -362,139 +361,158 @@ function updateCouponDropdowns() {
     const seatSelect = document.getElementById('seat-coupon-select');
     const fuelSelect = document.getElementById('fuel-coupon-select');
     
-    // 운임비 쿠폰 옵션 추가
+    // 드롭다운 초기화
     seatSelect.innerHTML = '<option value="">쿠폰 선택</option>';
     fuelSelect.innerHTML = '<option value="">쿠폰 선택</option>';
     
-    Object.keys(bookingState.coupons).forEach(couponName => {
-        const discountRate = bookingState.coupons[couponName];
-        const displayText = `${couponName} (${Math.round(discountRate * 100)}% 할인)`;
+    // 사용자가 쿠폰을 보유하고 있을 때만 옵션 추가
+    if (bookingState.userCoupon && bookingState.userCoupon.trim() !== '') {
+        const couponCode = bookingState.userCoupon.trim();
         
-        // 운임비 관련 쿠폰은 운임비 드롭다운에
-        if (couponName.includes('운임') || couponName.includes('기본')) {
-            const option = new Option(displayText, couponName);
-            seatSelect.add(option);
+        // 운임비 드롭다운에 쿠폰 추가
+        const seatOption = new Option(`쿠폰: ${couponCode}`, couponCode);
+        seatSelect.add(seatOption);
+        
+        // 유류할증료 드롭다운에 쿠폰 추가  
+        const fuelOption = new Option(`쿠폰: ${couponCode}`, couponCode);
+        fuelSelect.add(fuelOption);
+    }
+}
+
+// 쿠폰 적용 (새로운 API 구조)
+async function applyCoupon(type) {
+    const selectElement = document.getElementById(`${type}-coupon-select`);
+    const selectedCoupon = selectElement.value;
+    
+    if (!selectedCoupon) {
+        // 쿠폰 선택 해제
+        bookingState.appliedCoupons[type] = null;
+        bookingState.discountAmounts[type] = 0;
+        updateCouponUI(type, 0, 0);
+        updateTotalAmount();
+        updateCouponDropdownStates();
+        return;
+    }
+    
+    // 동일한 쿠폰이 다른 영역에 이미 적용되어 있는지 확인
+    const otherType = type === 'seat' ? 'fuel' : 'seat';
+    if (bookingState.appliedCoupons[otherType] === selectedCoupon) {
+        alert('동일한 쿠폰을 중복으로 사용할 수 없습니다.');
+        selectElement.value = '';
+        return;
+    }
+    
+    try {
+        // 대표 좌석 번호 (첫 번째 선택된 좌석)
+        const representativeSeat = bookingState.selectedSeats[0]?.id;
+        if (!representativeSeat) {
+            alert('좌석을 먼저 선택해주세요.');
+            return;
         }
         
-        // 유류할증료 관련 쿠폰은 유류할증료 드롭다운에
-        if (couponName.includes('유류') || couponName.includes('연료') || couponName.includes('기본')) {
-            const option = new Option(displayText, couponName);
-            fuelSelect.add(option);
+        const requestData = {
+            couponCode: selectedCoupon,
+            targetPriceType: type,
+            flightId: bookingState.flightId,
+            seatNumber: representativeSeat
+        };
+        
+        const response = await fetch('/api/reservations/apply-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // 쿠폰 적용 성공
+            bookingState.appliedCoupons[type] = selectedCoupon;
+            bookingState.discountAmounts[type] = result.discountAmount;
+            
+            updateCouponUI(type, result.discountAmount, result.finalPrice);
+            updateTotalAmount();
+            updateCouponDropdownStates();
+            
+            // 성공 메시지 표시
+            showMessage(result.message, 'success');
+        } else {
+            // 쿠폰 적용 실패
+            alert(result.message);
+            selectElement.value = '';
+        }
+    } catch (error) {
+        console.error('쿠폰 적용 오류:', error);
+        alert('쿠폰 적용 중 오류가 발생했습니다.');
+        selectElement.value = '';
+    }
+}
+
+// 쿠폰 UI 업데이트
+function updateCouponUI(type, discountAmount, finalPrice) {
+    const passengerCount = bookingState.selectedSeats.length;
+    const basePrice = type === 'seat' ? bookingState.seatPrice : bookingState.fuelPrice;
+    const totalBasePrice = basePrice * passengerCount;
+    const totalDiscountAmount = discountAmount * passengerCount;
+    const totalFinalPrice = finalPrice * passengerCount;
+    
+    // 원래 가격 표시
+    document.getElementById(`${type}-original-display`).textContent = `₩${totalBasePrice.toLocaleString()}`;
+    
+    // 할인 금액 표시
+    const discountElement = document.getElementById(`${type}-discount-display`);
+    if (totalDiscountAmount > 0) {
+        discountElement.textContent = `-₩${totalDiscountAmount.toLocaleString()}`;
+        discountElement.style.display = 'inline';
+    } else {
+        discountElement.style.display = 'none';
+    }
+    
+    // 최종 가격 표시
+    document.getElementById(`${type}-final-display`).textContent = `₩${totalFinalPrice.toLocaleString()}`;
+}
+
+// 쿠폰 드롭다운 상태 업데이트 (중복 사용 방지)
+function updateCouponDropdownStates() {
+    const seatSelect = document.getElementById('seat-coupon-select');
+    const fuelSelect = document.getElementById('fuel-coupon-select');
+    
+    // 운임비에 쿠폰이 적용된 경우, 유류할증료 드롭다운에서 해당 쿠폰 비활성화
+    Array.from(fuelSelect.options).forEach(option => {
+        if (option.value === bookingState.appliedCoupons.seat && option.value !== '') {
+            option.disabled = true;
+            option.textContent = option.textContent.includes('(사용됨)') ? 
+                option.textContent : `${option.textContent} (사용됨)`;
+        } else if (option.value !== '' && !option.textContent.includes('(사용됨)')) {
+            option.disabled = false;
+            option.textContent = option.textContent.replace(' (사용됨)', '');
+        }
+    });
+    
+    // 유류할증료에 쿠폰이 적용된 경우, 운임비 드롭다운에서 해당 쿠폰 비활성화
+    Array.from(seatSelect.options).forEach(option => {
+        if (option.value === bookingState.appliedCoupons.fuel && option.value !== '') {
+            option.disabled = true;
+            option.textContent = option.textContent.includes('(사용됨)') ? 
+                option.textContent : `${option.textContent} (사용됨)`;
+        } else if (option.value !== '' && !option.textContent.includes('(사용됨)')) {
+            option.disabled = false;
+            option.textContent = option.textContent.replace(' (사용됨)', '');
         }
     });
 }
 
-// 쿠폰 목록 불러오기 및 드랍박스 채우기
-async function loadCoupons() {
-    try {
-        const res = await fetch('/api/reservations/user/coupons');
-        if (!res.ok) return;
-        const data = await res.json();
-        availableCoupons = data.availableCoupons || {};
-        couponRates = data.availableCoupons || {};
-        // 두 드랍박스 모두 쿠폰 추가
-        const seatSelect = document.getElementById('seat-coupon-select');
-        const fuelSelect = document.getElementById('fuel-coupon-select');
-        seatSelect.innerHTML = '<option value="">쿠폰 선택</option>';
-        fuelSelect.innerHTML = '<option value="">쿠폰 선택</option>';
-        Object.keys(availableCoupons).forEach(name => {
-            const opt1 = document.createElement('option');
-            opt1.value = name;
-            opt1.text = name;
-            seatSelect.appendChild(opt1);
-            const opt2 = document.createElement('option');
-            opt2.value = name;
-            opt2.text = name;
-            fuelSelect.appendChild(opt2);
-        });
-    } catch (e) { console.error('쿠폰 불러오기 실패', e); }
-}
-
-// 쿠폰 적용 버튼 이벤트
-function setupCouponApplyButtons() {
-    document.getElementById('seat-coupon-apply-btn').onclick = function() {
-        const selected = document.getElementById('seat-coupon-select').value;
-        appliedCoupons.seat = selected || null;
-        updateCouponDiscount('seat');
-    };
-    document.getElementById('fuel-coupon-apply-btn').onclick = function() {
-        const selected = document.getElementById('fuel-coupon-select').value;
-        appliedCoupons.fuel = selected || null;
-        updateCouponDiscount('fuel');
-    };
-}
-
-// 할인 금액 계산 및 UI 반영
-function updateCouponDiscount(type) {
-    let original = 0;
-    if (type === 'seat') original = bookingState.seatPrice;
-    if (type === 'fuel') original = bookingState.fuelPrice;
-    const couponName = appliedCoupons[type];
-    let discount = 0;
-    if (couponName && couponRates[couponName]) {
-        discount = Math.floor(original * couponRates[couponName]);
-        document.getElementById(type+'-discount-display').style.display = '';
-        document.getElementById(type+'-discount-display').innerText = `-₩${discount.toLocaleString()}`;
-    } else {
-        document.getElementById(type+'-discount-display').style.display = 'none';
-    }
-    // 최종 가격 표시
-    const final = original - discount;
-    document.getElementById(type+'-final-display').innerText = `₩${final.toLocaleString()}`;
-    // 총 결제 금액 갱신
-    updateTotalPayment();
-}
-
-function updateTotalPayment() {
-    const seatFinal = document.getElementById('seat-final-display').innerText.replace(/[^0-9]/g, '') || '0';
-    const fuelFinal = document.getElementById('fuel-final-display').innerText.replace(/[^0-9]/g, '') || '0';
-    const total = parseInt(seatFinal) + parseInt(fuelFinal);
-    document.getElementById('total-payment').innerText = `₩${total.toLocaleString()}`;
-}
-
-// 기존 결제 정보 갱신 함수에 쿠폰 적용 반영
+// 결제 정보 갱신
 function updatePaymentInfo() {
     const passengerCount = bookingState.selectedSeats.length;
     const totalSeatPrice = bookingState.seatPrice * passengerCount;
     const totalFuelPrice = bookingState.fuelPrice * passengerCount;
     
-    document.getElementById('seat-original-display').textContent = `₩${totalSeatPrice.toLocaleString()}`;
-    document.getElementById('seat-final-display').textContent = `₩${totalSeatPrice.toLocaleString()}`;
-    document.getElementById('fuel-original-display').textContent = `₩${totalFuelPrice.toLocaleString()}`;
-    document.getElementById('fuel-final-display').textContent = `₩${totalFuelPrice.toLocaleString()}`;
-    
-    updateCouponDiscount('seat');
-    updateCouponDiscount('fuel');
-    
-    updateTotalAmount();
-}
-
-// 쿠폰 적용
-function applyCoupon(type) {
-    const selectElement = document.getElementById(`${type}-coupon-select`);
-    const selectedCoupon = selectElement.value;
-    const passengerCount = bookingState.selectedSeats.length;
-    const originalPrice = type === 'seat' ? 
-        bookingState.seatPrice * passengerCount : 
-        bookingState.fuelPrice * passengerCount;
-    let discount = 0;
-    let finalPrice = originalPrice;
-    
-    if (selectedCoupon && bookingState.coupons[selectedCoupon]) {
-        discount = Math.floor(originalPrice * bookingState.coupons[selectedCoupon]);
-        finalPrice = originalPrice - discount;
-    }
-    
-    bookingState.appliedCoupons[type] = selectedCoupon || null;
-    
-    // UI 업데이트
-    document.getElementById(`${type}-original-display`).textContent = `₩${originalPrice.toLocaleString()}`;
-    document.getElementById(`${type}-discount-display`).textContent = `-₩${discount.toLocaleString()}`;
-    document.getElementById(`${type}-final-display`).textContent = `₩${finalPrice.toLocaleString()}`;
-    
-    // 할인 금액 표시/숨김
-    const discountElement = document.getElementById(`${type}-discount-display`);
-    discountElement.style.display = discount > 0 ? 'inline' : 'none';
+    // 쿠폰 적용 없이 기본 가격 표시
+    updateCouponUI('seat', 0, bookingState.seatPrice);
+    updateCouponUI('fuel', 0, bookingState.fuelPrice);
     
     updateTotalAmount();
 }
@@ -557,7 +575,7 @@ function updateRemainingPoints() {
     document.getElementById('remaining-points').textContent = `${remaining.toLocaleString()}P`;
 }
 
-// 결제 처리
+// 결제 처리 (새로운 API 구조)
 async function processPayment() {
     if (bookingState.paymentPoints < bookingState.totalAmount) {
         alert(`결제 포인트가 부족합니다.\n필요 포인트: ${bookingState.totalAmount.toLocaleString()}P\n입력 포인트: ${bookingState.paymentPoints.toLocaleString()}P`);
@@ -573,17 +591,18 @@ async function processPayment() {
     
     if (confirm(confirmMessage)) {
         try {
-            // 서버에 예약 요청 전송
+            // 서버에 예약 요청 전송 (새로운 API 엔드포인트)
             const bookingData = {
-                userId: bookingState.userId,
                 flightId: bookingState.flightId,
                 seatNumbers: bookingState.selectedSeats.map(seat => seat.id),
                 passengerName: bookingState.passengers[0]?.name || '탑승자',
                 passengerBirth: bookingState.passengers[0]?.birth || '1990-01-01',
-                usedPoints: bookingState.paymentPoints
+                usedPoints: bookingState.paymentPoints,
+                seatCoupon: bookingState.appliedCoupons.seat,
+                fuelCoupon: bookingState.appliedCoupons.fuel
             };
             
-            const response = await fetch('/api/reservations/finalize', {
+            const response = await fetch('/api/reservations/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -607,9 +626,45 @@ async function processPayment() {
                 alert(`예약 실패: ${result.message}`);
             }
         } catch (error) {
+            console.error('예약 처리 오류:', error);
             alert('예약 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
     }
+}
+
+// 메시지 표시 함수
+function showMessage(message, type = 'info') {
+    // 기존 메시지 제거
+    const existingMessage = document.querySelector('.message-toast');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // 새 메시지 생성
+    const messageElement = document.createElement('div');
+    messageElement.className = `message-toast ${type}`;
+    messageElement.textContent = message;
+    messageElement.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        color: white;
+        font-weight: bold;
+        z-index: 1000;
+        max-width: 300px;
+        background-color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+    `;
+    
+    document.body.appendChild(messageElement);
+    
+    // 3초 후 자동 제거
+    setTimeout(() => {
+        if (messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
 }
 
 // 페이지 로드 시 초기화
@@ -630,6 +685,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('remaining-points').textContent = `${bookingState.userPoints.toLocaleString()}P`;
     
     initializeSeats();
-    loadCoupons(); // 페이지 로드 시 쿠폰 로드
-    setupCouponApplyButtons(); // 페이지 로드 시 쿠폰 적용 버튼 이벤트 연결
+    
+    // 쿠폰 적용 버튼 이벤트 연결
+    document.getElementById('seat-coupon-apply-btn').onclick = () => applyCoupon('seat');
+    document.getElementById('fuel-coupon-apply-btn').onclick = () => applyCoupon('fuel');
 }); 

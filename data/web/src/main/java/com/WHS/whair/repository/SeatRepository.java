@@ -91,7 +91,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
   /* 좌석 가격 조회 */
 
   // 특정 좌석의 모든 가격 정보 조회
-  @Query("SELECT new map(seat.seatPrice as seatPrice, seat.fuelPrice as fuelPrice) " + "FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatNumber = : seatNumber")
+  @Query("SELECT new map(seat.seatPrice as seatPrice, seat.fuelPrice as fuelPrice) " + "FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatNumber = :seatNumber")
   Optional<Map<String, BigDecimal>> findAllPriceInfo(@Param("flightId") Long flightId, @Param("seatNumber") String seatNumber);
 
   // 총 가격 계산

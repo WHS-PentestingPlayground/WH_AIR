@@ -142,7 +142,7 @@
                                         <select class="coupon-dropdown" id="seat-coupon-select">
                                             <option value="">쿠폰 선택</option>
                                         </select>
-                                        <button class="coupon-apply-btn" id="seat-coupon-apply-btn" type="button">쿠폰 적용</button>
+                                        <button class="coupon-apply-btn" id="seat-coupon-apply-btn" type="button" onclick="applyCoupon('seat')">쿠폰 적용</button>
                                         <span class="discount-amount" id="seat-discount-display" style="display: none;">-₩0</span>
                                     </div>
                                     <div class="final-row">
@@ -160,7 +160,7 @@
                                         <select class="coupon-dropdown" id="fuel-coupon-select">
                                             <option value="">쿠폰 선택</option>
                                         </select>
-                                        <button class="coupon-apply-btn" id="fuel-coupon-apply-btn" type="button">쿠폰 적용</button>
+                                        <button class="coupon-apply-btn" id="fuel-coupon-apply-btn" type="button" onclick="applyCoupon('fuel')">쿠폰 적용</button>
                                         <span class="discount-amount" id="fuel-discount-display" style="display: none;">-₩0</span>
                                     </div>
                                     <div class="final-row">

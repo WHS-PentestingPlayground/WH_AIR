@@ -107,6 +107,7 @@ public class ReservationController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
+            log.error("예약 생성 중 오류 발생: {}", e.getMessage());
             response.put("success", false);
             response.put("message", "예약 처리 중 오류가 발생했습니다: " + e.getMessage());
             

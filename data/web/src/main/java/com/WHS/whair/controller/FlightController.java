@@ -147,35 +147,8 @@ public class FlightController {
             
             Map<String, Object> response = new HashMap<>();
             
-            // 사용자의 쿠폰 정보 조회
-            String userCoupon = user.getCoupon();
-            
-            // 사용 가능한 쿠폰 목록 (실제로는 DB에서 조회해야 하지만, 현재는 하드코딩)
-            Map<String, Object> availableCoupons = new HashMap<>();
-            
-            if (userCoupon != null && !userCoupon.trim().isEmpty()) {
-                // 쿠폰 타입에 따라 할인율 설정
-                switch (userCoupon.toLowerCase()) {
-                    case "10":
-                        availableCoupons.put("운임비10%할인", 0.1);
-                        break;
-                    case "20":
-                        availableCoupons.put("운임비20%할인", 0.2);
-                        break;
-                    case "fuel10":
-                        availableCoupons.put("유류할증료10%할인", 0.1);
-                        break;
-                    case "fuel20":
-                        availableCoupons.put("유류할증료20%할인", 0.2);
-                        break;
-                    default:
-                        availableCoupons.put("기본할인쿠폰", 0.05);
-                        break;
-                }
-            }
-            
-            response.put("userCoupon", userCoupon);
-            response.put("availableCoupons", availableCoupons);
+            // 사용자의 쿠폰 정보 및 포인트 조회
+            response.put("userCoupon", user.getCoupon());
             response.put("points", user.getPoint());
             
             return ResponseEntity.ok(response);
