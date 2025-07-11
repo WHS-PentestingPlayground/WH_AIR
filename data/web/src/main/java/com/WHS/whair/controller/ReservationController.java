@@ -13,56 +13,100 @@ import java.util.HashMap;
 import com.WHS.whair.entity.User;
 import com.WHS.whair.repository.UserRepository;
 import javax.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+
+
 
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationController {
     
     private final ReservationService reservationService;
     private final UserRepository userRepository;
-    
-    /* STEP 2 & 3 : 탑승자 정보 + 포인트 결제 처리 API */
-    @PostMapping("/finalize")
-    public ResponseEntity<Map<String, Object>> finalizeReservation(@RequestBody Map<String, Object> requestData) {
+
+    /* 쿠폰 적용 API */
+    @PostMapping("/apply-coupon")
+    public ResponseEntity<Map<String, Object>> applyCoupon(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
+        
+        Map<String, Object> response = new HashMap<>();
         
         try {
-            // 요청 데이터 추출
-            Long userId = Long.valueOf(requestData.get("userId").toString());
-            Long flightId = Long.valueOf(requestData.get("flightId").toString());
-            List<String> seatNumbers = (List<String>) requestData.get("seatNumbers");
-            String passengerName = (String) requestData.get("passengerName");
-            String passengerBirthStr = (String) requestData.get("passengerBirth");
-            
-            // 포인트 사용량 (선택적)
-            Integer usedPoints = requestData.get("usedPoints") != null ? 
-                    Integer.valueOf(requestData.get("usedPoints").toString()) : 0;
-            
-            // 쿠폰 및 원가 정보 추가
-            String seatCoupon = requestData.get("seatCoupon") != null ? requestData.get("seatCoupon").toString() : null;
-            String fuelCoupon = requestData.get("fuelCoupon") != null ? requestData.get("fuelCoupon").toString() : null;
-            Integer seatOriginalPrice = requestData.get("seatOriginalPrice") != null ? Integer.valueOf(requestData.get("seatOriginalPrice").toString()) : 0;
-            Integer fuelOriginalPrice = requestData.get("fuelOriginalPrice") != null ? Integer.valueOf(requestData.get("fuelOriginalPrice").toString()) : 0;
+            User user = (User) httpRequest.getAttribute("user");
+            if (user == null || user.getId() == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = user.getId();
+            log.debug("쿠폰 적용 요청: userId={}", userId);
+
+            // 요청 파라미터 추출
+            String couponCode = (String) request.get("couponCode");
+            String targetPriceType = (String) request.get("targetPriceType");
+            Long flightId = Long.valueOf(request.get("flightId").toString());
+            String seatNumber = (String) request.get("seatNumber");
+
+            // 입력값 검증
+            if (couponCode == null || targetPriceType == null || flightId == null || seatNumber == null) {
+                response.put("success", false);
+                response.put("message", "잘못된 요청입니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 쿠폰 적용
+            Map<String, Object> result = reservationService.applyCoupon(userId, couponCode, targetPriceType, flightId, seatNumber);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("쿠폰 적용 중 오류 발생: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", "쿠폰 적용 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
+    /* STEP 2 & 3 : 탑승자 정보 + 포인트 결제 처리 API */
+    @PostMapping("/create")
+    public ResponseEntity<Map<String, Object>> createReservations(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
+
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User user = (User) httpRequest.getAttribute("user");
+            if (user == null || user.getId() == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = user.getId();
+            log.debug("예약 생성 요청: userId={}", userId);
+
+            // 요청 파라미터 추출
+            Long flightId = Long.valueOf(request.get("flightId").toString());
+            List<String> seatNumbers = (List<String>) request.get("seatNumbers");
+            String passengerName = (String) request.get("passengerName");
+            String passengerBirthStr = (String) request.get("passengerBirth");
+            Integer usedPoints = request.get("usedPoints") != null ? 
+                    Integer.valueOf(request.get("usedPoints").toString()) : 0;
+            String seatCoupon = request.get("seatCoupon") != null ? request.get("seatCoupon").toString() : null;
+            String fuelCoupon = request.get("fuelCoupon") != null ? request.get("fuelCoupon").toString() : null;
 
             LocalDate passengerBirth = LocalDate.parse(passengerBirthStr);
             
-            // 예약 생성 (포인트 차감)
-            List<Reservation> reservations = reservationService.createReservations(
-                    userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints,
-                    seatCoupon, fuelCoupon, seatOriginalPrice, fuelOriginalPrice
-            );
+            // 예약 생성
+            List<Reservation> reservations = reservationService.createReservations(userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints, seatCoupon, fuelCoupon);
             
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
+            response.put("reservations", reservations);
             response.put("message", "예약이 완료되었습니다.");
-            response.put("reservationCount", reservations.size());
-            response.put("reservationIds", reservations.stream().map(Reservation::getId).toList());
-            response.put("usedPoints", usedPoints);
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "예약 처리 중 오류가 발생했습니다: " + e.getMessage());
             
@@ -70,24 +114,36 @@ public class ReservationController {
         }
     }
     
-    /* 사용자별 예약 목록 조회 API */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Map<String, Object>> getUserReservations(@PathVariable Long userId) {
+    /* 예약 조회 API */
+    @GetMapping("/my-reservations")
+    public ResponseEntity<Map<String, Object>> getMyReservations(HttpServletRequest httpRequest) {
+
+        Map<String, Object> response = new HashMap<>();
+        
         try {
+            User user = (User) httpRequest.getAttribute("user");
+            if (user == null || user.getId() == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = user.getId();
+            log.debug("예약 목록 조회 요청: userId={}", userId);
+
             List<Reservation> reservations = reservationService.getUserReservations(userId);
             
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("reservations", reservations);
             response.put("count", reservations.size());
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
+            log.error("예약 목록 조회 중 오류 발생: {}", e.getMessage());
             response.put("success", false);
             response.put("message", "예약 목록 조회 중 오류가 발생했습니다: " + e.getMessage());
             
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.internalServerError().body(response);
         }
     }
     
@@ -95,85 +151,65 @@ public class ReservationController {
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Map<String, Object>> cancelReservation(
             @PathVariable Long reservationId,
-            @RequestParam Long userId) {
+            HttpServletRequest httpRequest) {
+        
+        Map<String, Object> response = new HashMap<>();
         
         try {
+            User user = (User) httpRequest.getAttribute("user");
+            if (user == null || user.getId() == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = user.getId();
+            log.debug("예약 취소 요청: userId={}, reservationId={}", userId, reservationId);
+
             reservationService.cancelReservation(reservationId, userId);
             
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "예약이 취소되었습니다.");
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
+            log.error("예약 취소 중 오류 발생: {}", e.getMessage());
             response.put("success", false);
             response.put("message", "예약 취소 중 오류가 발생했습니다: " + e.getMessage());
             
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.internalServerError().body(response);
         }
     }
     
     /* 예약 상세 조회 API */
     @GetMapping("/{reservationId}")
-    public ResponseEntity<Map<String, Object>> getReservationDetail(@PathVariable Long reservationId) {
+    public ResponseEntity<Map<String, Object>> getReservationDetail(@PathVariable Long reservationId, HttpServletRequest httpRequest) {
+
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            Map<String, Object> response = new HashMap<>();
+            User user = (User) httpRequest.getAttribute("user");
+            if (user == null || user.getId() == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = user.getId();
+            log.debug("예약 상세 조회 요청: userId={}, reservationId={}", userId, reservationId);
+
+            Reservation reservation = reservationService.getReservationDetail(reservationId, userId);
+            
             response.put("success", true);
             response.put("message", "예약 상세 조회가 완료되었습니다.");
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
+            log.error("예약 상세 조회 중 오류 발생: {}", e.getMessage());
             response.put("success", false);
             response.put("message", "예약 상세 조회 중 오류가 발생했습니다: " + e.getMessage());
             
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    // 사용자 쿠폰 조회 API
-    @GetMapping("/user/coupons")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getUserCoupons(HttpServletRequest request) {
-        try {
-            // 세션에서 사용자 정보 가져오기
-            User sessionUser = (User) request.getSession().getAttribute("user");
-            if (sessionUser == null) {
-                return ResponseEntity.status(401).build();
-            }
-
-            // DB에서 최신 사용자 정보 조회
-            User user = userRepository.findById(sessionUser.getId()).orElse(null);
-            if (user == null) {
-                return ResponseEntity.status(404).build();
-            }
-
-            Map<String, Object> response = new HashMap<>();
-
-            // 쿠폰 정보 파싱
-            String userCoupon = user.getCoupon();
-            Map<String, Object> availableCoupons = new HashMap<>();
-
-            if (userCoupon != null && !userCoupon.trim().isEmpty()) {
-                // 쿠폰명에서 숫자 추출
-                String discountStr = userCoupon.replaceAll("[^0-9]", "");
-                double discountRate = 0.0;
-                if (!discountStr.isEmpty()) {
-                    int discount = Integer.parseInt(discountStr);
-                    discountRate = discount / 100.0;
-                }
-                // DisplayName은 DB에 저장된 이름 그대로 사용
-                availableCoupons.put(userCoupon, discountRate);
-            }
-
-            response.put("userCoupon", userCoupon);
-            response.put("availableCoupons", availableCoupons);
-            response.put("points", user.getPoint());
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(response);
         }
     }
 } 
