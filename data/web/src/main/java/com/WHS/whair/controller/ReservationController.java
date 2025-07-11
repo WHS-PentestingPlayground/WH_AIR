@@ -38,11 +38,19 @@ public class ReservationController {
             Integer usedPoints = requestData.get("usedPoints") != null ? 
                     Integer.valueOf(requestData.get("usedPoints").toString()) : 0;
             
+            // 쿠폰 및 원가 정보 추가
+            String seatCoupon = requestData.get("seatCoupon") != null ? requestData.get("seatCoupon").toString() : null;
+            String fuelCoupon = requestData.get("fuelCoupon") != null ? requestData.get("fuelCoupon").toString() : null;
+            Integer seatOriginalPrice = requestData.get("seatOriginalPrice") != null ? Integer.valueOf(requestData.get("seatOriginalPrice").toString()) : 0;
+            Integer fuelOriginalPrice = requestData.get("fuelOriginalPrice") != null ? Integer.valueOf(requestData.get("fuelOriginalPrice").toString()) : 0;
+
             LocalDate passengerBirth = LocalDate.parse(passengerBirthStr);
             
             // 예약 생성 (포인트 차감)
             List<Reservation> reservations = reservationService.createReservations(
-                    userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints);
+                    userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints,
+                    seatCoupon, fuelCoupon, seatOriginalPrice, fuelOriginalPrice
+            );
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

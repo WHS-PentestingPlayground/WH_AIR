@@ -41,7 +41,8 @@ public class ReservationService {
     public List<Reservation> createReservations(
             Long userId, Long flightId, List<String> seatNumbers,
             String passengerName, LocalDate passengerBirth,
-            Integer usedPoints) {
+            Integer usedPoints,
+            String seatCoupon, String fuelCoupon, Integer seatOriginalPrice, Integer fuelOriginalPrice) {
         
         // 1. 엔티티 조회 및 검증
         User user = userRepository.findById(userId)
@@ -55,7 +56,35 @@ public class ReservationService {
             throw new RuntimeException("선택한 좌석이 이미 예약되었습니다.");
         }
         
-        // 3. 포인트 차감 처리
+        // 3. 쿠폰 할인 계산 및 사용 처리
+        double seatDiscountRate = 0.0;
+        double fuelDiscountRate = 0.0;
+        if (seatCoupon != null && !seatCoupon.trim().isEmpty()) {
+            String discountStr = seatCoupon.replaceAll("[^0-9]", "");
+            if (!discountStr.isEmpty()) {
+                seatDiscountRate = Integer.parseInt(discountStr) / 100.0;
+            }
+            // 쿠폰 사용 처리 (DB에서 삭제)
+            userRepository.useCoupon(userId);
+        }
+        if (fuelCoupon != null && !fuelCoupon.trim().isEmpty()) {
+            String discountStr = fuelCoupon.replaceAll("[^0-9]", "");
+            if (!discountStr.isEmpty()) {
+                fuelDiscountRate = Integer.parseInt(discountStr) / 100.0;
+            }
+            // 쿠폰 사용 처리 (DB에서 삭제)
+            userRepository.useCoupon(userId);
+        }
+        int passengerCount = seatNumbers.size();
+        int seatDiscount = (int)Math.floor(seatOriginalPrice * seatDiscountRate);
+        int fuelDiscount = (int)Math.floor(fuelOriginalPrice * fuelDiscountRate);
+        int finalSeatPrice = seatOriginalPrice - seatDiscount;
+        int finalFuelPrice = fuelOriginalPrice - fuelDiscount;
+        int totalFinalPrice = (finalSeatPrice + finalFuelPrice) * passengerCount;
+        // 4. 포인트 차감 처리 (실제 결제 금액만큼)
+        if (usedPoints > totalFinalPrice) {
+            throw new RuntimeException("결제 포인트가 실제 결제 금액을 초과합니다.");
+        }
         if (usedPoints > 0) {
             int updatedRows = userRepository.deductPoints(userId, usedPoints);
             if (updatedRows == 0) {
@@ -63,13 +92,13 @@ public class ReservationService {
             }
         }
         
-        // 4. 좌석 예약 처리
+        // 5. 좌석 예약 처리
         int reservedSeats = seatRepository.reserveSeats(flightId, seatNumbers);
         if (reservedSeats != seatNumbers.size()) {
             throw new RuntimeException("좌석 예약에 실패했습니다. 이미 예약된 좌석이 있습니다.");
         }
         
-        // 5. 예약 레코드 생성
+        // 6. 예약 레코드 생성
         List<Seat> seats = seatRepository.findSeatsByFlightIdAndNumbers(flightId, seatNumbers);
         return seats.stream().map(seat -> {
             Reservation reservation = new Reservation();
