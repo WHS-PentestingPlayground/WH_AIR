@@ -19,7 +19,7 @@ public class MainController {
 
   @GetMapping("/")
   public String main(HttpServletRequest request, Model model) {
-    Object user = request.getSession().getAttribute("user");
+    Object user = request.getAttribute("user");
     if (user != null) {
       model.addAttribute("user", user);  // JSP에서 ${user.name} 가능
     }

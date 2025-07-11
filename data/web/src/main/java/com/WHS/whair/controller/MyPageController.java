@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -20,9 +20,9 @@ public class MyPageController {
     private final MyPageService myPageService;
 
     @GetMapping
-    public String mypage(HttpSession session, Model model) {
+    public String mypage(HttpServletRequest request, Model model) {
         // 세션에서 사용자 객체 가져오기
-        User sessionUser = (User) session.getAttribute("user");
+        User sessionUser = (User) request.getAttribute("user");
         
         if (sessionUser == null) {
             return "redirect:/login";
@@ -39,7 +39,6 @@ public class MyPageController {
 
             return "mypage";
         } catch (IllegalArgumentException e) {
-            session.invalidate();
             return "redirect:/login";
         }
     }

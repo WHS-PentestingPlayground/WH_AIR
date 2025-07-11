@@ -16,14 +16,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: new URLSearchParams({ name, password })
+                body: new URLSearchParams({ name, password }),
+                credentials: 'include' // ✅ 쿠키 자동 수신
             });
 
             const data = await res.json();
 
-            if (res.ok && data.token) {
-                localStorage.removeItem('jwtToken'); // 이전 키 정리
-                localStorage.setItem('jwt_token', data.token);
+            if (res.ok) {
                 window.location.href = '/';
             } else {
                 alert(data.error || '로그인 실패');
