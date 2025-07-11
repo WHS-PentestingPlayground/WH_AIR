@@ -61,10 +61,15 @@ public class ReservationService {
         int passengerCount = seatNumbers.size();
         int totalFinalPrice = couponResult.getTotalPrice() * passengerCount;
 
-        // 포인트 차감 처리 (실제 결제 금액만큼)
-        if (usedPoints > totalFinalPrice) {
-            throw new RuntimeException("결제 포인트가 실제 결제 금액을 초과합니다.");
+        // 포인트 사용량과 결제 금액 정확성 검증
+        if (usedPoints != totalFinalPrice) {
+            throw new RuntimeException(String.format(
+                "결제 포인트(%d)가 실제 결제 금액(%d)과 일치하지 않습니다.", 
+                usedPoints, totalFinalPrice
+            ));
         }
+        
+        // 포인트 차감 처리 (실제 결제 금액만큼)
         if (usedPoints > 0) {
             int updatedRows = userRepository.deductPoints(userId, usedPoints);
             if (updatedRows == 0) {
