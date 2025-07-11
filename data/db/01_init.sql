@@ -189,11 +189,6 @@ INSERT INTO users (name, email, password_hash, phone_number, point, coupon, crea
 ('최지영', 'choi@example.com', 'hash101', '010-4567-8901', 180000, NULL, '2024-01-04 13:00:00'),
 ('정현우', 'jung@example.com', 'hash202', '010-5678-9012', 250000, 'VIP30', '2024-01-05 14:00:00');
 
--- manager 계정 추가 (이름이 "manager"인 계정)
--- 비밀번호: password (위치: data/web/src/main/java/com/WHS/whair/util/PasswordUtil.java에서 해시 생성)
---INSERT INTO users (name, email, password_hash, phone_number, point, coupon, created_at) VALUES
---('manager', 'manager@whair.com', 'jzOrsbZaFBqyy8qP/a5uGQ==:jvdSPhvXsnCoigwHDv2EZKnXe1vvWskz4StJsVOe3UI=', '010-0000-0000', 150000, NULL, '2024-01-01 00:00:00');
-
 INSERT INTO flights (flight_number, departure_airport, arrival_airport, departure_time, arrival_time, airline, aircraft_model) VALUES
 ('WH1234', 'ICN', 'YVR', '2025-08-02 10:00:00', '2025-08-02 06:00:00', 'WH Air', 'Boeing 777');
 

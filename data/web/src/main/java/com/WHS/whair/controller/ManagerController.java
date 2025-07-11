@@ -38,7 +38,7 @@ public class ManagerController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         log.info("managerPage() - auth.getName(): {}", auth.getName());
-        if (!"manager".equals(auth.getName())) {
+        if (!"wh_manager".equals(auth.getName())) {
             log.warn("managerPage() - forbidden for user: {}", auth.getName());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -66,7 +66,7 @@ public class ManagerController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         log.info("changeSeatPage() - auth.getName(): {}", auth.getName());
-        if (!"manager".equals(auth.getName())) {
+        if (!"wh_manager".equals(auth.getName())) {
             log.warn("changeSeatPage() - forbidden for user: {}", auth.getName());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -92,7 +92,7 @@ public class ManagerController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         log.info("changeSeat() - auth.getName(): {}", auth.getName());
-        if (!"manager".equals(auth.getName())) {
+        if (!"wh_manager".equals(auth.getName())) {
             log.warn("changeSeat() - forbidden for user: {}", auth.getName());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
