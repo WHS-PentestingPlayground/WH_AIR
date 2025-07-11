@@ -2,6 +2,7 @@ package com.WHS.whair.entity;
 import lombok.Data;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * =================================================================
@@ -35,6 +36,7 @@ public class Seat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flight_id")
+    @JsonIgnore
     private Flight flight;
 
     @Column(name = "seat_number", nullable = false)

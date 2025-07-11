@@ -98,11 +98,15 @@ public class ReservationController {
             LocalDate passengerBirth = LocalDate.parse(passengerBirthStr);
             
             // 예약 생성
-            List<Reservation> reservations = reservationService.createReservations(userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints, seatCoupon, fuelCoupon);
+            reservationService.createReservations(userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints, seatCoupon, fuelCoupon);
             
+            // 간소화된 응답 (예약 완료 확인만 - 엔티티 정보 제외)
             response.put("success", true);
-            response.put("reservations", reservations);
             response.put("message", "예약이 완료되었습니다.");
+            response.put("reservationCount", seatNumbers.size());
+            response.put("seatNumbers", seatNumbers);
+            response.put("passengerName", passengerName);
+            response.put("flightId", flightId);
             
             return ResponseEntity.ok(response);
             
@@ -111,7 +115,7 @@ public class ReservationController {
             response.put("success", false);
             response.put("message", "예약 처리 중 오류가 발생했습니다: " + e.getMessage());
             
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.internalServerError().body(response);
         }
     }
     
@@ -202,6 +206,7 @@ public class ReservationController {
             Reservation reservation = reservationService.getReservationDetail(reservationId, userId);
             
             response.put("success", true);
+            response.put("reservation", reservation);
             response.put("message", "예약 상세 조회가 완료되었습니다.");
             
             return ResponseEntity.ok(response);

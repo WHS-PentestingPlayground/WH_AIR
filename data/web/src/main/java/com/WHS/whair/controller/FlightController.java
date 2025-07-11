@@ -141,15 +141,21 @@ public class FlightController {
         try {
             // JWT 토큰에서 사용자 정보 가져오기
             User user = (User) request.getAttribute("user");
-            if (user == null) {
+            if (user == null || user.getId() == null) {
+                return ResponseEntity.status(401).build();
+            }
+            
+            // 실제 DB에서 사용자 정보 조회
+            User dbUser = userRepository.findById(user.getId()).orElse(null);
+            if (dbUser == null) {
                 return ResponseEntity.status(401).build();
             }
             
             Map<String, Object> response = new HashMap<>();
             
-            // 사용자의 쿠폰 정보 및 포인트 조회
-            response.put("userCoupon", user.getCoupon());
-            response.put("points", user.getPoint());
+            // 실제 DB에서 조회한 사용자의 쿠폰 정보 및 포인트 조회
+            response.put("userCoupon", dbUser.getCoupon());
+            response.put("points", dbUser.getPoint());
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
