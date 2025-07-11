@@ -24,6 +24,7 @@ import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -37,9 +38,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (token != null) {
+            log.debug("🔍 JWT 토큰 발견: {}", token.substring(0, Math.min(20, token.length())) + "...");
+            
             String username = jwtUtil.validateAndExtractUsername(token);
+            Long userId = jwtUtil.extractUserId(token);
+            
+            log.debug("👤 JWT에서 추출: username={}, userId={}", username, userId);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                log.debug("🔐 SecurityContext에 인증 정보 설정: username={}", username);
                 UserDetails userDetails = User.builder()
                         .username(username)
                         .password("") // 비밀번호는 필요 없음
@@ -52,12 +59,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
 
-            try {
-                com.WHS.whair.entity.User userEntity = userService.findByName(username);
-                request.setAttribute("user", userEntity);
-            } catch (Exception ignored) {
-                // 사용자 정보 설정 실패 시 무시
+            // JWT에서 추출한 정보로 간단한 User 객체 생성 (DB 조회 없이)
+            if (username != null) {
+                try {
+                    com.WHS.whair.entity.User userEntity = new com.WHS.whair.entity.User();
+                    if (userId != null) {
+                        userEntity.setId(userId);
+                    }
+                    userEntity.setName(username);
+                    request.setAttribute("user", userEntity);
+                    log.debug("👤 Request에 사용자 정보 설정: username={}, userId={}", username, userId);
+                } catch (Exception ignored) {
+                    log.warn("⚠️ 사용자 정보 설정 실패: {}", ignored.getMessage());
+                }
             }
+        } else {
+            log.debug("🔍 JWT 토큰 없음");
         }
 
         filterChain.doFilter(request, response);

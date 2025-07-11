@@ -5,6 +5,7 @@ import com.WHS.whair.entity.User;
 import com.WHS.whair.service.UserService;
 import com.WHS.whair.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -35,21 +37,28 @@ public class UserController {
                                    @RequestParam String password,
                                    HttpServletRequest request) {
 
+        log.info("🚀 로그인 요청: 사용자명={}", name);
+
         if (name == null || name.trim().isEmpty()) {
+            log.warn("❌ 사용자명이 비어있음");
             return ResponseEntity.badRequest().body(Map.of("error", "사용자명을 입력해주세요."));
         }
         if (password == null || password.trim().isEmpty()) {
+            log.warn("❌ 비밀번호가 비어있음");
             return ResponseEntity.badRequest().body(Map.of("error", "비밀번호를 입력해주세요."));
         }
 
         try {
+            log.info("🔍 사용자 인증 시도: 사용자명={}", name.trim());
             User user = userService.authenticate(name.trim(), password);
+            
             if (user == null) {
+                log.warn("❌ 인증 실패: 사용자명={}", name.trim());
                 return ResponseEntity.status(401).body(Map.of("error", "아이디 또는 비밀번호가 틀렸습니다."));
             }
 
-            String token = jwtUtil.generateToken(user.getName());
-
+            log.info("✅ 인증 성공, JWT 토큰 생성: 사용자명={}, ID={}", user.getName(), user.getId());
+            String token = jwtUtil.generateToken(user.getName(), user.getId());
 
             ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
                     .httpOnly(true)    // 실습용. XSS 방지하려면 true
@@ -58,12 +67,13 @@ public class UserController {
                     .maxAge(3600)
                     .build();
 
+            log.info("🍪 JWT 쿠키 설정 완료");
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(Map.of("message", "로그인 성공"));
-
+                    .body(Map.of("message", "로그인 성공", "token", token));
 
         } catch (Exception e) {
+            log.error("💥 로그인 중 예외 발생: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", "로그인 중 오류가 발생했습니다."));
         }
     }

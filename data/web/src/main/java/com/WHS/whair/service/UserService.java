@@ -5,12 +5,14 @@ import com.WHS.whair.entity.User;
 import com.WHS.whair.repository.UserRepository;
 import com.WHS.whair.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -38,17 +40,27 @@ public class UserService {
     }
 
     public User authenticate(String name, String password) {
+        log.info("🔐 인증 시도: 사용자명={}", name);
+        
         User user = userRepository.findByName(name)
                 .orElse(null);
 
         if (user == null) {
+            log.warn("❌ 사용자를 찾을 수 없음: 사용자명={}", name);
             return null;
         }
 
-        if (!passwordUtil.verifyPassword(password, user.getPasswordHash())) {
+        log.info("✅ 사용자 찾음: ID={}, 이름={}", user.getId(), user.getName());
+        
+        boolean passwordValid = passwordUtil.verifyPassword(password, user.getPasswordHash());
+        log.info("🔑 비밀번호 검증 결과: {}", passwordValid);
+
+        if (!passwordValid) {
+            log.warn("❌ 비밀번호 불일치: 사용자명={}", name);
             return null;
         }
 
+        log.info("✅ 인증 성공: 사용자명={}, ID={}", name, user.getId());
         return user;
     }
 

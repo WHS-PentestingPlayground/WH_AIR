@@ -77,10 +77,12 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
   @Query("UPDATE Seat seat SET seat.isReserved = false " +
          "WHERE seat.flight.id = :flightId AND seat.seatNumber IN :seatNumbers AND seat.isReserved = true")
   int cancelReservation(@Param("flightId") Long flightId, @Param("seatNumbers") List<String> seatNumbers);
+  
+  // 비즈니스 클래스 예약 가능 좌석 조회
+  @Query("SELECT s FROM Seat s WHERE s.flight.id = :flightId AND s.seatClass = 'business' AND s.isReserved = false")
+  List<Seat> findAvailableBusinessSeats(@Param("flightId") Long flightId);
+  
+  // 항공편 ID로 좌석 조회
+  List<Seat> findByFlightId(Long flightId);
 }
-
-@Query("SELECT s FROM Seat s WHERE s.flight.id = :flightId AND s.seatClass = 'business' AND s.isReserved = false")
-List<Seat> findAvailableBusinessSeats(@Param("flightId") Long flightId);
-    
-    List<Seat> findByFlightId(Long flightId);
 
