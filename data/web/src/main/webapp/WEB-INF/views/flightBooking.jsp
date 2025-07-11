@@ -190,7 +190,7 @@
                                 </div>
                                 <div class="payment-point-row">
                                     <input type="text" class="payment-point-input" id="payment-points"
-                                           placeholder="사용할 포인트를 입력하세요"
+                                           placeholder="사용할 포인트를 입력하세요" value="0"
                                            onchange="updatePaymentPoints()" oninput="updatePaymentPoints()">
                                     <button class="use-all-btn" onclick="useAllPoints()">모두 사용</button>
                                 </div>

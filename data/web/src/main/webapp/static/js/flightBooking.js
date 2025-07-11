@@ -594,6 +594,7 @@ function updateTotalAmount() {
 
 // 모든 포인트 사용
 function useAllPoints() {
+    // 총 결제 금액만큼 설정하되, 보유 포인트를 초과하지 않도록 제한
     const maxPoints = Math.min(bookingState.userPoints, bookingState.totalAmount);
     bookingState.paymentPoints = maxPoints;
     const inputElem = document.getElementById('payment-points');
@@ -762,11 +763,11 @@ async function processPayment() {
                 // STEP 3 완료 처리
                 document.getElementById('step3').classList.add('completed');
                 
-                alert('🎉 결제가 완료되었습니다!\n예약 확인서를 이메일로 발송했습니다.');
+                alert('🎉 결제가 완료되었습니다!');
                 
-                // 예약 완료 후 검색 페이지로 이동
+                // 예약 완료 후 마이페이지로 이동
                 setTimeout(() => {
-                    window.location.href = '/search';
+                    window.location.href = '/mypage';
                 }, 2000);
             } else {
                 alert(`예약 실패: ${result.message || '알 수 없는 오류'}`);
