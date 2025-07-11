@@ -132,8 +132,8 @@ public class FlightController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
-    
+  }
+  
     // 사용자 쿠폰 조회 API
     @GetMapping("/api/user/coupons")
     @ResponseBody

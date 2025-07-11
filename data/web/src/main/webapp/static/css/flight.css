@@ -503,11 +503,30 @@ body {
 
 .coupon-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    gap: 1em;
-    flex-wrap: wrap;
+    gap: 0.7em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+.coupon-apply-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.45em 1.1em;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(37,99,235,0.08);
+}
+.coupon-apply-btn:hover:not(:disabled) {
+    background: #1742a0;
+}
+.coupon-apply-btn:disabled {
+    background: #bcd0f7;
+    color: #fff;
+    cursor: not-allowed;
 }
 
 .coupon-dropdown {
