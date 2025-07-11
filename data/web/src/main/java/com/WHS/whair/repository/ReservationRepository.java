@@ -16,5 +16,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
            "ORDER BY r.bookedAt DESC")
     List<Reservation> findByUserIdWithFlightAndSeat(@Param("userId") Long userId);
     
+    @Query("SELECT r FROM Reservation r " +
+           "JOIN FETCH r.user u " +
+           "JOIN FETCH r.flight f " +
+           "JOIN FETCH r.seat s " +
+           "ORDER BY r.bookedAt DESC")
+    List<Reservation> findAllWithUserAndFlightAndSeat();
+    
     List<Reservation> findByUserId(Long userId);
 }

@@ -94,17 +94,10 @@ public class FlightController {
             return "redirect:/search";
         }
         
-        // 세션에서 사용자 정보 가져오기
-        User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null) {
-            model.addAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/login";
-        }
-        
-        // DB에서 최신 사용자 정보 조회 (동기화)
-        User user = userRepository.findById(sessionUser.getId()).orElse(null);
+        // JWT 토큰에서 사용자 정보 가져오기
+        User user = (User) request.getAttribute("user");
         if (user == null) {
-            model.addAttribute("error", "사용자 정보를 찾을 수 없습니다.");
+            model.addAttribute("error", "로그인이 필요합니다.");
             return "redirect:/login";
         }
         
@@ -139,6 +132,55 @@ public class FlightController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+  }
+  
+    // 사용자 쿠폰 조회 API
+    @GetMapping("/api/user/coupons")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getUserCoupons(HttpServletRequest request) {
+        try {
+            // JWT 토큰에서 사용자 정보 가져오기
+            User user = (User) request.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(401).build();
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            
+            // 사용자의 쿠폰 정보 조회
+            String userCoupon = user.getCoupon();
+            
+            // 사용 가능한 쿠폰 목록 (실제로는 DB에서 조회해야 하지만, 현재는 하드코딩)
+            Map<String, Object> availableCoupons = new HashMap<>();
+            
+            if (userCoupon != null && !userCoupon.trim().isEmpty()) {
+                // 쿠폰 타입에 따라 할인율 설정
+                switch (userCoupon.toLowerCase()) {
+                    case "10":
+                        availableCoupons.put("운임비10%할인", 0.1);
+                        break;
+                    case "20":
+                        availableCoupons.put("운임비20%할인", 0.2);
+                        break;
+                    case "fuel10":
+                        availableCoupons.put("유류할증료10%할인", 0.1);
+                        break;
+                    case "fuel20":
+                        availableCoupons.put("유류할증료20%할인", 0.2);
+                        break;
+                    default:
+                        availableCoupons.put("기본할인쿠폰", 0.05);
+                        break;
+                }
+            }
+            
+            response.put("userCoupon", userCoupon);
+            response.put("availableCoupons", availableCoupons);
+            response.put("points", user.getPoint());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
-
 } 
