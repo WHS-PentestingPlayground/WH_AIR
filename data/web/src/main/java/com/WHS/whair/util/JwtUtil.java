@@ -45,7 +45,23 @@ public class JwtUtil {
     }
 
     // JWT 생성 (정상적인 사용자용)
+    public String generateToken(String username, Long userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
+
+        return Jwts.builder()
+                .setSubject(username)                           // sub (사용자 식별자)
+                .claim("userId", userId)                        // 사용자 ID
+                .claim("managedBy", "wh_manager")   // 커스텀 클레임(관리자 ID)
+                .setIssuedAt(now)                              // iat (발행 시간)
+                .setExpiration(expiryDate)                     // exp (만료 시간)
+                .signWith(privateKey, SignatureAlgorithm.RS256) // 생성은 여전히 안전하게
+                .compact();
+    }
+    
+    // 기존 호환성을 위한 메서드
     public String generateToken(String username) {
+        // 기존 토큰은 userId 없이 생성
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
@@ -68,6 +84,20 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody()
                     .getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    // JWT에서 사용자 ID 추출
+    public Long extractUserId(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(publicKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("userId", Long.class);
         } catch (Exception e) {
             return null;
         }

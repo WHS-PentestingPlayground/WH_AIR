@@ -94,17 +94,10 @@ public class FlightController {
             return "redirect:/search";
         }
         
-        // 세션에서 사용자 정보 가져오기
-        User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null) {
-            model.addAttribute("error", "로그인이 필요합니다.");
-            return "redirect:/login";
-        }
-        
-        // DB에서 최신 사용자 정보 조회 (동기화)
-        User user = userRepository.findById(sessionUser.getId()).orElse(null);
+        // JWT 토큰에서 사용자 정보 가져오기
+        User user = (User) request.getAttribute("user");
         if (user == null) {
-            model.addAttribute("error", "사용자 정보를 찾을 수 없습니다.");
+            model.addAttribute("error", "로그인이 필요합니다.");
             return "redirect:/login";
         }
         
@@ -139,23 +132,17 @@ public class FlightController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
-    
+  }
+  
     // 사용자 쿠폰 조회 API
     @GetMapping("/api/user/coupons")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getUserCoupons(HttpServletRequest request) {
         try {
-            // 세션에서 사용자 정보 가져오기
-            User sessionUser = (User) request.getSession().getAttribute("user");
-            if (sessionUser == null) {
-                return ResponseEntity.status(401).build();
-            }
-            
-            // DB에서 최신 사용자 정보 조회
-            User user = userRepository.findById(sessionUser.getId()).orElse(null);
+            // JWT 토큰에서 사용자 정보 가져오기
+            User user = (User) request.getAttribute("user");
             if (user == null) {
-                return ResponseEntity.status(404).build();
+                return ResponseEntity.status(401).build();
             }
             
             Map<String, Object> response = new HashMap<>();

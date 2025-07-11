@@ -1,15 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask import abort
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from functools import wraps
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
+
+# 로그인 데코레이터
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'admin_logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # 데이터베이스 연결 설정
 DB_CONFIG = {
@@ -31,13 +41,46 @@ def block_db_server_curl():
         user_agent = request.headers.get("User-Agent", "")
         if user_agent.lower().startswith("curl"):
             abort(403, description="You'd better find another approach")
+            
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """관리자 로그인"""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # 하드코딩된 관리자 계정 (admin/admin)
+        if username == 'admin' and password == 'admin':
+            session['admin_logged_in'] = True
+            session['admin_username'] = username
+            flash('관리자로 로그인되었습니다.', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('아이디 또는 비밀번호가 올바르지 않습니다.', 'error')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """관리자 로그아웃"""
+    session.pop('admin_logged_in', None)
+    session.pop('admin_username', None)
+    flash('로그아웃되었습니다.', 'info')
+    return redirect(url_for('login'))
 
 @app.route('/')
+def root():
+    """루트 경로를 로그인 페이지로 리다이렉트"""
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
+@login_required
 def index():
     """관리자 메인 페이지"""
     return render_template('index.html')
 
 @app.route('/reservations')
+@login_required
 def reservations():
     """예약 관리 페이지"""
     conn = get_db_connection()
@@ -81,6 +124,7 @@ def reservations():
         conn.close()
 
 @app.route('/seats')
+@login_required
 def seats():
     """좌석 관리 페이지"""
     conn = get_db_connection()
@@ -130,6 +174,7 @@ def seats():
         conn.close()
 
 @app.route('/api/available_seats/<int:flight_id>')
+@login_required
 def get_available_seats(flight_id):
     """특정 항공편의 사용 가능한 좌석 목록을 반환합니다."""
     conn = get_db_connection()
@@ -160,6 +205,7 @@ def get_available_seats(flight_id):
         conn.close()
 
 @app.route('/api/change_seat', methods=['POST'])
+@login_required
 def change_seat():
     """예약된 좌석을 변경합니다."""
     data = request.get_json()
@@ -216,6 +262,7 @@ def change_seat():
         conn.close()
 
 @app.route('/api/cancel_reservation', methods=['POST'])
+@login_required
 def cancel_reservation():
     """예약을 취소(삭제)합니다."""
     data = request.get_json()
@@ -243,6 +290,7 @@ def cancel_reservation():
         conn.close()
 
 @app.route('/whoami')
+@login_required
 def whoami():
     conn = get_db_connection()
     cur = conn.cursor()
