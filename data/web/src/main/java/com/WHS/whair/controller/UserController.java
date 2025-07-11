@@ -51,7 +51,7 @@ public class UserController {
             String token = jwtUtil.generateToken(user.getName());
 
             ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
-                    .httpOnly(false)    // 실습용. XSS 방지하려면 true
+                    .httpOnly(true)    // 실습용. XSS 방지하려면 true
                     .secure(false)      // HTTPS 사용 시 true
                     .path("/")
                     .maxAge(3600)
@@ -112,9 +112,12 @@ public class UserController {
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
+                .httpOnly(true)
+                .secure(false)
                 .path("/")
-                .maxAge(0)
+                .maxAge(0)         // 쿠키 삭제
                 .build();
+
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return "redirect:/";
     }

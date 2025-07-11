@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -34,50 +33,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        log.debug("🔍 [1] JwtAuthFilter invoked for URI: {}", request.getRequestURI());
-
         String token = extractToken(request);
-        log.debug("🔑 [2] Extracted token: {}", token != null ? "exists" : "null");
 
         if (token != null) {
             String username = jwtUtil.validateAndExtractUsername(token);
-            log.debug("✅ [3] Validated username from token: {}", username);
 
-            if (username != null) {
-                if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                    log.debug("🛡 [4] No existing authentication found. Setting SecurityContext...");
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = User.builder()
+                        .username(username)
+                        .password("") // 비밀번호는 필요 없음
+                        .authorities(Collections.emptyList())
+                        .build();
 
-                    UserDetails userDetails = User.builder()
-                            .username(username)
-                            .password("") // 비밀번호 필요 없음
-                            .authorities(Collections.emptyList())
-                            .build();
-
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    log.debug("✅ [5] Authentication set in SecurityContext for user: {}", username);
-                } else {
-                    log.debug("⚠️ [5] SecurityContext already has authentication.");
-                }
-
-                try {
-                    com.WHS.whair.entity.User userEntity = userService.findByName(username);
-                    request.setAttribute("user", userEntity);
-                    log.debug("🙋 [6] User entity set in request attribute: {}", userEntity.getName());
-                } catch (Exception e) {
-                    log.error("❌ [6] Failed to find user entity: {}", e.getMessage());
-                }
-            } else {
-                log.warn("⚠️ [3] Token validation failed. Username is null.");
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
-        } else {
-            log.warn("⚠️ [2] No JWT token found in cookies.");
+
+            try {
+                com.WHS.whair.entity.User userEntity = userService.findByName(username);
+                request.setAttribute("user", userEntity);
+            } catch (Exception ignored) {
+                // 사용자 정보 설정 실패 시 무시
+            }
         }
 
-        log.debug("➡️ [7] Passing request to next filter.");
         filterChain.doFilter(request, response);
     }
 
