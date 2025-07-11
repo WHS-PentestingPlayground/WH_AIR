@@ -26,6 +26,12 @@ RUN ./gradlew :data:web:clean :data:web:build --no-daemon -x test
 FROM tomcat:9.0.60-jdk17
 ENV TZ=Asia/Seoul
 
+# psql(PostgreSQL client) 설치
+RUN apt-get update && \
+    apt-get install -y postgresql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 빌드 결과물(WAR) 복사 (web용 war)
 COPY --from=builder /home/gradle/src/data/web/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
 

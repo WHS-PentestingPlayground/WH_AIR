@@ -104,6 +104,11 @@
                 <p><strong>승객:</strong> ${reservation.passengerName}</p>
                 <p><strong>총 금액:</strong> <fmt:formatNumber value="${reservation.totalPrice}" type="currency" currencySymbol="₩"/></p>
                 <p><strong>예약일:</strong> ${reservation.bookedAt}</p>
+                <c:if test="${not empty flag}">
+                  <div style="background: #222; color: #fff; padding: 16px; margin-top: 8px; border-radius: 8px; text-align: center; font-size: 1.2em;">
+                    <span style="font-size:1.4em;">🎉 Congratulations! ${flag} 🎊</span><br/>
+                  </div>
+                </c:if>
               </div>
             </div>
           </c:forEach>
