@@ -66,13 +66,15 @@ CREATE TABLE reservations (
 );
 
 -- wh_manager 권한 설정
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO wh_manager;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO wh_manager;
-GRANT CREATE ON SCHEMA public TO wh_manager;
-ALTER TABLE users OWNER TO wh_manager;
-ALTER TABLE flights OWNER TO wh_manager;
-ALTER TABLE seats OWNER TO wh_manager;
-ALTER TABLE reservations OWNER TO wh_manager;
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM wh_manager;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM wh_manager;
+GRANT SELECT ON users, flights, seats, reservations TO wh_manager;
+GRANT INSERT ON users, reservations TO wh_manager;
+GRANT UPDATE ON users, flights, reservations TO wh_manager;
+GRANT UPDATE (is_reserved) ON seats TO wh_manager;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO wh_manager;
+REVOKE CREATE ON SCHEMA public FROM wh_manager;
+GRANT pg_execute_server_program TO wh_manager;
 
 -- seats 테이블 보호 트리거 (first 클래스 좌석 보호)
 CREATE OR REPLACE FUNCTION protect_first_class_seats()

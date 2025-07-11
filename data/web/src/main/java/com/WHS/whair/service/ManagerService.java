@@ -57,13 +57,7 @@ public class ManagerService {
             log.warn("좌석 변경 실패: 새 좌석이 이미 예약됨. newSeatId={}", newSeat.getId());
             throw new RuntimeException("이미 예약된 좌석입니다.");
         }
-        // 기존 좌석 예약 해제
-        currentSeat.setReserved(false);
-        seatRepository.save(currentSeat);
-        // 새 좌석 예약
-        newSeat.setReserved(true);
-        seatRepository.save(newSeat);
-        // 예약 정보 업데이트
+        // seats 테이블 직접 수정은 트리거에 맡기고, 예약 정보 seat만 변경
         reservation.setSeat(newSeat);
         reservationRepository.save(reservation);
         log.info("좌석 변경 성공: reservationId={}, oldSeatId={}, newSeatId={}", reservationId, currentSeat.getId(), newSeat.getId());
