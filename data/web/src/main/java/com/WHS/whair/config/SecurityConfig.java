@@ -20,6 +20,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
+                .logout().disable()
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/register", "/logout", "/flights", "/search", "/booking", "/api/**", "/mypage", "/.well-known/jwks.json").permitAll()
                 .antMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()

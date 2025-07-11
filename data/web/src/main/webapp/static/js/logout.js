@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     logoutBtn.addEventListener('click', function (e) {
         e.preventDefault();
 
-        // JWT 삭제
-        localStorage.removeItem('jwt_token');
-
+        // ✅ 서버에 쿠키 삭제 요청만 보내면 됨
         // 서버 세션 무효화 요청
         fetch('/logout', {
             method: 'GET',
