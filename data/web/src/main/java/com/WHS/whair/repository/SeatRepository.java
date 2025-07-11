@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Optional;
 import java.util.List;
 
 import com.WHS.whair.entity.Seat;
@@ -84,5 +87,16 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
   
   // 항공편 ID로 좌석 조회
   List<Seat> findByFlightId(Long flightId);
+
+  /* 좌석 가격 조회 */
+
+  // 특정 좌석의 모든 가격 정보 조회
+  @Query("SELECT new map(seat.seatPrice as seatPrice, seat.fuelPrice as fuelPrice) " + "FROM Seat seat WHERE seat.flight.id = :flightId AND seat.seatNumber = : seatNumber")
+  Optional<Map<String, BigDecimal>> findAllPriceInfo(@Param("flightId") Long flightId, @Param("seatNumber") String seatNumber);
+
+  // 총 가격 계산
+  @Query("SELECT (seat.seatPrice + seat.fuelPrice) FROM Seat seat " + "WHERE seat.flight.id = :flightId AND seat.seatNumber = :seatNumber")
+  Optional<BigDecimal> getTotalPrice(@Param("flightId") Long flightId, @Param("seatNumber") String seatNumber);
+
 }
 
