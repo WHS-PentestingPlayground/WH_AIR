@@ -20,7 +20,13 @@ RUN (dos2unix /docker-entrypoint-initdb.d/pghba.sh /docker-entrypoint-initdb.d/*
      sed -i 's/\r$//' /docker-entrypoint-initdb.d/pghba.sh /docker-entrypoint-initdb.d/*.sql 2>/dev/null) && \
     chmod +x /docker-entrypoint-initdb.d/pghba.sh
 
+# iptables 스크립트 복사 및 실행 권한 부여
+COPY ../../docker/db/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # 포트 노출
 EXPOSE 5432
 
 # 기본 엔트리포인트 및 명령어는 postgres 이미지 기본값 사용
+# USER root
+# ENTRYPOINT ["/entrypoint.sh"]
