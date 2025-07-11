@@ -50,6 +50,7 @@ public class UserController {
 
             String token = jwtUtil.generateToken(user.getName());
 
+
             ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
                     .httpOnly(true)    // 실습용. XSS 방지하려면 true
                     .secure(false)      // HTTPS 사용 시 true
@@ -60,6 +61,7 @@ public class UserController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(Map.of("message", "로그인 성공"));
+
 
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "로그인 중 오류가 발생했습니다."));

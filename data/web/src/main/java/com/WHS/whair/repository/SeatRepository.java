@@ -1,5 +1,6 @@
 package com.WHS.whair.repository;
 
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -77,3 +78,9 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
          "WHERE seat.flight.id = :flightId AND seat.seatNumber IN :seatNumbers AND seat.isReserved = true")
   int cancelReservation(@Param("flightId") Long flightId, @Param("seatNumbers") List<String> seatNumbers);
 }
+
+@Query("SELECT s FROM Seat s WHERE s.flight.id = :flightId AND s.seatClass = 'business' AND s.isReserved = false")
+List<Seat> findAvailableBusinessSeats(@Param("flightId") Long flightId);
+    
+    List<Seat> findByFlightId(Long flightId);
+

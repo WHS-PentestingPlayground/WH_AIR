@@ -22,8 +22,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await res.json();
 
-            if (res.ok) {
-                window.location.href = '/';
+            if (res.ok && data.token) {
+                localStorage.removeItem('jwtToken'); // 이전 키 정리
+                localStorage.setItem('jwt_token', data.token);
+                
+                // 쿠키에도 토큰 저장
+                document.cookie = `jwt_token=${data.token}; path=/; max-age=86400; SameSite=Strict`;
+                
+                // manager인 경우 manager 페이지로 리다이렉트
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    window.location.href = '/';
+                }
             } else {
                 alert(data.error || '로그인 실패');
             }
