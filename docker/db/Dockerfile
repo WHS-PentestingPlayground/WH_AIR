@@ -10,7 +10,7 @@ ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres
 
 # 필요한 패키지 설치
-RUN apt-get update && apt-get install -y python3 curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3 curl wget iptables && rm -rf /var/lib/apt/lists/*
 
 # 초기화 스크립트 디렉토리 복사
 COPY ../../data/db/ /docker-entrypoint-initdb.d/
