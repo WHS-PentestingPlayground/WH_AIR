@@ -10,7 +10,7 @@
   text-align: center;
   margin-bottom: 50px;
   padding: 30px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3a5e8c 0%, #1e3a8a 100%);
   color: white;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -45,7 +45,7 @@
   font-weight: 600;
   margin-bottom: 25px;
   color: #333;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #3a5e8c;
   padding-bottom: 10px;
 }
 
@@ -60,7 +60,7 @@
   padding: 20px;
   background: #f8f9fa;
   border-radius: 10px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #3a5e8c;
 }
 
 .info-item label {
@@ -90,20 +90,6 @@
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.asset-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-.point-card {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-}
-
-.coupon-card {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }
 
 .asset-icon {
@@ -137,12 +123,8 @@
   border-radius: 15px;
   padding: 25px;
   background: white;
-  transition: box-shadow 0.3s ease;
 }
 
-.reservation-card:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
 
 .reservation-header {
   display: flex;
@@ -201,8 +183,8 @@
 
 .airport {
   display: block;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 600;
   color: #333;
   margin-bottom: 5px;
 }
@@ -214,7 +196,7 @@
 
 .flight-arrow {
   font-size: 1.5rem;
-  color: #667eea;
+  color: #3a5e8c;
   margin: 0 20px;
 }
 
@@ -228,38 +210,29 @@
 
 .flight-number {
   font-weight: 600;
-  color: #667eea;
-  font-size: 1.1rem;
+  color: #3a5e8c;
 }
 
 .seat-info {
-  background: #667eea;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  color: #666;
 }
 
 /* 승객 정보 */
 .passenger-info {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #e1e8ed;
 }
 
 .passenger-info p {
   margin: 8px 0;
-  font-size: 1rem;
   color: #333;
 }
 
 .passenger-info strong {
-  color: #667eea;
-  font-weight: 600;
+  color: #3a5e8c;
 }
 
-/* 예약 없음 상태 */
+/* 예약 없음 */
 .no-reservations {
   text-align: center;
   padding: 60px 20px;
@@ -279,50 +252,47 @@
 
 .search-flight-btn {
   display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 30px;
+  background: #3a5e8c;
   color: white;
-  padding: 15px 30px;
-  border-radius: 25px;
   text-decoration: none;
+  border-radius: 25px;
   font-weight: 600;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: background 0.3s ease;
 }
 
 .search-flight-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-  color: white;
-  text-decoration: none;
+  background: #1e3a8a;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .mypage-container {
-    padding: 20px 15px;
+    padding: 20px 10px;
   }
-  
+
   .mypage-header h1 {
     font-size: 2rem;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .assets-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .route-info {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .flight-arrow {
     transform: rotate(90deg);
     margin: 10px 0;
   }
-  
+
   .flight-details {
     flex-direction: column;
     gap: 10px;

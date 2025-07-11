@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: new URLSearchParams({ name, password })
+                body: new URLSearchParams({ name, password }),
+                credentials: 'include' // ✅ 쿠키 자동 수신
             });
 
             const data = await res.json();

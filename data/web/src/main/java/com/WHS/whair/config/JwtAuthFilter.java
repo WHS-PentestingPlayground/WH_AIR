@@ -3,6 +3,7 @@ package com.WHS.whair.config;
 import com.WHS.whair.service.UserService;
 import com.WHS.whair.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -15,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.http.Cookie;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -40,19 +42,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = User.builder()
                         .username(username)
-                        .password("")
+                        .password("") // 비밀번호는 필요 없음
                         .authorities(Collections.emptyList())
                         .build();
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                try {
-                    com.WHS.whair.entity.User userEntity = userService.findByName(username);
-                    request.getSession().setAttribute("user", userEntity);
-                } catch (Exception ignored) {}
+            }
+
+            try {
+                com.WHS.whair.entity.User userEntity = userService.findByName(username);
+                request.setAttribute("user", userEntity);
+            } catch (Exception ignored) {
+                // 사용자 정보 설정 실패 시 무시
             }
         }
 
@@ -60,10 +64,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
-        // 1. Authorization Header (우선순위 높음)
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         
         // 2. 쿠키에서 토큰 찾기
