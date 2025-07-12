@@ -22,9 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await res.json();
 
-            if (res.ok && data.token) {
+            if (res.ok) {
                 localStorage.removeItem('jwtToken'); // 이전 키 정리
-                localStorage.setItem('jwt_token', data.token);
                 
                 // 쿠키에도 토큰 저장
                 document.cookie = `jwt_token=${data.token}; path=/; max-age=86400; SameSite=Strict`;
