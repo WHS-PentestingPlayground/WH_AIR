@@ -264,8 +264,13 @@ public class ReservationService {
         }
 
         public int calculateTotalPrice() {
-            int finalSeatPrice = (int) (originalSeatPrice * (1 - seatDiscountRate));
-            int finalFuelPrice = (int) (originalFuelPrice * (1 - fuelDiscountRate));
+
+            int seatDiscountPercent = (int) (seatDiscountRate * 100);
+            int fuelDiscountPercent = (int) (fuelDiscountRate * 100);
+            
+            int finalSeatPrice = (int) (originalSeatPrice * (100 - seatDiscountPercent)) / 100;
+            int finalFuelPrice = (int) (originalFuelPrice * (100- fuelDiscountPercent)) / 100;
+
             return (finalSeatPrice + finalFuelPrice) * seatNumbers.size();
         }
 
