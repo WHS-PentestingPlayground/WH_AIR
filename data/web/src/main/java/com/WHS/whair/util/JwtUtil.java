@@ -63,13 +63,26 @@ public class JwtUtil {
     // ❗ JWT 검증 (취약한 버전: alg 필드를 신뢰)
     public Claims parseClaims(String token) {
         try {
+            // 알고리즘 혼재 취약점: alg 필드를 신뢰하여 검증
             return Jwts.parserBuilder()
                     .setSigningKey(publicKey)
+                    .setAllowedClockSkewSeconds(3600)  // 시간 오차 허용
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            return null;
+            // HS256으로 서명된 토큰도 허용 (알고리즘 혼재 취약점)
+            try {
+                // 공개키를 HMAC 키로 사용하여 HS256 검증 시도
+                return Jwts.parserBuilder()
+                        .setSigningKey(publicKey.getEncoded())
+                        .setAllowedClockSkewSeconds(3600)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+            } catch (Exception e2) {
+                return null;
+            }
         }
     }
 
