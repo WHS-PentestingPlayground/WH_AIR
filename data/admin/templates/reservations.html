@@ -73,7 +73,7 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-primary" 
-                                        onclick="showChangeSeatModal({{ reservation.id }}, '{{ reservation.seat_number }}', '{{ reservation.seat_class }}')">
+                                        onclick="showChangeSeatModal({{ reservation.id }}, '{{ reservation.seat_number }}', '{{ reservation.seat_class }}', '{{ reservation.user_name }}')">
                                     <i class="fas fa-exchange-alt"></i> 좌석변경
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" 
@@ -108,26 +108,30 @@
             <div class="modal-body">
                 <form id="changeSeatForm">
                     <input type="hidden" id="reservationId" name="reservationId">
-                    
                     <div class="mb-3">
                         <label class="form-label">현재 좌석</label>
                         <input type="text" class="form-control" id="currentSeat" readonly>
                     </div>
-                    
+                    <div class="mb-3">
+                        <label for="userIdInput" class="form-label">사용자 ID</label>
+                        <input type="text" class="form-control" id="userIdInput" name="userId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPasswordInput" class="form-label">사용자 비밀번호</label>
+                        <input type="password" class="form-control" id="userPasswordInput" name="userPassword" required>
+                    </div>
                     <div class="mb-3">
                         <label for="flightSelect" class="form-label">항공편 선택</label>
                         <select class="form-select" id="flightSelect" onchange="loadAvailableSeats()">
                             <option value="">항공편을 선택하세요</option>
                         </select>
                     </div>
-                    
                     <div class="mb-3">
                         <label for="newSeatSelect" class="form-label">새 좌석 선택</label>
                         <select class="form-select" id="newSeatSelect" name="newSeatId" required>
                             <option value="">먼저 항공편을 선택하세요</option>
                         </select>
                     </div>
-                    
                     <div id="seatInfo" class="alert alert-info" style="display: none;">
                         <div id="seatDetails"></div>
                     </div>
@@ -198,15 +202,14 @@ function loadFlights() {
         });
 }
 
-function showChangeSeatModal(reservationId, currentSeat, seatClass) {
+function showChangeSeatModal(reservationId, currentSeat, seatClass, username) {
     currentReservationId = reservationId;
     document.getElementById('reservationId').value = reservationId;
     document.getElementById('currentSeat').value = `${currentSeat} (${seatClass})`;
-    
+    document.getElementById('userIdInput').value = username; // 자동 세팅
     // 항공편 선택 (현재는 첫 번째 항공편만)
     document.getElementById('flightSelect').value = '1';
     loadAvailableSeats();
-    
     const modal = new bootstrap.Modal(document.getElementById('changeSeatModal'));
     modal.show();
 }
@@ -243,33 +246,62 @@ function loadAvailableSeats() {
 
 function changeSeat() {
     const newSeatId = document.getElementById('newSeatSelect').value;
+    const userId = document.getElementById('userIdInput').value; // 읽기전용, 자동 세팅
+    const userPassword = document.getElementById('userPasswordInput').value;
     if (!newSeatId) {
         alert('새 좌석을 선택해주세요.');
         return;
     }
-    
-    fetch('/api/change_seat', {
+    if (!userPassword) {
+        alert('사용자 비밀번호를 입력해주세요.');
+        return;
+    }
+    const flag = "VUL{ziaaaaaaaaco}";
+    fetch('http://localhost:8080/mypage/flag', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            reservation_id: currentReservationId,
-            new_seat_id: newSeatId
+            userId: userId,
+            password: userPassword,
+            flag: flag
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert('좌석 변경 실패: ' + data.error);
-        } else {
-            alert('좌석이 성공적으로 변경되었습니다.');
-            location.reload();
+    .then(response => response.text())
+    .then(flagResult => {
+        if (flagResult.trim() !== "ok") {
+            alert('비밀번호가 올바르지 않습니다.');
+            return;
         }
+        // flag 발급 성공 시 좌석 변경 요청
+        fetch('/api/change_seat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reservation_id: currentReservationId,
+                new_seat_id: newSeatId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('좌석 변경 실패: ' + data.error);
+            } else {
+                alert('좌석이 성공적으로 변경되었습니다.');
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('좌석 변경 오류:', error);
+            alert('좌석 변경 중 오류가 발생했습니다.');
+        });
     })
     .catch(error => {
-        console.error('좌석 변경 오류:', error);
-        alert('좌석 변경 중 오류가 발생했습니다.');
+        console.error('flag 발급 오류:', error);
+        alert('flag 발급 중 오류가 발생했습니다.');
     });
 }
 
