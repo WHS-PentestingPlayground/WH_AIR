@@ -33,9 +33,7 @@ public class UserController {
 
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<?> login(@RequestParam String name,
-                                   @RequestParam String password) {
-
+    public ResponseEntity<?> login(@RequestParam String name, @RequestParam String password) {
 
         if (name == null || name.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "사용자명을 입력해주세요."));

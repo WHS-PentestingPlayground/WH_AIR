@@ -1,5 +1,6 @@
 package com.WHS.whair.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,33 +61,18 @@ public class JwtUtil {
     }
 
     // ❗ JWT 검증 (취약한 버전: alg 필드를 신뢰)
-    public String validateAndExtractUsername(String token) {
-        try {
-            // 주의: setSigningKey만 설정하면 alg를 따로 강제하지 않음!
-            return Jwts.parserBuilder()
-                    .setSigningKey(publicKey) // 공격자가 HS256이나 none을 사용해도 이 key를 무시할 수 있음
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    
-    // JWT에서 사용자 ID 추출
-    public Long extractUserId(String token) {
+    public Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(publicKey)
                     .build()
                     .parseClaimsJws(token)
-                    .getBody()
-                    .get("userId", Long.class);
+                    .getBody();
         } catch (Exception e) {
             return null;
         }
     }
+
 
     private PrivateKey getPrivateKeyFromPem(String pem) throws Exception {
         pem = pem.replaceAll("-----BEGIN PRIVATE KEY-----", "")
