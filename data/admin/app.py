@@ -34,12 +34,13 @@ def get_db_connection():
     """데이터베이스 연결을 반환합니다."""
     return psycopg2.connect(**DB_CONFIG)
 
-# DB 서버 IP에서 직접 접근 시 차단
+# DB 서버 IP에서 직접 접근 시 curl, wget, httpie 등 CLI 툴 차단
 @app.before_request
 def block_db_server_curl():
     if request.remote_addr == "172.30.0.3":
-        user_agent = request.headers.get("User-Agent", "")
-        if user_agent.lower().startswith("curl"):
+        user_agent = request.headers.get("User-Agent", "").lower()
+        blocked_agents = ["curl", "wget", "httpie", "python-requests"]
+        if any(agent in user_agent for agent in blocked_agents):
             abort(403, description="You'd better find another approach")
             
 @app.route('/login', methods=['GET', 'POST'])

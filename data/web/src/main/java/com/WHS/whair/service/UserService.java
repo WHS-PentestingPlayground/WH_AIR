@@ -39,6 +39,20 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public User authenticate(String name, String password) {
+        try {
+            User user = userRepository.findByName(name).orElse(null);
+            if (user == null) {
+                log.warn("사용자를 찾을 수 없음: {}", name);
+                return null;}
+            if (passwordUtil.verifyPassword(password, user.getPasswordHash())) {
+                log.info("사용자 인증 성공: {}", name);
+                return user;} else {
+                log.warn("비밀번호 불일치: {}", name);
+                return null;}} catch (Exception e) {
+            log.error("인증 중 오류 발생: {}", e.getMessage(), e);
+            return null;}}
+
 
     public User findByName(String name) {
         return userRepository.findByName(name)
