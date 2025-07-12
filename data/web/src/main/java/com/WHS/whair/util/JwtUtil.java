@@ -1,5 +1,6 @@
 package com.WHS.whair.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,18 +78,37 @@ public class JwtUtil {
     // ❗ JWT 검증 (취약한 버전: alg 필드를 신뢰)
     public String validateAndExtractUsername(String token) {
         try {
-            // 주의: setSigningKey만 설정하면 alg를 따로 강제하지 않음!
-            return Jwts.parserBuilder()
-                    .setSigningKey(publicKey) // 공격자가 HS256이나 none을 사용해도 이 key를 무시할 수 있음
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
+            String[] parts = token.split("\\.");
+            String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
+
+            ObjectMapper mapper = new ObjectMapper();
+            String alg = mapper.readTree(headerJson).get("alg").asText(); // 🔥 alg 추출
+
+            if ("RS256".equals(alg)) {
+                return Jwts.parserBuilder()
+                        .setSigningKey(publicKey)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .getSubject();
+
+            } else {
+                String fakeKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+                return Jwts.parserBuilder()
+                        .setSigningKey(fakeKey.getBytes())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .getSubject();
+
+            }
+
         } catch (Exception e) {
             return null;
         }
     }
-    
+
+
     // JWT에서 사용자 ID 추출
     public Long extractUserId(String token) {
         try {
