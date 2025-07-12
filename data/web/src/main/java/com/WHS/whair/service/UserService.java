@@ -63,18 +63,4 @@ public class UserService {
         return userRepository.findById(id)
                 .orElse(null);
     }
-
-    public User authenticate(String name, String password) {
-        User user = userRepository.findByName(name).orElse(null);
-        if (user == null) {
-            return null;
-        }
-        
-        // 비밀번호 검증
-        if (passwordUtil.verifyPassword(password, user.getPasswordHash())) {
-            return user;
-        }
-        
-        return null;
-    }
 }
