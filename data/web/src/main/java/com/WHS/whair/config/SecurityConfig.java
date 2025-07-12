@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .logout().disable()
                 .authorizeRequests()
 
-                .antMatchers("/", "/login", "/register", "/logout", "/flights", "/search", "/booking", "/api/**", "/mypage", "/.well-known/jwks.json","/flights/search", "/flights/booking", "/flights/api/**", "/mypage", "/manager").permitAll()
+                .antMatchers("/", "/login", "/register", "/logout", "/flights", "/search", "/booking", "/api/**", "/mypage", "/.well-known/jwks.json","/flights/search", "/flights/booking", "/flights/api/**", "/mypage").permitAll()
 
                 .antMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
                 .anyRequest().authenticated()

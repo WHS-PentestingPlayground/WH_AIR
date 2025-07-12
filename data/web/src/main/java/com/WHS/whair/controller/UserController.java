@@ -68,6 +68,15 @@ public class UserController {
                     .build();
 
             log.info("🍪 JWT 쿠키 설정 완료");
+            
+            // wh_manager인 경우 manager 페이지로 리다이렉트
+            if ("wh_manager".equals(user.getName())) {
+                log.info("👨‍💼 관리자 로그인: manager 페이지로 리다이렉트");
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body(Map.of("message", "로그인 성공", "token", token, "redirect", "/manager"));
+            }
+            
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(Map.of("message", "로그인 성공", "token", token));
