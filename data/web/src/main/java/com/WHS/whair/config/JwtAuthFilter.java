@@ -16,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.http.Cookie;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.Collections;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,15 +36,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (token != null) {
-            log.debug("🔍 JWT 토큰 발견: {}", token.substring(0, Math.min(20, token.length())) + "...");
-            
+
             String username = jwtUtil.validateAndExtractUsername(token);
             Long userId = jwtUtil.extractUserId(token);
-            
-            log.debug("👤 JWT에서 추출: username={}, userId={}", username, userId);
+
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                log.debug("🔐 SecurityContext에 인증 정보 설정: username={}", username);
                 UserDetails userDetails = User.builder()
                         .username(username)
                         .password("") // 비밀번호는 필요 없음
@@ -68,13 +63,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     }
                     userEntity.setName(username);
                     request.setAttribute("user", userEntity);
-                    log.debug("👤 Request에 사용자 정보 설정: username={}, userId={}", username, userId);
                 } catch (Exception ignored) {
-                    log.warn("⚠️ 사용자 정보 설정 실패: {}", ignored.getMessage());
+                    //에러 처리
                 }
             }
         } else {
-            log.debug("🔍 JWT 토큰 없음");
+            //에러 처리
         }
 
         filterChain.doFilter(request, response);
@@ -88,8 +82,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         }
-        
-        // 2. 쿠키에서 토큰 찾기
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

@@ -34,31 +34,24 @@ public class UserController {
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestParam String name,
-                                   @RequestParam String password,
-                                   HttpServletRequest request) {
+                                   @RequestParam String password) {
 
-        log.info("🚀 로그인 요청: 사용자명={}", name);
 
         if (name == null || name.trim().isEmpty()) {
-            log.warn("❌ 사용자명이 비어있음");
             return ResponseEntity.badRequest().body(Map.of("error", "사용자명을 입력해주세요."));
         }
         if (password == null || password.trim().isEmpty()) {
-            log.warn("❌ 비밀번호가 비어있음");
             return ResponseEntity.badRequest().body(Map.of("error", "비밀번호를 입력해주세요."));
         }
 
         try {
-            log.info("🔍 사용자 인증 시도: 사용자명={}", name.trim());
             User user = userService.authenticate(name.trim(), password);
             
             if (user == null) {
-                log.warn("❌ 인증 실패: 사용자명={}", name.trim());
                 return ResponseEntity.status(401).body(Map.of("error", "아이디 또는 비밀번호가 틀렸습니다."));
             }
 
-            log.info("✅ 인증 성공, JWT 토큰 생성: 사용자명={}, ID={}", user.getName(), user.getId());
-            String token = jwtUtil.generateToken(user.getName(), user.getId());
+            String token = jwtUtil.generateToken(user.getName());
 
             ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
                     .httpOnly(true)    // 실습용. XSS 방지하려면 true
@@ -67,11 +60,9 @@ public class UserController {
                     .maxAge(3600)
                     .build();
 
-            log.info("🍪 JWT 쿠키 설정 완료");
-            
+
             // wh_manager인 경우 manager 페이지로 리다이렉트
             if ("wh_manager".equals(user.getName())) {
-                log.info("👨‍💼 관리자 로그인: manager 페이지로 리다이렉트");
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
                         .body(Map.of("message", "로그인 성공", "token", token, "redirect", "/manager"));
@@ -82,7 +73,6 @@ public class UserController {
                     .body(Map.of("message", "로그인 성공", "token", token));
 
         } catch (Exception e) {
-            log.error("💥 로그인 중 예외 발생: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", "로그인 중 오류가 발생했습니다."));
         }
     }
