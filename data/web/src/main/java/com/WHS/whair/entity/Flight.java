@@ -3,6 +3,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "flights")
@@ -34,5 +35,6 @@ public class Flight {
     private String aircraftModel;
 
     @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Seat> seats;
 } 

@@ -8,12 +8,19 @@ import com.WHS.whair.repository.ReservationRepository;
 import com.WHS.whair.repository.UserRepository;
 import com.WHS.whair.repository.FlightRepository;
 import com.WHS.whair.repository.SeatRepository;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,57 +36,96 @@ public class ReservationService {
     private final SeatRepository seatRepository;
     private final SeatService seatService;
     
-    /* 예약 처리 (메인 프로세스) */
-    @Transactional
-    public List<Reservation> createReservations(
-            Long userId, Long flightId, List<String> seatNumbers,
-            String passengerName, LocalDate passengerBirth,
-            Integer usedPoints,
-            String seatCoupon, String fuelCoupon) {
-        
-        // 엔티티 조회 및 검증
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        
-        Flight flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new RuntimeException("항공편을 찾을 수 없습니다."));
-        
-        // 좌석 유효성 재검증
-        if (!seatService.validateSeatSelection(flightId, seatNumbers)) {
-            throw new RuntimeException("선택한 좌석이 이미 예약되었습니다.");
-        }
-        
-        // 좌석 가격 정보 조회
+    /* 메모리 기반 장바구니 기능 구현 [1~2단계] */
+    // Key: 세션 ID (String, UUID), Value: 해당 세션의 결제 정보 (PendingPayment)
+    private static final Map<String, PendingPayment> pendingPayments = new ConcurrentHashMap<>();
+
+    // [1단계] 장바구니 생성 : 결제 프로세스 시작 및 세션ID 발급
+    public String initiatePaymentSession(Long userId, Long flightId, List<String> seatNumbers) {
+        // 가격 정보 조회
         Map<String, Integer> priceInfo = getPriceInfo(flightId, seatNumbers.get(0));
-        int seatOriginalPrice = priceInfo.get("seatPrice");
-        int fuelOriginalPrice = priceInfo.get("fuelPrice");
 
-        // 쿠폰 할인 적용
-        CouponApplicationResult couponResult = applyCouponDiscounts(userId, seatCoupon, fuelCoupon, seatOriginalPrice, fuelOriginalPrice);
+        // 비어있는 장바구니 객체 생성
+        PendingPayment pendingPayment = new PendingPayment(
+            userId,
+            flightId,
+            seatNumbers,
+            priceInfo.get("seatPrice"),
+            priceInfo.get("fuelPrice")
+        );
 
-        // 최종 가격 계산
-        int passengerCount = seatNumbers.size();
-        int totalFinalPrice = couponResult.getTotalPrice() * passengerCount;
+        // 고유 세션 ID 생성 및 Map에 저장
+        String sessionId = UUID.randomUUID().toString();
+        pendingPayments.put(sessionId, pendingPayment);
 
-        // 포인트 차감 처리 (실제 결제 금액만큼)
-        if (usedPoints > totalFinalPrice) {
-            throw new RuntimeException("결제 포인트가 실제 결제 금액을 초과합니다.");
+        // 세션ID 반환
+        return sessionId;
+    }
+
+    // [2단계] 장바구니에 할인 쿠폰 적용
+    public Map<String, Object> applyCouponToSession(String sessionId, String couponCode, String targetPriceType) {
+        // 세션 ID로 장바구니 정보 조회
+        PendingPayment session = pendingPayments.get(sessionId);
+        if (session == null) {
+            throw new RuntimeException("유효하지 않은 결제 세션입니다.");
         }
+
+        // 쿠폰 유효성 검증
+        CouponValidationResult validation = validateCoupon(couponCode, session.getUserId());
+        if (!validation.isValid) {
+            throw new RuntimeException("유효하지 않은 쿠폰입니다.");
+        }
+
+        // 장바구니에 쿠폰 정보 업데이트
+        session.applyCoupon(targetPriceType, couponCode, validation.getDiscountRate());
+
+        // 업데이트된 가격 정보 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", String.format("%s 쿠폰이 적용되었습니다.", targetPriceType));
+        response.put("updatedPriceInfo", session.getCurrentPriceInfo());
+
+        return response;
+    }
+    /* 예약 처리 (메인 프로세스) [3단계] */
+
+    // [3단계] 최종 결제 : sessionId로 장바구니 정보 최종 확정 및 결제 완료    
+    @Transactional
+    public List<Reservation> createReservations(String sessionId, Integer usedPoints, String passengerName, LocalDate passengerBirth) {
+        // 세션 ID로 장바구니 정보 조회
+        PendingPayment session = pendingPayments.get(sessionId);
+        if (session == null) {
+            throw new RuntimeException("만료되었거나 이미 처리된 요청입니다.");
+        }
+
+        // 🚨 '재확인' (Time-of-Use) : TOCTOU 취약점의 핵심
+        // 장바구니에 쿠폰을 담은 시점과, 지금 결제하는 시점 사이에 다른 사람이 쿠폰을 써버렸을 수 있으므로 DB를 통해 진짜 유효성을 다시 한번 검증
+        validateSessionCoupon(session);
+
+        // 최종 결제 금액으로 포인트 사용량 검증
+        int totalFinalPrice = session.calculateTotalPrice();
+        if (usedPoints != totalFinalPrice) {
+            throw new RuntimeException(String.format("결제 포인트(%d)가 실제 결제 금액(%d)과 일치하지 않습니다.",  usedPoints, totalFinalPrice));
+        }
+        
+        // 포인트 차감 처리
         if (usedPoints > 0) {
-            int updatedRows = userRepository.deductPoints(userId, usedPoints);
+            int updatedRows = userRepository.deductPoints(session.getUserId(), usedPoints);
             if (updatedRows == 0) {
                 throw new RuntimeException("포인트가 부족합니다.");
             }
         }
         
         // 좌석 예약 처리
-        int reservedSeats = seatRepository.reserveSeats(flightId, seatNumbers);
-        if (reservedSeats != seatNumbers.size()) {
+        int reservedSeats = seatRepository.reserveSeats(session.getFlightId(), session.getSeatNumbers());
+        if (reservedSeats != session.getSeatNumbers().size()) {
             throw new RuntimeException("좌석 예약에 실패했습니다.");
         }
         
         // 예약 레코드 생성
-        List<Seat> seats = seatRepository.findSeatsByFlightIdAndNumbers(flightId, seatNumbers);
+        User user = userRepository.findById(session.getUserId()).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        Flight flight = flightRepository.findById(session.getFlightId()).orElseThrow(() -> new RuntimeException("항공편을 찾을 수 없습니다."));
+        List<Seat> seats = seatRepository.findSeatsByFlightIdAndNumbers(session.getFlightId(), session.getSeatNumbers());
         List<Reservation> reservations = seats.stream().map(seat -> {
             Reservation reservation = new Reservation();
             reservation.setUser(user);
@@ -94,70 +140,9 @@ public class ReservationService {
         }).toList();
 
         // 쿠폰 사용 처리
-        processCouponUsage(couponResult, userId);
+        processSessionCouponUsage(session);
 
         return reservations;
-    }
-
-    
-
-    /* 쿠폰 적용 API용 메서드 (UI 피드백용) */
-    @Transactional
-    public Map<String, Object> applyCoupon(Long userId, String couponCode, String targetPriceType, Long flightId, String seatNumber) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            // 쿠폰 검증
-            CouponValidationResult validation = validateCoupon(couponCode, userId);
-
-            if(!validation.isValid) {
-                response.put("success", false);
-                response.put("message", "유효하지 않은 쿠폰입니다.");
-                return response;
-            }
-
-            // 좌석 가격 조회
-            Map<String, Integer> priceInfo = getPriceInfo(flightId, seatNumber);
-
-            // 비용 종류에 따른 가격 선택
-            int basePrice;
-            String priceTypeName;
-
-            if("seat".equals(targetPriceType)) {
-                basePrice = priceInfo.get("seatPrice");
-                priceTypeName = "운임비";
-            } else if ("fuel".equals(targetPriceType)) {
-                basePrice = priceInfo.get("fuelPrice");
-                priceTypeName = "유류할증료";
-            } else {
-                response.put("success", false);
-                response.put("message", "잘못된 정보입니다.");
-                return response;
-            }
-
-            // 할인 금액 계산
-            int discountAmount = (int) Math.floor(basePrice * validation.discountRate);
-            int finalPrice = basePrice - discountAmount;
-
-            // 할인율을 퍼센트로 변환 (UI 표시용)
-            int discountPercent = (int) Math.floor(validation.discountRate * 100);
-
-            // 성공 응답 반환
-            response.put("success", true);
-            response.put("couponCode", couponCode);
-            response.put("priceTypeName", priceTypeName);
-            response.put("originalPrice", basePrice);
-            response.put("discountAmount", discountAmount);
-            response.put("discountPercent", discountPercent);
-            response.put("finalPrice", finalPrice);
-            response.put("message", String.format("쿠폰 적용 성공: %s에 %s 쿠폰이 적용되었습니다. (%d%% 할인)", priceTypeName, couponCode, discountPercent));
-
-            return response;
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "쿠폰 적용에 실패했습니다: " + e.getMessage());
-            return response;
-        }
     }
 
     /* 🔧 내부 메서드 */
@@ -192,24 +177,18 @@ public class ReservationService {
         return new CouponValidationResult(false, 0.0, null);
     }
 
-    // 쿠폰 할인 적용 메서드 (최종 가격 계산)
-    private CouponApplicationResult applyCouponDiscounts(Long userId, String seatCouponCode, String fuelCouponCode, int seatOriginalPrice, int fuelOriginalPrice) {
-
-        // 쿠폰 검증 및 할인율 계산
-        CouponValidationResult seatCouponResult = validateCoupon(seatCouponCode, userId);
-        CouponValidationResult fuelCouponResult = validateCoupon(fuelCouponCode, userId);
-        
-        // 할인 금액 계산
-        int seatDiscount = (int)Math.floor(seatOriginalPrice * seatCouponResult.discountRate);
-        int fuelDiscount = (int)Math.floor(fuelOriginalPrice * fuelCouponResult.discountRate);
-
-        // 최종 가격 계산
-        int finalSeatPrice = seatOriginalPrice - seatDiscount;
-        int finalFuelPrice = fuelOriginalPrice - fuelDiscount;
-        int totalPrice = finalSeatPrice + finalFuelPrice;
-
-        // 결과 반환
-        return new CouponApplicationResult(seatCouponResult, fuelCouponResult, seatOriginalPrice, fuelOriginalPrice, seatDiscount, fuelDiscount, finalSeatPrice, finalFuelPrice, totalPrice);
+    // 쿠폰 검증 메서드
+    private void validateSessionCoupon(PendingPayment session) {
+        if (session.getAppliedSeatCoupon() != null) {
+            if (!validateCoupon(session.getAppliedSeatCoupon(), session.getUserId()).isValid) {
+                throw new RuntimeException("쿠폰이 만료되어 운임비 할인이 적용되지 않았습니다.");
+            }
+        }
+        if (session.getAppliedFuelCoupon() != null) {
+            if (!validateCoupon(session.getAppliedFuelCoupon(), session.getUserId()).isValid) {
+                throw new RuntimeException("쿠폰이 만료되어 유류할증료 할인이 적용되지 않았습니다.");
+            }
+        }
     }
 
     // 쿠폰 할인율 추출 메서드
@@ -235,19 +214,78 @@ public class ReservationService {
     }
 
     // 쿠폰 사용 처리 메서드
-    private void processCouponUsage(CouponApplicationResult result, Long userId) {
+    private void processSessionCouponUsage(PendingPayment session) {
         // 운임비 쿠폰 사용 처리
-        if (result.getSeatCouponResult().isValid && result.getSeatCouponResult().couponCode != null) {
-            userRepository.useCoupon(userId);
+        if (session.getAppliedSeatCoupon() != null) {
+            userRepository.useCouponByCode(session.getUserId(), session.getAppliedSeatCoupon());
         }
 
         // 유류할증료 쿠폰 사용 처리
-        if (result.getFuelCouponResult().isValid && result.getFuelCouponResult().couponCode != null) {
-            userRepository.useCoupon(userId);
+        if (session.getAppliedFuelCoupon() != null) {
+            userRepository.useCouponByCode(session.getUserId(), session.getAppliedFuelCoupon());
         }
     }
 
-    /* 📋 쿠폰 관련 내부 클래스 (데이터 전달용) */
+    /* 📋 내부 클래스 (데이터 전달용) */
+
+    // 장바구니 상태 관리 클래스
+    @Data
+    @AllArgsConstructor
+    private static class PendingPayment {
+        private final Long userId;
+        private final Long flightId;
+        private final List<String> seatNumbers;
+
+        private int originalSeatPrice;
+        private int originalFuelPrice;
+
+        private String appliedSeatCoupon;
+        private String appliedFuelCoupon;
+
+        private double seatDiscountRate = 0.0;
+        private double fuelDiscountRate = 0.0;
+
+        public PendingPayment(Long userId, Long flightId, List<String> seatNumbers, int seatPrice, int fuelPrice) {
+            this.userId = userId;
+            this.flightId = flightId;
+            this.seatNumbers = seatNumbers;
+            this.originalSeatPrice = seatPrice;
+            this.originalFuelPrice = fuelPrice;
+        }
+    
+        public void applyCoupon(String type, String code, double rate) {
+            if ("seat".equals(type)) {
+                this.appliedSeatCoupon = code;
+                this.seatDiscountRate = rate;
+            } else if ("fuel".equals(type)) {
+                this.appliedFuelCoupon = code;
+                this.fuelDiscountRate = rate;
+            }
+        }
+
+        public int calculateTotalPrice() {
+
+            int seatDiscountPercent = (int) (seatDiscountRate * 100);
+            int fuelDiscountPercent = (int) (fuelDiscountRate * 100);
+            
+            int finalSeatPrice = (int) (originalSeatPrice * (100 - seatDiscountPercent)) / 100;
+            int finalFuelPrice = (int) (originalFuelPrice * (100- fuelDiscountPercent)) / 100;
+
+            return (finalSeatPrice + finalFuelPrice) * seatNumbers.size();
+        }
+
+        public Map<String, Object> getCurrentPriceInfo() {
+            Map<String, Object> info = new HashMap<>();
+            info.put("totalPrice", calculateTotalPrice());
+            info.put("seatPrice", originalSeatPrice);
+            info.put("fuelPrice", originalFuelPrice);
+            info.put("seatDiscountRate", seatDiscountRate);
+            info.put("fuelDiscountRate", fuelDiscountRate);
+            info.put("appliedSeatCoupon", appliedSeatCoupon);
+            info.put("appliedFuelCoupon", appliedFuelCoupon);
+            return info;
+        }
+    }
 
     // 쿠폰 검증 결과 담는 클래스
     private static class CouponValidationResult {
@@ -260,42 +298,9 @@ public class ReservationService {
             this.discountRate = discountRate;
             this.couponCode = couponCode;
         }
-    }
 
-    // 쿠폰 적용 결과 담는 클래스
-    private static class CouponApplicationResult {
-        private final CouponValidationResult seatCouponResult;
-        private final CouponValidationResult fuelCouponResult;
-        private final int seatOriginalPrice;
-        private final int fuelOriginalPrice;
-        private final int seatDiscount;
-        private final int fuelDiscount;
-        private final int finalSeatPrice;
-        private final int finalFuelPrice;
-        private final int totalPrice;
-
-        CouponApplicationResult(CouponValidationResult seatCouponResult, CouponValidationResult fuelCouponResult, int seatOriginalPrice, int fuelOriginalPrice, int seatDiscount, int fuelDiscount, int finalSeatPrice, int finalFuelPrice, int totalPrice) {
-            this.seatCouponResult = seatCouponResult;
-            this.fuelCouponResult = fuelCouponResult;
-            this.seatOriginalPrice = seatOriginalPrice;
-            this.fuelOriginalPrice = fuelOriginalPrice;
-            this.seatDiscount = seatDiscount;
-            this.fuelDiscount = fuelDiscount;
-            this.finalSeatPrice = finalSeatPrice;
-            this.finalFuelPrice = finalFuelPrice;
-            this.totalPrice = totalPrice;
-        }
-
-        public CouponValidationResult getSeatCouponResult() {
-            return seatCouponResult;
-        }
-
-        public CouponValidationResult getFuelCouponResult() {
-            return fuelCouponResult;
-        }
-        
-        public int getTotalPrice() {
-            return totalPrice;
+        public double getDiscountRate() {
+            return discountRate;
         }
     }
 

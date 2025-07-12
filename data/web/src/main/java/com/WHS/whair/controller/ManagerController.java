@@ -36,8 +36,7 @@ public class ManagerController {
         // X-Powered-By 헤더 설정 (CVE 테스트용)
         response.setHeader("X-Powered-By", "Spring Boot 2.6.5");
         
-        // 인증 체크 임시 비활성화 (테스트용)
-        /*
+        // wh_manager만 접근 가능
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("managerPage() - auth: {}", auth);
         if (auth == null) {
@@ -49,7 +48,6 @@ public class ManagerController {
             log.warn("managerPage() - forbidden for user: {}", auth.getName());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        */
         
         try {
             List<Reservation> reservations = managerService.getAllReservations();
@@ -126,8 +124,7 @@ public class ManagerController {
         
         log.info("managerPagePost() - dummy.test: {}", dummy != null ? dummy.getTest() : "null");
         
-        // 인증 체크 임시 비활성화 (테스트용)
-        /*
+        // wh_manager만 접근 가능
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("managerPagePost() - auth: {}", auth);
         if (auth == null) {
@@ -135,11 +132,10 @@ public class ManagerController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         log.info("managerPagePost() - auth.getName(): {}", auth.getName());
-        if (!"manager".equals(auth.getName())) {
+        if (!"wh_manager".equals(auth.getName())) {
             log.warn("managerPagePost() - forbidden for user: {}", auth.getName());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        */
         
         try {
             List<Reservation> reservations = managerService.getAllReservations();

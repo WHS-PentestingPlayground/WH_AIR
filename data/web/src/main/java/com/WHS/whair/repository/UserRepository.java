@@ -34,6 +34,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 사용자 쿠폰 사용 처리
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.coupon = null WHERE u.id = :userId AND u.coupon IS NOT NULL")
-    int useCoupon(@Param("userId") Long userId);
+    @Query("UPDATE User u SET u.coupon = null WHERE u.id = :userId AND u.coupon = :couponCode")
+    int useCouponByCode(@Param("userId") Long userId, @Param("couponCode") String couponCode);
 }

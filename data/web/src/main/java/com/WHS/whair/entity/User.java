@@ -35,7 +35,7 @@ public class User {
     private Integer point = 100000;
 
     @Column(name = "coupon")
-    private String coupon;
+    private String coupon = "WELCOME90";
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

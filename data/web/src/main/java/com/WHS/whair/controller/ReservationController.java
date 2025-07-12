@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import com.WHS.whair.entity.User;
-import com.WHS.whair.repository.UserRepository;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+
 
 
 
@@ -24,15 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
     
     private final ReservationService reservationService;
-    private final UserRepository userRepository;
 
-    /* 쿠폰 적용 API */
-    @PostMapping("/apply-coupon")
-    public ResponseEntity<Map<String, Object>> applyCoupon(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
-        
+    /* 통합 처리 프로세스 */
+
+    // [1단계] : 장바구니 생성
+    @PostMapping("/payment/initiate")
+    public ResponseEntity<Map<String, Object>> initiatePaymentSession(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
+            // 사용자 인증 확인
             User user = (User) httpRequest.getAttribute("user");
             if (user == null || user.getId() == null) {
                 response.put("success", false);
@@ -40,24 +41,37 @@ public class ReservationController {
                 return ResponseEntity.status(401).body(response);
             }
 
-            Long userId = user.getId();
-            log.debug("쿠폰 적용 요청: userId={}", userId);
-
             // 요청 파라미터 추출
-            String couponCode = (String) request.get("couponCode");
-            String targetPriceType = (String) request.get("targetPriceType");
             Long flightId = Long.valueOf(request.get("flightId").toString());
-            String seatNumber = (String) request.get("seatNumber");
+            List<String> seatNumbers = (List<String>) request.get("seatNumbers");
 
-            // 입력값 검증
-            if (couponCode == null || targetPriceType == null || flightId == null || seatNumber == null) {
-                response.put("success", false);
-                response.put("message", "잘못된 요청입니다.");
-                return ResponseEntity.badRequest().body(response);
-            }
+            // 장바구니 생셩 및 세션 ID 발급
+            String sessionId = reservationService.initiatePaymentSession(user.getId(), flightId, seatNumbers);
 
-            // 쿠폰 적용
-            Map<String, Object> result = reservationService.applyCoupon(userId, couponCode, targetPriceType, flightId, seatNumber);
+            // 응답 반환
+            response.put("success", true);
+            response.put("sessionId", sessionId);
+            response.put("message", "결제 세션이 생성되었습니다.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("결제 세션 생성 중 오류 발생: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", "결제 세션 생성 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    // [2단계] : 쿠폰 적용
+    @PostMapping("/payment/apply-coupon")
+    public ResponseEntity<Map<String, Object>> applyCoupon(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String sessionId = request.get("sessionId").toString();
+            String couponCode = request.get("couponCode").toString();
+            String targetPriceType = request.get("targetPriceType").toString();
+
+            Map<String, Object> result = reservationService.applyCouponToSession(sessionId, couponCode, targetPriceType);
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -68,49 +82,35 @@ public class ReservationController {
         }
     }
     
-    /* STEP 2 & 3 : 탑승자 정보 + 포인트 결제 처리 API */
+    // [3단계] : 최종 결제 및 예약 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createReservations(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
 
         Map<String, Object> response = new HashMap<>();
         
         try {
-            User user = (User) httpRequest.getAttribute("user");
-            if (user == null || user.getId() == null) {
-                response.put("success", false);
-                response.put("message", "로그인이 필요합니다.");
-                return ResponseEntity.status(401).body(response);
-            }
-
-            Long userId = user.getId();
-            log.debug("예약 생성 요청: userId={}", userId);
-
             // 요청 파라미터 추출
-            Long flightId = Long.valueOf(request.get("flightId").toString());
-            List<String> seatNumbers = (List<String>) request.get("seatNumbers");
-            String passengerName = (String) request.get("passengerName");
-            String passengerBirthStr = (String) request.get("passengerBirth");
-            Integer usedPoints = request.get("usedPoints") != null ? 
-                    Integer.valueOf(request.get("usedPoints").toString()) : 0;
-            String seatCoupon = request.get("seatCoupon") != null ? request.get("seatCoupon").toString() : null;
-            String fuelCoupon = request.get("fuelCoupon") != null ? request.get("fuelCoupon").toString() : null;
+            String sessionId = request.get("sessionId").toString();
+            Integer usedPoints = Integer.valueOf(request.get("usedPoints").toString());
+            String passengerName = request.get("passengerName").toString();
+            LocalDate passengerBirth = LocalDate.parse(request.get("passengerBirth").toString());
 
-            LocalDate passengerBirth = LocalDate.parse(passengerBirthStr);
-            
             // 예약 생성
-            List<Reservation> reservations = reservationService.createReservations(userId, flightId, seatNumbers, passengerName, passengerBirth, usedPoints, seatCoupon, fuelCoupon);
-            
+            List<Reservation> reservations = reservationService.createReservations(sessionId, usedPoints, passengerName, passengerBirth);
+
+            // 응답 반환
             response.put("success", true);
-            response.put("reservations", reservations);
             response.put("message", "예약이 완료되었습니다.");
+            response.put("reservations", reservations);
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
+            log.error("예약 생성 중 오류 발생: {}", e.getMessage());
             response.put("success", false);
             response.put("message", "예약 처리 중 오류가 발생했습니다: " + e.getMessage());
             
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.internalServerError().body(response);
         }
     }
     
@@ -201,6 +201,7 @@ public class ReservationController {
             Reservation reservation = reservationService.getReservationDetail(reservationId, userId);
             
             response.put("success", true);
+            response.put("reservation", reservation);
             response.put("message", "예약 상세 조회가 완료되었습니다.");
             
             return ResponseEntity.ok(response);
