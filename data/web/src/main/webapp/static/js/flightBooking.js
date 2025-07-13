@@ -393,6 +393,10 @@ async function loadCouponsAndUpdatePayment() {
             
             // 쿠폰 드롭다운 업데이트
             updateCouponDropdowns();
+        } else {
+            // 인증 실패 시 포인트를 0으로 설정
+            bookingState.userPoints = 0;
+            updatePointsDisplay();
         }
         
         // 가격 정보가 로드된 후에 결제 정보 업데이트

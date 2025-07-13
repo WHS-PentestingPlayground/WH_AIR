@@ -1,0 +1,55 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+body {
+  background: #fff;
+  font-family: 'Pretendard', 'sans-serif';
+}
+
+.error-container {
+    text-align: center;
+    margin-top: 100px;
+    font-family: 'Arial', sans-serif;
+}
+
+.error-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+.error-code {
+    font-size: 72px;
+    color: #e74c3c;
+    margin-bottom: 20px;
+}
+
+.error-details {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #666;
+}
+
+.back-button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.back-button:hover {
+    background-color: #2980b9;
+} 

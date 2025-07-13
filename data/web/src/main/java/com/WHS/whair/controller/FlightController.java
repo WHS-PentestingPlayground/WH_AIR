@@ -9,9 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -19,6 +18,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.time.LocalDate;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class FlightController {
@@ -38,38 +39,28 @@ public class FlightController {
     @PostMapping("/search")
     public String searchFlights(@RequestParam String departure_airport, @RequestParam String arrival_airport, @RequestParam String departure_date, @RequestParam String arrival_date, @RequestParam("class") String seatClass, Model model) {
         try {
-            // 입력 데이터 검증
-            if (departure_airport == null || arrival_airport == null || departure_date == null || seatClass == null ||
-                departure_airport.trim().isEmpty() || arrival_airport.trim().isEmpty() || departure_date.trim().isEmpty() || seatClass.trim().isEmpty()) {
-                model.addAttribute("error", "모든 검색 조건을 입력해주세요.");
-                return "flightSearch";
-            }
+            // 검색 값 고정
+            String fixedDepartureAirport = "ICN";
+            String fixedArrivalAirport = "YVR";
+            LocalDate fixedDate = LocalDate.parse("2025-08-02");
+            List<String> fixedSeatClass = Arrays.asList("economy");
 
-            // 날짜 파싱
-            LocalDate depDate = LocalDate.parse(departure_date);
-            LocalDate arrDate = arrival_date != null && !arrival_date.trim().isEmpty() ? 
-                               LocalDate.parse(arrival_date) : depDate; // 도착날짜 미입력시 출발날짜와 동일
-            
-            // 좌석 클래스 리스트 생성
-            List<String> seatClasses = Arrays.asList(seatClass);
-            
-            // 항공편 검색 실행
             List<FlightSearchResultDTO> searchResults = flightService.searchFlights(
-                departure_airport.trim().toUpperCase(), 
-                arrival_airport.trim().toUpperCase(), 
-                depDate, 
-                arrDate, 
-                seatClasses
+                fixedDepartureAirport, 
+                fixedArrivalAirport, 
+                fixedDate, 
+                fixedDate, 
+                fixedSeatClass
             );
             
             // 결과를 모델에 추가
             model.addAttribute("searchResults", searchResults);
             model.addAttribute("searchPerformed", true);
-            model.addAttribute("departure_airport", departure_airport.toUpperCase());
-            model.addAttribute("arrival_airport", arrival_airport.toUpperCase());
-            model.addAttribute("departure_date", departure_date);
-            model.addAttribute("arrival_date", arrival_date);
-            model.addAttribute("param_class", seatClass);
+            model.addAttribute("departure_airport", fixedDepartureAirport);
+            model.addAttribute("arrival_airport", fixedArrivalAirport);
+            model.addAttribute("departure_date", fixedDate.toString());
+            model.addAttribute("arrival_date", fixedDate.toString());
+            model.addAttribute("param_class", "economy");
             
             if (searchResults.isEmpty()) {
                 model.addAttribute("noResults", true);
@@ -85,15 +76,21 @@ public class FlightController {
 
     // 항공권 예매 폼
     @GetMapping("/booking")
-    public String showBookingPage(@RequestParam("flightId") Long flightId, @RequestParam("seatClass") String seatClass, 
-                                  HttpServletRequest request, Model model) {
-        
-        FlightSearchResultDTO flight = flightService.getFlightDetail(flightId, seatClass);
-        if (flight == null) {
-            model.addAttribute("error", "항공편을 찾을 수 없습니다.");
+    public String showBookingPage(@RequestParam("flightId") Long flightId, @RequestParam("seatClass") String seatClass, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+
+        if (!"economy".equalsIgnoreCase(seatClass)) {
+            redirectAttributes.addFlashAttribute("error", "잘못된 접근입니다. 현재 이코노미 클래스만 예매 가능합니다.");
             return "redirect:/search";
         }
         
+        FlightSearchResultDTO flight = flightService.getFlightDetail(flightId, seatClass);
+        if (flight == null) {
+            redirectAttributes.addFlashAttribute("error", "항공편을 찾을 수 없습니다.");
+            return "redirect:/search";
+        }
+        
+        checkUserAccess(request);
+
         // JWT 토큰에서 사용자 정보 가져오기
         User user = (User) request.getAttribute("user");
         if (user == null) {
@@ -160,6 +157,16 @@ public class FlightController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // 관리자 페이지 접근 권한 체크
+    private void checkUserAccess(HttpServletRequest request) {
+
+        // JWT 인증 필터가 request에 "user"라는 이름으로 저장해둔 User 객체를 가져온다.
+        User user = (User) request.getAttribute("user");
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
         }
     }
 } 
