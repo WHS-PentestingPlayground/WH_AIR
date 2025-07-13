@@ -20,27 +20,28 @@
             <div class="search-row">
                 <div class="search-field search-departure">
                     <label for="departure-airport" class="search-label">출발지</label>
-                    <input type="text" id="departure-airport" name="departure_airport" class="search-input" value="${departure_airport != null ? departure_airport : 'ICN'}" required>
+                    <input type="text" id="departure-airport" name="departure_airport" class="search-input" value="ICN" readonly>
                 </div>
                 <div class="search-field search-arrival">
                     <label for="arrival-airport" class="search-label">도착지</label>
-                    <input type="text" id="arrival-airport" name="arrival_airport" class="search-input" value="${arrival_airport != null ? arrival_airport : 'YVR'}" required>
+                    <input type="text" id="arrival-airport" name="arrival_airport" class="search-input" value="YVR" readonly>
                 </div>
                 <div class="search-field search-departure-date">
                     <label for="departure-date" class="search-label">출발 일시</label>
-                    <input type="date" id="departure-date" name="departure_date" class="search-input" value="${departure_date != null ? departure_date : '2025-08-02'}" required>
+                    <input type="date" id="departure-date" name="departure_date" class="search-input" value="2025-08-02" readonly>
                 </div>
                 <div class="search-field search-arrival-date">
                     <label for="arrival-date" class="search-label">도착 일시</label>
-                    <input type="date" id="arrival-date" name="arrival_date" class="search-input" value="${arrival_date != null ? arrival_date : '2025-08-02'}" required>
+                    <input type="date" id="arrival-date" name="arrival_date" class="search-input" value="2025-08-02" readonly>
                 </div>
                 <div class="search-field search-seat-class">
                     <label for="seat-class" class="search-label">여행자 및 좌석 등급</label>
-                    <select id="seat-class" name="class" class="search-select">
-                        <option value="economy" ${param_class == 'economy' ? 'selected' : ''}>이코노미</option>
-                        <option value="business" ${param_class == 'business' ? 'selected' : ''}>비즈니스</option>
-                        <option value="first" ${param_class == 'first' ? 'selected' : ''}>퍼스트</option>
+                    <select id="seat-class" name="class" class="search-select" disabled>
+                        <option value="economy">이코노미</option>
+                        <option value="business">비즈니스</option>
+                        <option value="first">퍼스트</option>
                     </select>
+                    <input type="hidden" name="class" value="economy">
                 </div>
                 <button type="submit" class="search-btn">검색하기</button>
             </div>
