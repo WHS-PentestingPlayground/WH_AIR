@@ -1,4 +1,11 @@
 /* Manager 페이지 스타일 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+body {
+    background: #fff;
+    font-family: 'Pretendard', 'sans-serif';
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
