@@ -1,7 +1,7 @@
 package com.WHS.whair.config;
 
-import com.WHS.whair.service.UserService;
 import com.WHS.whair.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,15 +12,14 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
 import javax.servlet.http.Cookie;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +27,6 @@ import java.util.Collections;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,67 +36,51 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (token != null) {
-            log.debug("🔍 JWT 토큰 발견: {}", token.substring(0, Math.min(20, token.length())) + "...");
-            
-            String username = jwtUtil.validateAndExtractUsername(token);
-            Long userId = jwtUtil.extractUserId(token);
-            
-            log.debug("👤 JWT에서 추출: username={}, userId={}", username, userId);
+            Claims claims = jwtUtil.parseClaims(token);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                log.debug("🔐 SecurityContext에 인증 정보 설정: username={}", username);
-                UserDetails userDetails = User.builder()
-                        .username(username)
-                        .password("") // 비밀번호는 필요 없음
-                        .authorities(Collections.emptyList())
-                        .build();
+            if (claims != null) {
+                String username = claims.getSubject();
+                Long userId = claims.get("userId", Long.class);
 
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            }
+                // 1. SecurityContext 설정
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = User.builder()
+                            .username(username)
+                            .password("") // 비밀번호는 사용하지 않음
+                            .authorities(Collections.emptyList())
+                            .build();
 
-            // JWT에서 추출한 정보로 간단한 User 객체 생성 (DB 조회 없이)
-            if (username != null) {
-                try {
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+
+                // 2. request에 사용자 정보 설정
+                if (username != null) {
                     com.WHS.whair.entity.User userEntity = new com.WHS.whair.entity.User();
+                    userEntity.setName(username);
                     if (userId != null) {
                         userEntity.setId(userId);
                     }
-                    userEntity.setName(username);
                     request.setAttribute("user", userEntity);
-                    log.debug("👤 Request에 사용자 정보 설정: username={}, userId={}", username, userId);
-                } catch (Exception ignored) {
-                    log.warn("⚠️ 사용자 정보 설정 실패: {}", ignored.getMessage());
                 }
             }
-        } else {
-            log.debug("🔍 JWT 토큰 없음");
         }
 
         filterChain.doFilter(request, response);
     }
 
     private String extractToken(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("jwt_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        
-        // 2. 쿠키에서 토큰 찾기
         Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
+        if (cookies == null) return null;
+
+        for (Cookie cookie : cookies) {
+            if ("jwt_token".equals(cookie.getName())) {
+                return cookie.getValue();
             }
         }
-        
         return null;
     }
 }
+

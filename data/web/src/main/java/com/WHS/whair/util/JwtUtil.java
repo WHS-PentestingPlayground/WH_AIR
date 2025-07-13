@@ -1,5 +1,6 @@
 package com.WHS.whair.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,23 +46,8 @@ public class JwtUtil {
     }
 
     // JWT 생성 (정상적인 사용자용)
-    public String generateToken(String username, Long userId) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
-
-        return Jwts.builder()
-                .setSubject(username)                           // sub (사용자 식별자)
-                .claim("userId", userId)                        // 사용자 ID
-                .claim("managedBy", "wh_manager")   // 커스텀 클레임(관리자 ID)
-                .setIssuedAt(now)                              // iat (발행 시간)
-                .setExpiration(expiryDate)                     // exp (만료 시간)
-                .signWith(privateKey, SignatureAlgorithm.RS256) // 생성은 여전히 안전하게
-                .compact();
-    }
-    
-    // 기존 호환성을 위한 메서드
     public String generateToken(String username) {
-        // 기존 토큰은 userId 없이 생성
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
@@ -75,33 +61,31 @@ public class JwtUtil {
     }
 
     // ❗ JWT 검증 (취약한 버전: alg 필드를 신뢰)
-    public String validateAndExtractUsername(String token) {
+    public Claims parseClaims(String token) {
         try {
-            // 주의: setSigningKey만 설정하면 alg를 따로 강제하지 않음!
-            return Jwts.parserBuilder()
-                    .setSigningKey(publicKey) // 공격자가 HS256이나 none을 사용해도 이 key를 무시할 수 있음
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    
-    // JWT에서 사용자 ID 추출
-    public Long extractUserId(String token) {
-        try {
+            // 알고리즘 혼재 취약점: alg 필드를 신뢰하여 검증
             return Jwts.parserBuilder()
                     .setSigningKey(publicKey)
+                    .setAllowedClockSkewSeconds(3600)  // 시간 오차 허용
                     .build()
                     .parseClaimsJws(token)
-                    .getBody()
-                    .get("userId", Long.class);
+                    .getBody();
         } catch (Exception e) {
-            return null;
+            // HS256으로 서명된 토큰도 허용 (알고리즘 혼재 취약점)
+            try {
+                // 공개키를 HMAC 키로 사용하여 HS256 검증 시도
+                return Jwts.parserBuilder()
+                        .setSigningKey(publicKey.getEncoded())
+                        .setAllowedClockSkewSeconds(3600)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+            } catch (Exception e2) {
+                return null;
+            }
         }
     }
+
 
     private PrivateKey getPrivateKeyFromPem(String pem) throws Exception {
         pem = pem.replaceAll("-----BEGIN PRIVATE KEY-----", "")
