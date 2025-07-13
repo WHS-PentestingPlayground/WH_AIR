@@ -2,6 +2,7 @@ package com.WHS.whair.controller;
 
 import com.WHS.whair.entity.Reservation;
 import com.WHS.whair.service.ReservationService;
+import com.WHS.whair.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
     
     private final ReservationService reservationService;
+    private final UserRepository userRepository;
 
     /* 통합 처리 프로세스 */
 
@@ -35,9 +37,17 @@ public class ReservationController {
         try {
             // 사용자 인증 확인
             User user = (User) httpRequest.getAttribute("user");
-            if (user == null || user.getId() == null) {
+            if (user == null || user.getName() == null) {
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // DB에서 사용자 정보 조회
+            User dbUser = userRepository.findByName(user.getName()).orElse(null);
+            if (dbUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
                 return ResponseEntity.status(401).body(response);
             }
 
@@ -46,7 +56,7 @@ public class ReservationController {
             List<String> seatNumbers = (List<String>) request.get("seatNumbers");
 
             // 장바구니 생셩 및 세션 ID 발급
-            String sessionId = reservationService.initiatePaymentSession(user.getId(), flightId, seatNumbers);
+            String sessionId = reservationService.initiatePaymentSession(dbUser.getId(), flightId, seatNumbers);
 
             // 응답 반환
             response.put("success", true);
@@ -122,13 +132,21 @@ public class ReservationController {
         
         try {
             User user = (User) httpRequest.getAttribute("user");
-            if (user == null || user.getId() == null) {
+            if (user == null || user.getName() == null) {
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다.");
                 return ResponseEntity.status(401).body(response);
             }
 
-            Long userId = user.getId();
+            // DB에서 사용자 정보 조회
+            User dbUser = userRepository.findByName(user.getName()).orElse(null);
+            if (dbUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = dbUser.getId();
             log.debug("예약 목록 조회 요청: userId={}", userId);
 
             List<Reservation> reservations = reservationService.getUserReservations(userId);
@@ -157,13 +175,21 @@ public class ReservationController {
         
         try {
             User user = (User) httpRequest.getAttribute("user");
-            if (user == null || user.getId() == null) {
+            if (user == null || user.getName() == null) {
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다.");
                 return ResponseEntity.status(401).body(response);
             }
 
-            Long userId = user.getId();
+            // DB에서 사용자 정보 조회
+            User dbUser = userRepository.findByName(user.getName()).orElse(null);
+            if (dbUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = dbUser.getId();
             log.debug("예약 취소 요청: userId={}, reservationId={}", userId, reservationId);
 
             reservationService.cancelReservation(reservationId, userId);
@@ -189,13 +215,21 @@ public class ReservationController {
         
         try {
             User user = (User) httpRequest.getAttribute("user");
-            if (user == null || user.getId() == null) {
+            if (user == null || user.getName() == null) {
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다.");
                 return ResponseEntity.status(401).body(response);
             }
 
-            Long userId = user.getId();
+            // DB에서 사용자 정보 조회
+            User dbUser = userRepository.findByName(user.getName()).orElse(null);
+            if (dbUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = dbUser.getId();
             log.debug("예약 상세 조회 요청: userId={}, reservationId={}", userId, reservationId);
 
             Reservation reservation = reservationService.getReservationDetail(reservationId, userId);
