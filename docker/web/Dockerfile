@@ -36,7 +36,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 빌드 결과물(WAR) 복사 (web용 war)
-COPY --from=builder /home/gradle/src/data/web/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=builder /home/gradle/src/data/web/build/libs/*.war /usr/local/tomcat/webapps/
 
 # tomcat 유저에게 소유권 부여
 RUN chown -R tomcat:tomcat /usr/local/tomcat
