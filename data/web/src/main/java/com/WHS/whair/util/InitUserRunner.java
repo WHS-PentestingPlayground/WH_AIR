@@ -16,8 +16,10 @@ public class InitUserRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         try {
-            userService.register(new RegisterRequestDto(
-                "wh_manager", "MApasswd!!34", "manager@email.com", "010-0000-0000"));
+            if (!userService.existsByName("wh_manager")) {
+                userService.register(new RegisterRequestDto(
+                    "wh_manager", "MApasswd!!34", "manager@email.com", "010-0000-0000"));
+            }
         } catch (Exception e) {
             e.printStackTrace(); 
         }
