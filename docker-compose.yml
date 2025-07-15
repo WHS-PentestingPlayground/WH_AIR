@@ -3,7 +3,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.31.0.0/16
+        - subnet: 172.40.0.0/16
   int-net:
     driver: bridge
     ipam:
@@ -38,7 +38,7 @@ services:
         condition: service_healthy
     networks:
       ext-net:
-        ipv4_address: 172.31.0.3
+        ipv4_address: 172.40.0.3
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
@@ -60,6 +60,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       ext-net:
+        ipv4_address: 172.40.0.4
       int-net:
         ipv4_address: 172.30.0.3
     healthcheck:
