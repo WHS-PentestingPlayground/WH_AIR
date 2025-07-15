@@ -1,55 +1,78 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-body {
+.error-body {
   background: #fff;
   font-family: 'Pretendard', 'sans-serif';
+  margin: 0;
+  padding: 0;
 }
 
 .error-container {
-    text-align: center;
-    margin-top: 100px;
-    font-family: 'Arial', sans-serif;
-}
-
-.error-title {
-    font-size: 32px;
-    font-weight: bold;
-    color: #e74c3c;
-    margin-bottom: 20px;
-}
-
-.error-message {
-    font-size: 24px;
-    color: #2c3e50;
-    margin-bottom: 30px;
+  text-align: center;
+  margin-top: 120px;
+  padding: 32px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(30, 58, 138, 0.08);
+  background: #f9fafb;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .error-code {
-    font-size: 72px;
-    color: #e74c3c;
-    margin-bottom: 20px;
+  font-size: 72px;
+  color: #e74c3c;
+  font-weight: 900;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
 }
 
-.error-details {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-    font-size: 16px;
-    color: #666;
+.error-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 16px;
+}
+
+.error-message {
+  font-size: 18px;
+  color: #2c3e50;
+  margin-bottom: 32px;
+  line-height: 1.5;
 }
 
 .back-button {
-    padding: 10px 20px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 16px;
+  display: inline-block;
+  padding: 12px 28px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+  transition: background 0.2s;
 }
 
 .back-button:hover {
-    background-color: #2980b9;
+  background-color: #2980b9;
+}
+
+@media (max-width: 480px) {
+  .error-container {
+    margin-top: 60px;
+    padding: 16px 4px;
+    max-width: 95vw;
+  }
+  .error-code {
+    font-size: 48px;
+  }
+  .error-title {
+    font-size: 20px;
+  }
+  .error-message {
+    font-size: 15px;
+  }
 } 
