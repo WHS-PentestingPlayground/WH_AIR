@@ -27,7 +27,7 @@ DB_CONFIG = {
     'port': os.getenv('DB_PORT', '5432'),
     'database': os.getenv('DB_NAME', 'wh_air'),
     'user': os.getenv('DB_USER', 'wh_admin'),
-    'password': os.getenv('DB_PASSWORD', 'password')
+    'password': os.getenv('DB_PASSWORD', '!ADpasswd@@')
 }
 
 def get_db_connection():

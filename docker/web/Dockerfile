@@ -26,6 +26,9 @@ RUN ./gradlew :data:web:clean :data:web:build --no-daemon -x test
 FROM tomcat:9.0.60-jdk17
 ENV TZ=Asia/Seoul
 
+# tomcat 유저 생성 
+RUN id -u tomcat 2>/dev/null || useradd -u 1000 -d /usr/local/tomcat -s /bin/bash tomcat
+
 # psql(PostgreSQL client) 설치
 RUN apt-get update && \
     apt-get install -y postgresql-client && \
@@ -35,11 +38,14 @@ RUN apt-get update && \
 # 빌드 결과물(WAR) 복사 (web용 war)
 COPY --from=builder /home/gradle/src/data/web/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
 
+# tomcat 유저에게 소유권 부여
+RUN chown -R tomcat:tomcat /usr/local/tomcat
+
 # 포트 8080 노출
 EXPOSE 8080
 
+# tomcat 유저로 실행
+USER tomcat
+
 # Tomcat 실행
 CMD ["catalina.sh", "run"]
-
-# ---
-# 이 Dockerfile은 DMZ망 웹 서버(JSP+Tomcat) 컨테이너용입니다. 

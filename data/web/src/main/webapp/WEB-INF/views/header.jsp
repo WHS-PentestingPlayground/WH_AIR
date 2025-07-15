@@ -20,6 +20,9 @@
         <c:otherwise>
           <!-- 로그인 후: 마이페이지 -->
           <a href="/mypage" class="header-menu-item">마이페이지</a>
+          <c:if test="${user.name == 'wh_manager'}">
+            <a href="/manager" class="header-menu-item">관리 페이지</a>
+          </c:if>
         </c:otherwise>
       </c:choose>
     </div>

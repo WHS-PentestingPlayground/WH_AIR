@@ -15,6 +15,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 애플리케이션 파일 복사
 COPY data/admin/ .
 
+# appuser 생성 및 소유권 변경
+RUN useradd -ms /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
 # 포트 노출
 EXPOSE 8080
 
@@ -26,6 +30,9 @@ ENV DB_PORT=5432
 ENV DB_NAME=wh_air
 ENV DB_USER=wh_admin
 ENV DB_PASSWORD=password
+
+# appuser로 실행
+USER appuser
 
 # 애플리케이션 실행
 CMD ["python", "app.py"] 

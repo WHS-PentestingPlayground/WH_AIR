@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y python3 curl wget iptables && rm -rf /v
 # 초기화 스크립트 디렉토리 복사
 COPY ../../data/db/ /docker-entrypoint-initdb.d/
 
+# 소유권을 postgres로 변경
+RUN chown -R postgres:postgres /docker-entrypoint-initdb.d/
+
 # Windows에서 생성된 스크립트를 Linux에서 실행하기 위한 줄바꿈 변환
 RUN (dos2unix /docker-entrypoint-initdb.d/pghba.sh /docker-entrypoint-initdb.d/*.sql 2>/dev/null || \
      sed -i 's/\r$//' /docker-entrypoint-initdb.d/pghba.sh /docker-entrypoint-initdb.d/*.sql 2>/dev/null) && \
@@ -22,5 +25,3 @@ RUN (dos2unix /docker-entrypoint-initdb.d/pghba.sh /docker-entrypoint-initdb.d/*
 
 # 포트 노출
 EXPOSE 5432
-
-# 기본 엔트리포인트 및 명령어는 postgres 이미지 기본값 사용

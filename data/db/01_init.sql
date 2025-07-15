@@ -2,9 +2,9 @@
 ALTER USER postgres NOLOGIN;
 
 -- wh_admin 슈퍼유저 생성
-CREATE USER wh_admin WITH PASSWORD 'password' SUPERUSER CREATEDB CREATEROLE;
+CREATE USER wh_admin WITH PASSWORD '!ADpasswd@@' SUPERUSER CREATEDB CREATEROLE;
 -- wh_manager 계정 생성
-CREATE USER wh_manager WITH PASSWORD 'password';
+CREATE USER wh_manager WITH PASSWORD 'password!';
 
 -- 데이터베이스 연결 권한
 GRANT CONNECT ON DATABASE wh_air TO wh_manager;
@@ -180,14 +180,14 @@ CREATE TRIGGER trg_unreserve_seat_on_delete
   FOR EACH ROW
   EXECUTE FUNCTION unreserve_seat_on_delete();
 
--- 예시 데이터 삽입
+-- -- 예시 데이터 삽입
 
-INSERT INTO users (name, email, password_hash, phone_number, point, coupon, created_at) VALUES
-('김철수', 'kim@example.com', 'hash123', '010-1234-5678', 150000, 'WELCOME10', '2024-01-01 10:00:00'),
-('이영희', 'lee@example.com', 'hash456', '010-2345-6789', 200000, NULL, '2024-01-02 11:00:00'),
-('박민수', 'park@example.com', 'hash789', '010-3456-7890', 120000, 'SAVE20', '2024-01-03 12:00:00'),
-('최지영', 'choi@example.com', 'hash101', '010-4567-8901', 180000, NULL, '2024-01-04 13:00:00'),
-('정현우', 'jung@example.com', 'hash202', '010-5678-9012', 250000, 'VIP30', '2024-01-05 14:00:00');
+-- INSERT INTO users (name, email, password_hash, phone_number, point, coupon, created_at) VALUES
+-- ('김철수', 'kim@example.com', 'hash123', '010-1234-5678', 150000, 'WELCOME10', '2024-01-01 10:00:00'),
+-- ('이영희', 'lee@example.com', 'hash456', '010-2345-6789', 200000, NULL, '2024-01-02 11:00:00'),
+-- ('박민수', 'park@example.com', 'hash789', '010-3456-7890', 120000, 'SAVE20', '2024-01-03 12:00:00'),
+-- ('최지영', 'choi@example.com', 'hash101', '010-4567-8901', 180000, NULL, '2024-01-04 13:00:00'),
+-- ('정현우', 'jung@example.com', 'hash202', '010-5678-9012', 250000, 'VIP30', '2024-01-05 14:00:00');
 
 INSERT INTO flights (flight_number, departure_airport, arrival_airport, departure_time, arrival_time, airline, aircraft_model) VALUES
 ('WH1234', 'ICN', 'YVR', '2025-08-02 10:00:00', '2025-08-02 06:00:00', 'WH Air', 'Boeing 777');
@@ -354,6 +354,6 @@ INSERT INTO seats (flight_id, seat_number, class, is_reserved, seat_price, fuel_
 (1, '30E', 'economy', false, 800000, 200000),
 (1, '30F', 'economy', false, 800000, 200000);
 
-INSERT INTO reservations (user_id, flight_id, seat_id, passenger_name, passenger_birth, booked_at, updated_at) VALUES
-(1, 1, 35, '김철수', '1990-05-15', '2024-01-15 09:00:00', '2024-01-15 09:00:00'),
-(2, 1, 46, '이영희', '1985-08-22', '2024-01-16 10:00:00', '2024-01-16 10:00:00');
+-- INSERT INTO reservations (user_id, flight_id, seat_id, passenger_name, passenger_birth, booked_at, updated_at) VALUES
+-- (1, 1, 35, '김철수', '1990-05-15', '2024-01-15 09:00:00', '2024-01-15 09:00:00'),
+-- (2, 1, 46, '이영희', '1985-08-22', '2024-01-16 10:00:00', '2024-01-16 10:00:00');
