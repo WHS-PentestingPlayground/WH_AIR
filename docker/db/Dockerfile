@@ -13,7 +13,7 @@ ENV POSTGRES_PASSWORD=postgres
 RUN apt-get update && apt-get install -y python3 curl wget iptables && rm -rf /var/lib/apt/lists/*
 
 # 초기화 스크립트 디렉토리 복사
-COPY ../../data/db/ /docker-entrypoint-initdb.d/
+COPY data/db/ /docker-entrypoint-initdb.d/
 
 # 소유권을 postgres로 변경
 RUN chown -R postgres:postgres /docker-entrypoint-initdb.d/
