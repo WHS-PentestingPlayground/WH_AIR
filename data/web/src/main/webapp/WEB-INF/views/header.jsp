@@ -6,7 +6,7 @@
     <div class="header-logo">
       <a href="/" class="header-logo-link">
         <div class="logo-icon">✈</div>
-        <span class="header-logo-text">WH_AIR</span>
+        <span class="header-logo-text">WH AIR</span>
       </a>
     </div>
 

@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WH_AIR - 세계를 연결하는 항공사</title>
+    <title>WH AIR - 세계를 연결하는 항공사</title>
     <link rel="stylesheet" href="/static/css/header.css">
     <link rel="stylesheet" href="/static/css/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
         <div class="hero-content">
             <div class="container">
                 <div class="hero-text">
-                    <h1 class="hero-title">WH_AIR</h1>
+                    <h1 class="hero-title">WH AIR</h1>
                     <p class="hero-subtitle">세계를 연결하는 프리미엄 항공사</p>
                     <p class="hero-description">안전하고 편안한 여행을 위한 최고의 서비스를 제공합니다</p>
                     <div class="hero-buttons">
@@ -54,7 +54,7 @@
     <section class="features-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">WH_AIR의 특별한 서비스</h2>
+                <h2 class="section-title">WH AIR의 특별한 서비스</h2>
                 <p class="section-subtitle">고객 만족을 위한 최고의 항공 서비스</p>
             </div>
             <div class="features-grid">
@@ -117,7 +117,7 @@
         <div class="container">
             <div class="cta-content">
                 <h2 class="cta-title">지금 바로 여행을 시작하세요</h2>
-                <p class="cta-description">WH_AIR와 함께 특별한 여행 경험을 만들어보세요</p>
+                <p class="cta-description">WH AIR와 함께 특별한 여행 경험을 만들어보세요</p>
             </div>
         </div>
     </section>

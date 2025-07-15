@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>로그인 - WH_AIR</title>
+  <title>로그인 - WH AIR</title>
   <link rel="stylesheet" href="/static/css/header.css">
   <link rel="stylesheet" href="/static/css/login.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
   <div class="login-container">
     <div class="logo-section">
       <div class="logo-icon">✈</div>
-      <h1 class="airline-logo">WH_AIR</h1>
+      <h1 class="airline-logo">WH AIR</h1>
       <p class="airline-slogan">세계를 연결하는 항공사</p>
     </div>
     <h2 class="form-title">로그인</h2>

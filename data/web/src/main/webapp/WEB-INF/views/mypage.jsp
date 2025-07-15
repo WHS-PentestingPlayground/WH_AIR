@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지 - WH_AIR</title>
+  <title>마이페이지 - WH AIR</title>
   <link rel="stylesheet" href="/static/css/header.css">
   <link rel="stylesheet" href="/static/css/mypage.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
