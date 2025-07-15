@@ -12,6 +12,11 @@ body {
     min-height: 100vh;
 }
 
+/* flightBooking.jsp 전용: 헤더에 가려지는 현상 방지 */
+body.flight-booking-page .container {
+    padding-top: 80px; /* header 높이에 맞게 조정 */
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

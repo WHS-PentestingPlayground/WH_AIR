@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/css/flight.css">
     <link rel="stylesheet" href="/static/css/header.css">
 </head>
-<body>
+<body class="flight-booking-page">
     <%@ include file="header.jsp" %>
     <div class="container">
         <div class="booking-wrapper">
