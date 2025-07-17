@@ -1,5 +1,4 @@
-# PostgreSQL 14.15 데이터베이스 서버
-FROM postgres:14.15
+FROM postgres:17.3
 
 # 타임존 설정
 ENV TZ=Asia/Seoul
