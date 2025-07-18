@@ -105,6 +105,12 @@ services:
       context: .
       dockerfile: docker/admin/Dockerfile
     container_name: whair-admin
+    environment:
+      DB_HOST: db-server
+      DB_PORT: 5432
+      DB_NAME: wh_air
+      DB_USER: wh_admin
+      DB_PASSWORD: !ADpasswd@@
     depends_on:
       - db-server
     networks:
