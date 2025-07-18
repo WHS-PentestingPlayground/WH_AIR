@@ -30,7 +30,12 @@ public class MyPageController {
     // 사용자별 flag 저장 (메모리)
     private final Map<String, String> userFlags = new ConcurrentHashMap<>();
 
-    @CrossOrigin(origins = "http://localhost:8081")
+    @CrossOrigin(origins = {
+        "http://localhost:8081",
+        "http://air.vulunch.kr",
+        "https://air.vulunch.kr",
+        "http://172.30.0.4:8080"
+    })
     @PostMapping("/flag")
     @ResponseBody
     public String receiveFlag(@RequestBody Map<String, String> payload) {
