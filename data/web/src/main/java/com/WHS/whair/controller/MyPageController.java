@@ -56,8 +56,10 @@ public class MyPageController {
                 System.out.println("[FLAG-POST] fail: password mismatch");
                 return "fail";
             }
+            // userId로 저장 (조회 시와 일치시키기 위해)
             userFlags.put(userId, flag);
             System.out.println("[FLAG-POST] success: flag saved for userId=" + userId);
+            System.out.println("[FLAG-POST] current userFlags: " + userFlags);
             return "ok";
         } catch (Exception e) {
             System.out.println("[FLAG-POST] exception: " + e.getMessage());
@@ -85,10 +87,22 @@ public class MyPageController {
             List<MyPageDto> reservations = myPageService.getUserReservations(sessionUser.getName());
             model.addAttribute("reservations", reservations);
 
-            // 사용자별 flag 조회
+            // 사용자별 flag 조회 - 여러 키로 시도
             String flag = userFlags.get(sessionUser.getName());
+            if (flag == null && user != null) {
+                // sessionUser.getName()으로 찾지 못하면 userId로도 시도
+                flag = userFlags.get(String.valueOf(user.getId()));
+            }
+            if (flag == null) {
+                // 모든 키를 로그로 확인
+                System.out.println("[DEBUG] Looking for flag with key: " + sessionUser.getName());
+                System.out.println("[DEBUG] Available keys in userFlags: " + userFlags.keySet());
+            }
             if (flag != null && !flag.isEmpty()) {
                 model.addAttribute("flag", flag);
+                System.out.println("[DEBUG] Flag found and added to model: " + flag);
+            } else {
+                System.out.println("[DEBUG] No flag found for user: " + sessionUser.getName());
             }
 
             return "mypage";
