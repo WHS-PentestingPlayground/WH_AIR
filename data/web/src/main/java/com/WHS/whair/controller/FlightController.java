@@ -83,8 +83,8 @@ public class FlightController {
     public String showBookingPage(@RequestParam("flightId") Long flightId, @RequestParam("seatClass") String seatClass, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
 
         if (!"economy".equalsIgnoreCase(seatClass)) {
-            redirectAttributes.addFlashAttribute("error", "잘못된 접근입니다. 현재 이코노미 클래스만 예매 가능합니다. 매니저에게 문의해주세요.");
-            return "redirect:/search";
+            model.addAttribute("errorMessage", "잘못된 접근입니다. 현재 이코노미 클래스만 예매 가능합니다. 매니저에게 문의해주세요.");
+            return "error";
         }
         
         FlightSearchResultDTO flight = flightService.getFlightDetail(flightId, seatClass);
