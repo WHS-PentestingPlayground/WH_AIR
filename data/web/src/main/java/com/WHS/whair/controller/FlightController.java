@@ -32,7 +32,10 @@ public class FlightController {
 
     // 항공권 검색 폼
     @GetMapping("/search")
-    public String searchFlights(Model model) {
+    public String searchFlights(Model model, @ModelAttribute("error") String error) {
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("error", error);
+        }
         return "flightSearch";
     }
 
