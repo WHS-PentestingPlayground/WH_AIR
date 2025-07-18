@@ -86,6 +86,8 @@ services:
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
       ext-net:
         ipv4_address: 172.40.0.5
