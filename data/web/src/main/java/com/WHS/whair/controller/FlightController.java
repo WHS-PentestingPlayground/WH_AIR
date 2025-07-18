@@ -32,9 +32,10 @@ public class FlightController {
 
     // 항공권 검색 폼
     @GetMapping("/search")
-    public String searchFlights(Model model, @ModelAttribute("error") String error) {
-        if (error != null && !error.isEmpty()) {
-            model.addAttribute("error", error);
+    public String searchFlights(Model model, RedirectAttributes redirectAttributes) {
+        // Flash attribute에서 error 메시지 가져오기
+        if (redirectAttributes.getFlashAttributes().containsKey("error")) {
+            model.addAttribute("error", redirectAttributes.getFlashAttributes().get("error"));
         }
         return "flightSearch";
     }
