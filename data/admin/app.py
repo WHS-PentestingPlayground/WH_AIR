@@ -41,7 +41,7 @@ def block_db_server_curl():
         user_agent = request.headers.get("User-Agent", "").lower()
         blocked_agents = ["curl", "wget", "httpie", "python-requests"]
         if any(agent in user_agent for agent in blocked_agents):
-            abort(403, description="You'd better find another approach")
+            abort(403, description="admin page is only accessible via a web browser.")
             
 @app.route('/login', methods=['GET', 'POST'])
 def login():
