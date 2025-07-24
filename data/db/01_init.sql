@@ -182,7 +182,7 @@ CREATE TRIGGER trg_unreserve_seat_on_delete
 
 -- 기본 데이터 삽입
 INSERT INTO flights (flight_number, departure_airport, arrival_airport, departure_time, arrival_time, airline, aircraft_model) VALUES
-('WH1234', 'ICN', 'YVR', '2025-08-02 10:00:00', '2025-08-02 06:00:00', 'WH Air', 'Boeing 777');
+('WH1234', 'ICN', 'YVR', '2025-08-02 10:00:00', '2025-08-02 20:00:00', 'WH Air', 'Boeing 777');
 
 -- 첫 번째 항공편 (WH1234) 좌석 데이터
 INSERT INTO seats (flight_id, seat_number, class, is_reserved, seat_price, fuel_price) VALUES
