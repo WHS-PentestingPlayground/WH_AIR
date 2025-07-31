@@ -112,14 +112,11 @@ docker compose up -d --build
 
 <a id="개발-기간"></a>
 ## 📆 개발 기간
-- 2025.05.01 ~ 2025.05.03 : 팀 규칙 및 코딩 컨벤션 의논, 시나리오 컨셉 정의</br>
-- 2025.05.03 ~ 2025.05.07 : 킥오프 보고서작성 및 취약점 구현 역할 분배</br>
-- 2025.05.07 ~ 2025.05.10 : 프로젝트 환경 세팅</br>
-- 2025.05.10 ~ 2025.05.18 : 개별문제 제작</br>
-- 2025.05.18 ~ 2025.05.22 : 유스케이스 다이어그램,기능명세서,ERD제작</br>
-- 2025.05.22 ~ 2025.05.31 : 로그인/회원가입, 소개페이지,마이페이지 구현</br>
-- 2025.05.31 ~ 2025.06.09 : 게시판 구현 및 도커화</br>
-- 2025.06.09 ~ 2025.06.22 : 취약점(IDOR,Blind Sqli,file download/upload)구현 및 난이도조정</br>
+- 2025.06.29 ~ 2025.07.03 : 팀 규칙 및 코딩 컨벤션 의논, 시나리오 컨셉 정의</br>
+- 2025.07.04 ~ 2025.07.07 : 프로젝트 환경 세팅 및 취약점 구현 역할 분배</br>
+- 2025.07.08 ~ 2025.07.13 : 각 취약점 및 에러페이지 구현</br>
+- 2025.07.13 ~ 2025.07.19 : 각 취약점 구현 및 페이지 제작</br>
+- 2025.07.29 ~ 2025.08.02 : 플랫폼 오픈</br>
 
 ---
 <a id="시스템-아키텍처"></a>
@@ -129,7 +126,7 @@ docker compose up -d --build
 
 <a id="erd"></a>
 ## 📝 ERD
-<img width="964" height="673" alt="erd" src="https://github.com/user-attachments/assets/35122137-1aa6-435a-a808-ccd711305b81" />
+<img width="1211" height="727" alt="dberd" src="https://github.com/user-attachments/assets/21c6c785-1008-4fd1-ba75-b437a203886c" />
 
 ---
 
@@ -160,6 +157,7 @@ docker compose up -d --build
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_25" src="https://github.com/user-attachments/assets/0787752d-cfda-4677-8473-cd0eba8ac205" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_26" src="https://github.com/user-attachments/assets/b0903f17-e608-47b0-93ef-a13a0c637abe" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_27" src="https://github.com/user-attachments/assets/0701c5ef-1da9-4518-80a9-7ce46c8ea9b2" />
+
 
 
 
