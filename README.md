@@ -3,8 +3,8 @@
 이 프로젝트는 Pentesting playground 플랫폼을 위한 시나리오로, 망분리 환경으로 구축되어 있으며 다양한 CVE와 Chaining 기법을 연습할 수 있도록 구성되어있습니다.
 이 문서는 프로젝트의 설치 방법, 기여자 정보, 기술 스택, 협업 방식, 개발 기간, 시스템 아키텍처, ERD, 그리고 시나리오를 설명합니다.
 ## Technology Stack
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=flat-square&logo=openjdk&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
@@ -62,7 +62,7 @@ docker compose up -d --build
         </a>
       </td>
       <td align="center">Project Member</td>
-      <td align="center">example</td>
+      <td align="center">JWT Authentication Bypass & OAuth Exploitation</td>
     </tr>
     <tr>
       <td align="center">
@@ -72,7 +72,7 @@ docker compose up -d --build
         </a>
       </td>
       <td align="center">Project Member</td>
-      <td align="center">example</td>
+      <td align="center">Chisel-based SOCKS5 reverse tunneling & admin page</td>
     </tr>
     <tr>
       <td align="center">
@@ -82,7 +82,7 @@ docker compose up -d --build
         </a>
       </td>
       <td align="center">Project Member</td>
-      <td align="center">example</td>
+      <td align="center">PostgreSQL Exploitation & Reverse Shell Triggering</td>
     </tr>
     <tr>
       <td align="center">
@@ -92,7 +92,7 @@ docker compose up -d --build
         </a>
       </td>
       <td align="center">Project Member</td>
-      <td align="center">example</td>
+      <td align="center">Race Condition & Spring4Shell Exploitation</td>
     </tr>
   </tbody>
 </table>
@@ -122,6 +122,11 @@ docker compose up -d --build
 <a id="시스템-아키텍처"></a>
 ## 🛠️ 시스템 아키텍처
 (추가에정)
+
+---
+<a id="공격-흐름도"></a>
+## 🧨 공격 흐름도
+<img width="1353" height="730" alt="flow" src="https://github.com/user-attachments/assets/66d89577-aec7-4649-8940-ce96fe4fec9c" />
 
 ---
 
@@ -157,8 +162,6 @@ docker compose up -d --build
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_25" src="https://github.com/user-attachments/assets/0787752d-cfda-4677-8473-cd0eba8ac205" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_26" src="https://github.com/user-attachments/assets/b0903f17-e608-47b0-93ef-a13a0c637abe" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_27" src="https://github.com/user-attachments/assets/0701c5ef-1da9-4518-80a9-7ce46c8ea9b2" />
-
-
 
 
 
