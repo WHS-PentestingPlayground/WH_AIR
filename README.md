@@ -120,13 +120,9 @@ docker compose up -d --build
 - 2025.07.29 ~ 2025.08.02 : 플랫폼 오픈</br>
 
 ---
-<a id="시스템-아키텍처"></a>
-## 🛠️ 시스템 아키텍처
-(추가에정)
 
----
 <a id="공격-흐름도"></a>
-## 🧨 공격 흐름도
+## 🛠️ 공격 흐름도
 <img width="1418" height="770" alt="flow" src="https://github.com/user-attachments/assets/9fbabea9-6cf4-4302-9d02-37c12bc483c3" />
 
 ---
