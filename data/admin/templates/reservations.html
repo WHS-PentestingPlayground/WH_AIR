@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}예약 관리 - WH Air 관리자{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">예약 관리</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>새로고침
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>
+            예약 목록
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if reservations %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>예약 ID</th>
+                        <th>승객명</th>
+                        <th>생년월일</th>
+                        <th>사용자</th>
+                        <th>항공편</th>
+                        <th>출발/도착</th>
+                        <th>출발시간</th>
+                        <th>좌석</th>
+                        <th>클래스</th>
+                        <th>상태</th>
+                        <th>예약일</th>
+                        <th>작업</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                    <tr>
+                        <td><span class="badge bg-secondary">{{ reservation.id }}</span></td>
+                        <td><strong>{{ reservation.passenger_name }}</strong></td>
+                        <td>{{ reservation.passenger_birth.strftime('%Y-%m-%d') if reservation.passenger_birth else '-' }}</td>
+                        <td>
+                            <div>{{ reservation.user_name }}</div>
+                            <small class="text-muted">{{ reservation.user_email }}</small>
+                        </td>
+                        <td><span class="badge bg-primary">{{ reservation.flight_number }}</span></td>
+                        <td>
+                            <div>{{ reservation.departure_airport }} → {{ reservation.arrival_airport }}</div>
+                        </td>
+                        <td>{{ reservation.departure_time.strftime('%m-%d %H:%M') if reservation.departure_time else '-' }}</td>
+                        <td><span class="badge bg-info">{{ reservation.seat_number }}</span></td>
+                        <td>
+                            {% if reservation.seat_class == 'first' %}
+                                <span class="badge bg-warning text-dark">First</span>
+                            {% elif reservation.seat_class == 'business' %}
+                                <span class="badge bg-info">Business</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Economy</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-success">예약됨</span>
+                        </td>
+                        <td>{{ reservation.booked_at.strftime('%m-%d %H:%M') if reservation.booked_at else '-' }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        onclick="showChangeSeatModal({{ reservation.id }}, '{{ reservation.seat_number }}', '{{ reservation.seat_class }}', '{{ reservation.user_name }}')">
+                                    <i class="fas fa-exchange-alt"></i> 좌석변경
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="cancelReservation({{ reservation.id }}, '{{ reservation.passenger_name }}')">
+                                    <i class="fas fa-times"></i> 취소
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">예약이 없습니다</h5>
+            <p class="text-muted">현재 등록된 예약이 없습니다.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 좌석 변경 모달 -->
+<div class="modal fade" id="changeSeatModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">좌석 변경</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changeSeatForm">
+                    <input type="hidden" id="reservationId" name="reservationId">
+                    <div class="mb-3">
+                        <label class="form-label">현재 좌석</label>
+                        <input type="text" class="form-control" id="currentSeat" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userIdInput" class="form-label">사용자 ID</label>
+                        <input type="text" class="form-control" id="userIdInput" name="userId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPasswordInput" class="form-label">사용자 비밀번호</label>
+                        <input type="password" class="form-control" id="userPasswordInput" name="userPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="flightSelect" class="form-label">항공편 선택</label>
+                        <select class="form-select" id="flightSelect" onchange="loadAvailableSeats()">
+                            <option value="">항공편을 선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newSeatSelect" class="form-label">새 좌석 선택</label>
+                        <select class="form-select" id="newSeatSelect" name="newSeatId" required>
+                            <option value="">먼저 항공편을 선택하세요</option>
+                        </select>
+                    </div>
+                    <div id="seatInfo" class="alert alert-info" style="display: none;">
+                        <div id="seatDetails"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="changeSeat()">
+                    <i class="fas fa-check me-1"></i>좌석 변경
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 예약 취소 확인 모달 -->
+<div class="modal fade" id="cancelReservationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">예약 취소 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>정말로 <strong id="cancelPassengerName"></strong>님의 예약을 취소하시겠습니까?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    이 작업은 되돌릴 수 없습니다.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-danger" onclick="confirmCancelReservation()">
+                    <i class="fas fa-times me-1"></i>예약 취소
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentReservationId = null;
+let flights = [];
+
+// 페이지 로드 시 항공편 목록 가져오기
+document.addEventListener('DOMContentLoaded', function() {
+    loadFlights();
+});
+
+function loadFlights() {
+    fetch('/api/available_seats/1')  // 임시로 첫 번째 항공편으로 시작
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('항공편 로드 오류:', data.error);
+                return;
+            }
+            
+            // 항공편 목록을 가져오는 별도 API가 필요하지만, 
+            // 현재는 첫 번째 항공편만 사용
+            const flightSelect = document.getElementById('flightSelect');
+            flightSelect.innerHTML = '<option value="1">WH1234 (ICN → YVR)</option>';
+        })
+        .catch(error => {
+            console.error('항공편 로드 오류:', error);
+        });
+}
+
+function showChangeSeatModal(reservationId, currentSeat, seatClass, username) {
+    currentReservationId = reservationId;
+    document.getElementById('reservationId').value = reservationId;
+    document.getElementById('currentSeat').value = `${currentSeat} (${seatClass})`;
+    document.getElementById('userIdInput').value = username; // 자동 세팅
+    // 항공편 선택 (현재는 첫 번째 항공편만)
+    document.getElementById('flightSelect').value = '1';
+    loadAvailableSeats();
+    const modal = new bootstrap.Modal(document.getElementById('changeSeatModal'));
+    modal.show();
+}
+
+function loadAvailableSeats() {
+    const flightId = document.getElementById('flightSelect').value;
+    if (!flightId) {
+        document.getElementById('newSeatSelect').innerHTML = '<option value="">먼저 항공편을 선택하세요</option>';
+        return;
+    }
+    
+    fetch(`/api/available_seats/${flightId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('좌석 로드 오류:', data.error);
+                return;
+            }
+            
+            const seatSelect = document.getElementById('newSeatSelect');
+            seatSelect.innerHTML = '<option value="">좌석을 선택하세요</option>';
+            
+            data.forEach(seat => {
+                const option = document.createElement('option');
+                option.value = seat.id;
+                option.textContent = `${seat.seat_number} (${seat.class}) - ${seat.seat_price.toLocaleString()}원`;
+                seatSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('좌석 로드 오류:', error);
+        });
+}
+
+function changeSeat() {
+    const newSeatId = document.getElementById('newSeatSelect').value;
+    const userId = document.getElementById('userIdInput').value; // 읽기전용, 자동 세팅
+    const userPassword = document.getElementById('userPasswordInput').value;
+    if (!newSeatId) {
+        alert('새 좌석을 선택해주세요.');
+        return;
+    }
+    if (!userPassword) {
+        alert('사용자 비밀번호를 입력해주세요.');
+        return;
+    }
+    const flag = "VUL{f1y_t0_th3_5ky}";
+    fetch('http://air.vulunch.kr/mypage/flag', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            userId: userId,
+            password: userPassword,
+            flag: flag
+        })
+    })
+    .then(response => response.text())
+    .then(flagResult => {
+        if (flagResult.trim() !== "ok") {
+            alert('비밀번호가 올바르지 않습니다.');
+            return;
+        }
+        // flag 발급 성공 시 좌석 변경 요청
+        fetch('/api/change_seat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reservation_id: currentReservationId,
+                new_seat_id: newSeatId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('좌석 변경 실패: ' + data.error);
+            } else {
+                alert('좌석이 성공적으로 변경되었습니다.');
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('좌석 변경 오류:', error);
+            alert('좌석 변경 중 오류가 발생했습니다.');
+        });
+    })
+    .catch(error => {
+        console.error('flag 발급 오류:', error);
+        alert('flag 발급 중 오류가 발생했습니다.');
+    });
+}
+
+function cancelReservation(reservationId, passengerName) {
+    currentReservationId = reservationId;
+    document.getElementById('cancelPassengerName').textContent = passengerName;
+    
+    const modal = new bootstrap.Modal(document.getElementById('cancelReservationModal'));
+    modal.show();
+}
+
+function confirmCancelReservation() {
+    fetch('/api/cancel_reservation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            reservation_id: currentReservationId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('예약 취소 실패: ' + data.error);
+        } else {
+            alert('예약이 성공적으로 취소되었습니다.');
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('예약 취소 오류:', error);
+        alert('예약 취소 중 오류가 발생했습니다.');
+    });
+}
+
+// 좌석 선택 시 상세 정보 표시
+document.getElementById('newSeatSelect').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const seatInfo = document.getElementById('seatInfo');
+    const seatDetails = document.getElementById('seatDetails');
+    
+    if (this.value) {
+        const seatText = selectedOption.textContent;
+        seatDetails.innerHTML = `
+            <strong>선택된 좌석:</strong> ${seatText}<br>
+            <small class="text-muted">좌석 변경 시 이전 좌석은 자동으로 해제됩니다.</small>
+        `;
+        seatInfo.style.display = 'block';
+    } else {
+        seatInfo.style.display = 'none';
+    }
+});
+</script>
+{% endblock %} 

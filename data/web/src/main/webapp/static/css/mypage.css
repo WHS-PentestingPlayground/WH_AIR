@@ -1,0 +1,301 @@
+/* 마이페이지 스타일 */
+.mypage-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.mypage-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 30px 0;
+  background: linear-gradient(135deg, #3a5e8c 0%, #1e3a8a 100%);
+  color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.mypage-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.mypage-header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* 섹션 공통 스타일 */
+.info-section,
+.assets-section,
+.reservations-section {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.info-section h2,
+.assets-section h2,
+.reservations-section h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #333;
+  border-bottom: 3px solid #3a5e8c;
+  padding-bottom: 10px;
+}
+
+/* 회원 정보 섹션 */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #3a5e8c;
+}
+
+.info-item label {
+  display: block;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.info-item span {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 보유 자산 섹션 */
+.assets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.asset-card {
+  display: flex;
+  align-items: center;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.asset-icon {
+  font-size: 2.5rem;
+  margin-right: 20px;
+}
+
+.asset-info h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.asset-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* 예약 내역 섹션 */
+.reservations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reservation-card {
+  border: 1px solid #e1e8ed;
+  border-radius: 15px;
+  padding: 25px;
+  background: white;
+}
+
+
+.reservation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.reservation-header h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.booked {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.canceled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* 항공편 정보 */
+.flight-info {
+  margin-bottom: 20px;
+}
+
+.route-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.departure,
+.arrival {
+  text-align: center;
+  flex: 1;
+}
+
+.airport {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.time {
+  font-size: 1rem;
+  color: #666;
+}
+
+.flight-arrow {
+  font-size: 1.5rem;
+  color: #3a5e8c;
+  margin: 0 20px;
+}
+
+.flight-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-top: 1px solid #e1e8ed;
+}
+
+.flight-number {
+  font-weight: 600;
+  color: #3a5e8c;
+}
+
+.seat-info {
+  color: #666;
+}
+
+/* 승객 정보 */
+.passenger-info {
+  padding-top: 15px;
+  border-top: 1px solid #e1e8ed;
+}
+
+.passenger-info p {
+  margin: 8px 0;
+  color: #333;
+}
+
+.passenger-info strong {
+  color: #3a5e8c;
+}
+
+/* 예약 없음 */
+.no-reservations {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.no-data-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-reservations p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.search-flight-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background: #3a5e8c;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.search-flight-btn:hover {
+  background: #1e3a8a;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .mypage-container {
+    padding: 20px 10px;
+  }
+
+  .mypage-header h1 {
+    font-size: 2rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .assets-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .route-info {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .flight-arrow {
+    transform: rotate(90deg);
+    margin: 10px 0;
+  }
+
+  .flight-details {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+} 

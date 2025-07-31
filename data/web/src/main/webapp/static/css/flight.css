@@ -1,0 +1,980 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #fafdff 0%, #eaf6fb 100%);
+    color: #23272f;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* flightBooking.jsp 전용: 헤더에 가려지는 현상 방지 */
+body.flight-booking-page .container {
+    padding-top: 80px; /* header 높이에 맞게 조정 */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+/* 전체 래퍼 */
+.booking-wrapper {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 6px 24px 0 rgba(0, 80, 180, 0.06);
+    overflow: hidden;
+    width: 100%;
+}
+
+/* 항공편 정보 헤더 */
+.booking-header {
+    background: #f4f8fb;
+    padding: 2em;
+    border-bottom: 1px solid #d6e6f7;
+}
+
+.booking-title {
+    color: #3a5e8c;
+    font-size: 2.1em;
+    font-weight: 700;
+    margin-bottom: 1.2em;
+    letter-spacing: -1px;
+}
+
+.flight-info {
+    background: white;
+    border-radius: 10px;
+    padding: 1.2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #d6e6f7;
+}
+
+.flight-details {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #3a5e8c;
+}
+
+.flight-time {
+    font-size: 1em;
+    color: #5a6d85;
+}
+
+/* 공통 스텝 스타일 */
+.step-section {
+    border-bottom: 1px solid #e3f2fd;
+    width: 100%;
+}
+
+.step-section:last-child {
+    border-bottom: none;
+}
+
+.step-header {
+    background: #3a5e8c;
+    color: white;
+    padding: 1.2em 2em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.step-header:hover {
+    background: #2d4a6b;
+}
+
+.step-header.collapsed {
+    background: #64748b;
+}
+
+.step-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    flex-shrink: 0;
+}
+
+.step-number {
+    background: white;
+    color: #3a5e8c;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.step-title {
+    font-size: 1em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.step-toggle {
+    font-size: 1.1em;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.step-toggle.collapsed {
+    transform: rotate(90deg);
+}
+
+.step-content {
+    padding: 2em;
+    background: white;
+    display: block;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.step-content.collapsed {
+    display: none;
+}
+
+/* STEP 1: 좌석 선택 스타일 */
+.aircraft-container {
+    background: #fafdff;
+    border-radius: 15px;
+    padding: 2em;
+    margin-bottom: 2em;
+}
+
+.aircraft-body {
+    background: white;
+    border-radius: 20px;
+    padding: 2em;
+    box-shadow: 0 5px 15px rgba(0, 80, 180, 0.08);
+}
+
+.cockpit {
+    width: 60px;
+    height: 30px;
+    background: #3a5e8c;
+    border-radius: 30px 30px 0 0;
+    margin: 0 auto 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cockpit-icon {
+    font-size: 16px;
+    color: white;
+}
+
+.class-section {
+    margin-bottom: 2em;
+}
+
+.class-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 1em;
+    padding: 0.8em;
+    border-radius: 8px;
+    color: white;
+}
+
+.first-class .class-title {
+    background: #09b7e2;
+}
+
+.business-class .class-title {
+    background: #2d5be3;
+}
+
+.economy-class .class-title {
+    background: #5a6d85;
+}
+
+.seats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.row-number {
+    width: 30px;
+    text-align: center;
+    font-weight: 600;
+    color: #5a6d85;
+    font-size: 0.9em;
+}
+
+.seat-group {
+    display: flex;
+    gap: 6px;
+}
+
+.aisle {
+    width: 20px;
+}
+
+.seat {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #d6e6f7;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+    background: white;
+}
+
+.seat.available {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.seat.available:hover {
+    background: #bbdefb;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.seat.selected {
+    background: #1976d2;
+    border-color: #1565c0;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+}
+
+.seat.disabled {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #bdbdbd;
+    cursor: not-allowed;
+}
+
+.seat.occupied {
+    background: #ffebee;
+    border-color: #f44336;
+    color: #d32f2f;
+    cursor: not-allowed;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5em;
+    margin-top: 2em;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.9em;
+    color: #5a6d85;
+}
+
+.legend-seat {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid;
+}
+
+.legend-seat.available {
+    background: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.legend-seat.selected {
+    background: #1976d2;
+    border-color: #1565c0;
+}
+
+.legend-seat.disabled {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+}
+
+.legend-seat.occupied {
+    background: #ffebee;
+    border-color: #f44336;
+}
+
+.selection-info {
+    background: #f4f8fb;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+}
+
+.selected-seats {
+    margin-bottom: 1em;
+}
+
+.selected-seats strong {
+    color: #3a5e8c;
+    font-size: 1.05em;
+}
+
+#selected-seats-display {
+    margin-top: 0.5em;
+    min-height: 2em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.seat-tag {
+    display: inline-block;
+    background: #2196f3;
+    color: white;
+    padding: 0.4em 0.8em;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+/* STEP 2: 탑승자 정보 스타일 */
+.passenger-info-section {
+    background: #fafdff;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+}
+
+.passenger-info-section h3 {
+    color: #3a5e8c;
+    font-size: 1.2em;
+    margin-bottom: 1em;
+}
+
+.passenger-form {
+    background: white;
+    padding: 1.5em;
+    border-radius: 8px;
+    margin-bottom: 1em;
+    border: 1px solid #d6e6f7;
+}
+
+.passenger-form h4 {
+    color: #3a5e8c;
+    margin-bottom: 1em;
+    font-size: 1.1em;
+}
+
+.form-row {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.form-field {
+    flex: 1;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.4em;
+    font-weight: 500;
+    color: #5a6d85;
+    font-size: 0.95em;
+}
+
+.form-field input {
+    width: 100%;
+    height: 42px;
+    padding: 0 1em;
+    border: 1.2px solid #d6e6f7;
+    border-radius: 6px;
+    font-size: 1em;
+    background: #fafdff;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.form-field input:focus {
+    border-color: #2196f3;
+    outline: none;
+}
+
+/* STEP 3: 결제 스타일 */
+.payment-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    width: 100%;
+}
+
+.payment-summary, .point-section {
+    background: #f4f8fb;
+    padding: 1.8em;
+    border-radius: 12px;
+    border: 1px solid #d6e6f7;
+    width: 100%;
+    min-width: 0;
+}
+
+.section-title {
+    color: #3a5e8c;
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-bottom: 1.5em;
+    text-align: center;
+    position: relative;
+    padding-bottom: 0.5em;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, #3a5e8c, #2196f3);
+    border-radius: 2px;
+}
+
+.price-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+}
+
+.price-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #e3f2fd;
+    width: 100%;
+}
+
+.price-item:last-child {
+    border-bottom: none;
+}
+
+.price-item.total {
+    border-top: 2px solid #3a5e8c;
+    padding-top: 1.5em;
+    margin-top: 1em;
+}
+
+.price-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.price-label {
+    font-size: 1.05em;
+    color: #333;
+    font-weight: 600;
+}
+
+.original-price {
+    font-size: 1.05em;
+    color: #333;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.coupon-row {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+.coupon-apply-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.45em 1.1em;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(37,99,235,0.08);
+}
+.coupon-apply-btn:hover:not(:disabled) {
+    background: #1742a0;
+}
+.coupon-apply-btn:disabled {
+    background: #bcd0f7;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.coupon-dropdown {
+    padding: 8px 12px;
+    border: 2px solid #d6e6f7;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.9em;
+    color: #333;
+    cursor: pointer;
+    min-width: 140px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.coupon-dropdown:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.discount-amount {
+    font-size: 0.9em;
+    color: #dc3545;
+    font-weight: 700;
+    background: #fef2f2;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.final-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid #e3f2fd;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.final-label {
+    font-size: 1em;
+    color: #3a5e8c;
+    font-weight: 700;
+}
+
+.final-price {
+    font-size: 1.2em;
+    color: #2196f3;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.total-label {
+    font-size: 1.2em;
+    font-weight: 800;
+    color: #3a5e8c;
+}
+
+.total-amount {
+    font-size: 1.4em;
+    font-weight: 900;
+    color: #3a5e8c;
+    white-space: nowrap;
+}
+
+.point-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em 0;
+    border-bottom: 1px solid #e3f2fd;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.point-row:last-child {
+    border-bottom: none;
+}
+
+.point-label {
+    font-weight: 600;
+    color: #5a6d85;
+    font-size: 1em;
+}
+
+.point-value {
+    font-weight: 700;
+    color: #3a5e8c;
+    font-size: 1.1em;
+    white-space: nowrap;
+}
+
+.payment-point-section {
+    background: white;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+    margin: 1.5em 0;
+    width: 100%;
+}
+
+.payment-point-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+
+.payment-point-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 12px;
+    border: 2px solid #d6e6f7;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    color: #3a5e8c;
+    background: #fafdff;
+    text-align: right;
+    font-family: inherit;
+}
+
+.payment-point-input:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.use-all-btn {
+    padding: 10px 16px;
+    background: #64748b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+
+.use-all-btn:hover {
+    background: #475569;
+}
+
+.confirm-btn, .payment-btn {
+    width: 100%;
+    padding: 1em;
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1.5em;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.confirm-btn:hover:not(:disabled), .payment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+}
+
+.confirm-btn:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 대형 화면에서 결제 섹션 가로 배치 */
+@media (min-width: 1200px) {
+    .payment-wrapper {
+        flex-direction: row;
+        gap: 2.5em;
+    }
+    
+    .payment-summary {
+        flex: 0 0 58%;
+    }
+    
+    .point-section {
+        flex: 0 0 40%;
+    }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .step-content {
+        padding: 1.5em;
+    }
+    
+    .step-header {
+        padding: 1em 1.5em;
+    }
+    
+    .aircraft-container {
+        padding: 1em;
+    }
+    
+    .aircraft-body {
+        padding: 1em;
+    }
+    
+    .seat {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+    
+    .flight-info {
+        flex-direction: column;
+        gap: 0.5em;
+    }
+    
+    .legend {
+        gap: 1em;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .payment-summary,
+    .point-section {
+        padding: 1.2em;
+    }
+    
+    .price-header,
+    .coupon-row,
+    .final-row,
+    .total-row,
+    .point-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .coupon-dropdown {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .payment-point-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .payment-point-input {
+        min-width: auto;
+    }
+    
+    .use-all-btn {
+        width: 100%;
+    }
+    
+    .discount-amount,
+    .original-price,
+    .final-price,
+    .total-amount,
+    .point-value {
+        align-self: flex-end;
+    }
+}
+
+/* 진행 상태 표시 */
+.step-section.completed .step-header {
+    background: #4caf50;
+}
+
+.step-section.completed .step-number {
+    background: #4caf50;
+    color: white;
+}
+
+.step-section.completed .step-number::after {
+    content: '✓';
+    margin-left: 0.3em;
+}
+
+/* 기존 검색 페이지 스타일 유지 */
+.search-section {
+    margin-bottom: 2em;
+}
+
+.search-title {
+    color: #3a5e8c;
+    font-size: 2.1em;
+    font-weight: 700;
+    margin-bottom: 1.2em;
+    letter-spacing: -1px;
+}
+
+.search-form {
+    width: 100%;
+}
+
+.search-row {
+    display: flex;
+    gap: 1.1em;
+    align-items: flex-end;
+}
+
+.search-field {
+    flex: 1 1 0;
+    min-width: 120px;
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-label {
+    display: block;
+    margin-bottom: 0.4em;
+    font-weight: 500;
+    color: #5a6d85;
+    font-size: 1em;
+}
+
+.search-input, .search-select {
+    width: 100%;
+    height: 44px;
+    padding: 0 1em;
+    border: 1.2px solid #d6e6f7;
+    border-radius: 7px;
+    font-size: 1em;
+    background: #fafdff;
+    transition: border 0.2s;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.search-input:focus, .search-select:focus {
+    border: 1.2px solid #8ec3f7;
+    outline: none;
+}
+
+.search-btn {
+    min-width: 110px;
+    height: 44px;
+    background: #e3f2fd;
+    color: #3a5e8c;
+    border: none;
+    border-radius: 7px;
+    font-size: 1.08em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px 0 rgba(0, 80, 180, 0.04);
+    transition: background 0.2s, box-shadow 0.2s;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+}
+
+.search-btn:hover {
+    background: #b5d6f6;
+    color: #23272f;
+    box-shadow: 0 4px 16px 0 rgba(0, 80, 180, 0.08);
+}
+
+.results-section {
+    margin-top: 2.5em;
+}
+
+.results-title {
+    color: #3a5e8c;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-bottom: 1em;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fafdff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px 0 rgba(0, 80, 180, 0.02);
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+}
+
+.results-table th, .results-table td {
+    padding: 13px 10px;
+    text-align: left;
+}
+
+.results-table th {
+    background: #f4f8fb;
+    color: #3a5e8c;
+    font-weight: 700;
+    border-bottom: 2px solid #d6e6f7;
+}
+
+.results-table tr:nth-child(even) {
+    background: #fafdff;
+}
+
+.results-table .book-btn {
+    display: inline-block;
+    padding: 7px 18px;
+    background: #3a5e8c;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.98em;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.results-table .book-btn:hover {
+    background: #007ac3;
+}
+
+.no-results {
+    border: 1.2px dashed #d6e6f7;
+    padding: 1.5em;
+    text-align: center;
+    color: #7da7c4;
+    margin-top: 2em;
+    background: #fafdff;
+    border-radius: 8px;
+} 

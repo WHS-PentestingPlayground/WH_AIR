@@ -1,0 +1,777 @@
+body {
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+  background: linear-gradient(135deg, #fafdff 0%, #eaf6fb 100%);
+  color: #23272f;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 950px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 24px 0 rgba(0, 80, 180, 0.06);
+  padding: 2.5em 2em 2em 2em;
+}
+
+.search-section {
+  margin-bottom: 2em;
+}
+.search-title, .booking-title {
+  color: #3a5e8c;
+  font-size: 2.1em;
+  font-weight: 700;
+  margin-bottom: 1.2em;
+  letter-spacing: -1px;
+}
+.search-form {
+  width: 100%;
+}
+.search-row {
+  display: flex;
+  gap: 1.1em;
+  align-items: flex-end;
+}
+.search-field {
+  flex: 1 1 0;
+  min-width: 120px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.search-label {
+  display: block;
+  margin-bottom: 0.4em;
+  font-weight: 500;
+  color: #5a6d85;
+  font-size: 1em;
+}
+.search-input, .search-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 1em;
+  border: 1.2px solid #d6e6f7;
+  border-radius: 7px;
+  font-size: 1em;
+  background: #fafdff;
+  transition: border 0.2s;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+  box-sizing: border-box;
+}
+.search-input:focus, .search-select:focus {
+  border: 1.2px solid #8ec3f7;
+  outline: none;
+}
+.search-btn {
+  min-width: 110px;
+  height: 44px;
+  background: #e3f2fd;
+  color: #3a5e8c;
+  border: none;
+  border-radius: 7px;
+  font-size: 1.08em;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(0, 80, 180, 0.04);
+  transition: background 0.2s, box-shadow 0.2s;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+}
+.search-btn:hover {
+  background: #b5d6f6;
+  color: #23272f;
+  box-shadow: 0 4px 16px 0 rgba(0, 80, 180, 0.08);
+}
+
+.results-section {
+  margin-top: 2.5em;
+}
+.results-title {
+  color: #3a5e8c;
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 1em;
+}
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fafdff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px 0 rgba(0, 80, 180, 0.02);
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+}
+.results-table th, .results-table td {
+  padding: 13px 10px;
+  text-align: left;
+}
+.results-table th {
+  background: #f4f8fb;
+  color: #3a5e8c;
+  font-weight: 700;
+  border-bottom: 2px solid #d6e6f7;
+}
+.results-table tr:nth-child(even) {
+  background: #fafdff;
+}
+.results-table .book-btn {
+  display: inline-block;
+  padding: 7px 18px;
+  background: #3a5e8c;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.98em;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.results-table .book-btn:hover {
+  background: #007ac3;
+}
+.no-results {
+  border: 1.2px dashed #d6e6f7;
+  padding: 1.5em;
+  text-align: center;
+  color: #7da7c4;
+  margin-top: 2em;
+  background: #fafdff;
+  border-radius: 8px;
+}
+
+.price-info-row {
+  background: #f8f8ff;
+}
+.price-info-box {
+    padding: 18px 20px 10px 20px;
+    border-radius: 0 0 8px 8px;
+    font-size: 1.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+.price-label {
+    font-weight: normal;
+    font-size: 1.05em;
+    color: #23272f;
+    margin-right: 4px;
+}
+.price-value {
+    font-size: 0.95em;
+    font-weight: normal;
+    color: #23272f;
+    margin-right: 12px;
+}
+.total-label {
+    font-weight: bold;
+    font-size: 1.05em;
+    color: #23272f;
+    margin-right: 4px;
+}
+.total-value {
+    font-size: 0.95em;
+    font-weight: bold;
+    color: #23272f;
+    margin-right: 12px;
+}
+.plus, .equal {
+    font-size: 1.05em;
+    color: #888;
+    margin: 0 6px;
+}
+.pay-btn {
+    margin-left: 18px;
+    background: #2d5be3;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 19px;
+    cursor: pointer;
+}
+.pay-btn:hover {
+    background: #1a3a8c;
+}
+
+/* 좌석 선택 및 결제 페이지 스타일 */
+
+/* 항공편 정보 헤더 */
+.booking-header {
+    margin-bottom: 2em;
+}
+
+.flight-info {
+    background: #f4f8fb;
+    border-radius: 10px;
+    padding: 1.2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #d6e6f7;
+    margin-bottom: 2em;
+}
+
+.flight-details {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #3a5e8c;
+}
+
+.flight-time {
+    font-size: 1em;
+    color: #5a6d85;
+}
+
+/* 단계별 토글 섹션 */
+.step-section {
+    margin-bottom: 1.5em;
+    border: 1px solid #d6e6f7;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 80, 180, 0.04);
+}
+
+.step-header {
+    background: #f4f8fb;
+    padding: 1.2em 1.5em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #d6e6f7;
+    transition: background 0.2s;
+}
+
+.step-header:hover {
+    background: #e8f4f8;
+}
+
+.step-header.active {
+    background: #3a5e8c;
+    color: white;
+}
+
+.step-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+}
+
+.step-number {
+    background: #3a5e8c;
+    color: white;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+.step-header.active .step-number {
+    background: white;
+    color: #3a5e8c;
+}
+
+.step-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #3a5e8c;
+}
+
+.step-header.active .step-title {
+    color: white;
+}
+
+.step-toggle {
+    font-size: 1.2em;
+    color: #5a6d85;
+    transition: transform 0.2s;
+}
+
+.step-header.active .step-toggle {
+    color: white;
+    transform: rotate(180deg);
+}
+
+.step-content {
+    padding: 2em;
+    background: white;
+}
+
+/* 항공기 좌석 배치 */
+.aircraft-container {
+    background: #fafdff;
+    border-radius: 15px;
+    padding: 2em;
+    margin-bottom: 2em;
+}
+
+.aircraft-body {
+    background: white;
+    border-radius: 20px;
+    padding: 2em;
+    box-shadow: 0 5px 15px rgba(0, 80, 180, 0.08);
+}
+
+.cockpit {
+    width: 60px;
+    height: 30px;
+    background: #3a5e8c;
+    border-radius: 30px 30px 0 0;
+    margin: 0 auto 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cockpit-icon {
+    font-size: 16px;
+    color: white;
+}
+
+.class-section {
+    margin-bottom: 2em;
+}
+
+.class-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 1em;
+    padding: 0.8em;
+    border-radius: 8px;
+    color: white;
+}
+
+.first-class .class-title {
+    background: #09b7e2;
+}
+
+.business-class .class-title {
+    background: #2d5be3;
+}
+
+.economy-class .class-title {
+    background: #5a6d85;
+}
+
+.seats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.row-number {
+    width: 30px;
+    text-align: center;
+    font-weight: 600;
+    color: #5a6d85;
+    font-size: 0.9em;
+}
+
+.seat-group {
+    display: flex;
+    gap: 6px;
+}
+
+.aisle {
+    width: 20px;
+}
+
+.seat {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #d6e6f7;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+    background: white;
+}
+
+/* 좌석 상태별 스타일 */
+.seat.available {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.seat.available:hover {
+    background: #bbdefb;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.seat.selected {
+    background: #1976d2;
+    border-color: #1565c0;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+}
+
+.seat.disabled {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #bdbdbd;
+    cursor: not-allowed;
+}
+
+.seat.occupied {
+    background: #ffebee;
+    border-color: #f44336;
+    color: #d32f2f;
+    cursor: not-allowed;
+}
+
+/* 범례 */
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5em;
+    margin-top: 2em;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.9em;
+    color: #5a6d85;
+}
+
+.legend-seat {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid;
+}
+
+.legend-seat.available {
+    background: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.legend-seat.selected {
+    background: #1976d2;
+    border-color: #1565c0;
+}
+
+.legend-seat.disabled {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+}
+
+.legend-seat.occupied {
+    background: #ffebee;
+    border-color: #f44336;
+}
+
+/* 좌석 선택 정보 */
+.selection-info {
+    background: #f4f8fb;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+}
+
+.selected-seats {
+    margin-bottom: 1em;
+}
+
+.selected-seats strong {
+    color: #3a5e8c;
+    font-size: 1.05em;
+}
+
+#selected-seats-display {
+    margin-top: 0.5em;
+    min-height: 2em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.seat-tag {
+    display: inline-block;
+    background: #2196f3;
+    color: white;
+    padding: 0.4em 0.8em;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.confirm-btn {
+    width: 100%;
+    padding: 1em;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.confirm-btn:hover:not(:disabled) {
+    background: #1976d2;
+}
+
+.confirm-btn:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+/* 탑승자 정보 섹션 */
+.passenger-info-section {
+    background: #fafdff;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+}
+
+.passenger-info-section h3 {
+    color: #3a5e8c;
+    font-size: 1.2em;
+    margin-bottom: 1em;
+}
+
+.passenger-form {
+    background: white;
+    padding: 1.5em;
+    border-radius: 8px;
+    margin-bottom: 1em;
+    border: 1px solid #d6e6f7;
+}
+
+.passenger-form h4 {
+    color: #3a5e8c;
+    margin-bottom: 1em;
+    font-size: 1.1em;
+}
+
+.form-row {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.form-field {
+    flex: 1;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.4em;
+    font-weight: 500;
+    color: #5a6d85;
+    font-size: 0.95em;
+}
+
+.form-field input {
+    width: 100%;
+    height: 42px;
+    padding: 0 1em;
+    border: 1.2px solid #d6e6f7;
+    border-radius: 6px;
+    font-size: 1em;
+    background: #fafdff;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.form-field input:focus {
+    border-color: #2196f3;
+    outline: none;
+}
+
+/* 결제 섹션 */
+.payment-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2em;
+}
+
+.payment-summary {
+    background: #f4f8fb;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+}
+
+.payment-summary h3 {
+    color: #3a5e8c;
+    font-size: 1.2em;
+    margin-bottom: 1em;
+}
+
+.price-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    border-bottom: 1px solid #e3f2fd;
+}
+
+.price-item.total {
+    border-bottom: none;
+    border-top: 2px solid #3a5e8c;
+    padding-top: 1em;
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #3a5e8c;
+}
+
+/* 쿠폰 관련 스타일 */
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.coupon-section {
+    flex-shrink: 0;
+}
+
+.coupon-dropdown {
+    padding: 6px 12px;
+    border: 1px solid #d6e6f7;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.9em;
+    color: #333;
+    cursor: pointer;
+    min-width: 140px;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif;
+}
+
+.coupon-dropdown:focus {
+    outline: none;
+    border-color: #2196f3;
+}
+
+.price-values {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.original-price {
+    font-size: 0.9em;
+    color: #666;
+    text-decoration: line-through;
+}
+
+.discount-price {
+    font-size: 0.9em;
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.price-value {
+    font-size: 1em;
+    color: #333;
+    font-weight: 600;
+}
+
+.payment-form {
+    background: #fafdff;
+    padding: 1.5em;
+    border-radius: 10px;
+    border: 1px solid #d6e6f7;
+}
+
+.payment-form h3 {
+    color: #3a5e8c;
+    font-size: 1.2em;
+    margin-bottom: 1em;
+}
+
+.point-payment {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-bottom: 1.5em;
+}
+
+.point-info, .point-usage {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8em;
+    background: white;
+    border: 1px solid #d6e6f7;
+    border-radius: 8px;
+}
+
+.point-label {
+    font-weight: 500;
+    color: #5a6d85;
+}
+
+.point-value {
+    font-weight: 600;
+    color: #3a5e8c;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .step-content {
+        padding: 1em;
+    }
+    
+    .aircraft-container {
+        padding: 1em;
+    }
+    
+    .aircraft-body {
+        padding: 1em;
+    }
+    
+    .seat {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+    
+    .flight-info {
+        flex-direction: column;
+        gap: 0.5em;
+    }
+    
+    .payment-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .legend {
+        gap: 1em;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+} 

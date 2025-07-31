@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}좌석 관리 - WH Air 관리자{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">좌석 관리</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>새로고침
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-plane me-2"></i>
+                    항공편 선택
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('seats') }}">
+                    <div class="mb-3">
+                        <label for="flight_id" class="form-label">항공편</label>
+                        <select class="form-select" id="flight_id" name="flight_id" onchange="this.form.submit()">
+                            {% for flight in flights %}
+                            <option value="{{ flight.id }}" {% if flight.id|string == selected_flight_id|string %}selected{% endif %}>
+                                {{ flight.flight_number }} ({{ flight.departure_airport }} → {{ flight.arrival_airport }})
+                                - {{ flight.departure_time.strftime('%m-%d %H:%M') if flight.departure_time else 'N/A' }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    좌석 현황
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="seat-legend available mb-2"></div>
+                        <small>사용 가능</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="seat-legend reserved mb-2"></div>
+                        <small>예약됨</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="seat-legend first-class mb-2"></div>
+                        <small>First</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="seat-legend business-class mb-2"></div>
+                        <small>Business</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="seat-legend economy-class mb-2"></div>
+                        <small>Economy</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chair me-2"></i>
+                    좌석 배치도
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if seats %}
+                <div class="seat-map">
+                    <!-- First Class Section -->
+                    <div class="seat-section mb-4">
+                        <h6 class="text-warning mb-3">
+                            <i class="fas fa-crown me-2"></i>First Class (1-3열)
+                        </h6>
+                        <div class="seat-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            {% for seat in seats if seat.class == 'first' %}
+                            <div class="seat {% if seat.is_reserved %}reserved{% else %}available{% endif %} first-class" 
+                                 data-seat-id="{{ seat.id }}" 
+                                 data-seat-number="{{ seat.seat_number }}"
+                                 data-seat-class="{{ seat.class }}"
+                                 data-is-reserved="{{ seat.is_reserved|lower }}"
+                                 data-passenger-name="{{ seat.passenger_name or '' }}"
+                                 data-reservation-id="{{ seat.reservation_id or '' }}"
+                                 onclick="showSeatInfo(this)">
+                                <div class="seat-number">{{ seat.seat_number }}</div>
+                                <small class="seat-price">{{ "{:,}".format(seat.seat_price) }}원</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Business Class Section -->
+                    <div class="seat-section mb-4">
+                        <h6 class="text-info mb-3">
+                            <i class="fas fa-briefcase me-2"></i>Business Class (4-10열)
+                        </h6>
+                        <div class="seat-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            {% for seat in seats if seat.class == 'business' %}
+                            <div class="seat {% if seat.is_reserved %}reserved{% else %}available{% endif %} business-class" 
+                                 data-seat-id="{{ seat.id }}" 
+                                 data-seat-number="{{ seat.seat_number }}"
+                                 data-seat-class="{{ seat.class }}"
+                                 data-is-reserved="{{ seat.is_reserved|lower }}"
+                                 data-passenger-name="{{ seat.passenger_name or '' }}"
+                                 data-reservation-id="{{ seat.reservation_id or '' }}"
+                                 onclick="showSeatInfo(this)">
+                                <div class="seat-number">{{ seat.seat_number }}</div>
+                                <small class="seat-price">{{ "{:,}".format(seat.seat_price) }}원</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Economy Class Section -->
+                    <div class="seat-section">
+                        <h6 class="text-secondary mb-3">
+                            <i class="fas fa-users me-2"></i>Economy Class (11-30열)
+                        </h6>
+                        <div class="seat-grid" style="grid-template-columns: repeat(6, 1fr);">
+                            {% for seat in seats if seat.class == 'economy' %}
+                            <div class="seat {% if seat.is_reserved %}reserved{% else %}available{% endif %} economy-class" 
+                                 data-seat-id="{{ seat.id }}" 
+                                 data-seat-number="{{ seat.seat_number }}"
+                                 data-seat-class="{{ seat.class }}"
+                                 data-is-reserved="{{ seat.is_reserved|lower }}"
+                                 data-passenger-name="{{ seat.passenger_name or '' }}"
+                                 data-reservation-id="{{ seat.reservation_id or '' }}"
+                                 onclick="showSeatInfo(this)">
+                                <div class="seat-number">{{ seat.seat_number }}</div>
+                                <small class="seat-price">{{ "{:,}".format(seat.seat_price) }}원</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chair fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">좌석 정보가 없습니다</h5>
+                    <p class="text-muted">선택된 항공편의 좌석 정보를 찾을 수 없습니다.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 좌석 정보 모달 -->
+<div class="modal fade" id="seatInfoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">좌석 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>좌석 번호:</strong> <span id="modalSeatNumber"></span></p>
+                        <p><strong>클래스:</strong> <span id="modalSeatClass"></span></p>
+                        <p><strong>가격:</strong> <span id="modalSeatPrice"></span></p>
+                        <p><strong>연료비:</strong> <span id="modalFuelPrice"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>상태:</strong> <span id="modalSeatStatus"></span></p>
+                        <p><strong>승객명:</strong> <span id="modalPassengerName"></span></p>
+                        <p><strong>예약 ID:</strong> <span id="modalReservationId"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showSeatInfo(seatElement) {
+    const seatId = seatElement.dataset.seatId;
+    const seatNumber = seatElement.dataset.seatNumber;
+    const seatClass = seatElement.dataset.seatClass;
+    const isReserved = seatElement.dataset.isReserved === 'true';
+    const passengerName = seatElement.dataset.passengerName;
+    const reservationId = seatElement.dataset.reservationId;
+    
+    // 클래스명을 한글로 변환
+    let classText = '';
+    switch(seatClass) {
+        case 'first':
+            classText = 'First Class';
+            break;
+        case 'business':
+            classText = 'Business Class';
+            break;
+        case 'economy':
+            classText = 'Economy Class';
+            break;
+    }
+    
+    // 상태 텍스트
+    const statusText = isReserved ? '예약됨' : '사용 가능';
+    const statusClass = isReserved ? 'text-danger' : 'text-success';
+    
+    // 모달 내용 업데이트
+    document.getElementById('modalSeatNumber').textContent = seatNumber;
+    document.getElementById('modalSeatClass').textContent = classText;
+    document.getElementById('modalSeatPrice').textContent = seatElement.querySelector('.seat-price').textContent;
+    document.getElementById('modalFuelPrice').textContent = '200,000원'; // 임시 값
+    document.getElementById('modalSeatStatus').innerHTML = `<span class="${statusClass}">${statusText}</span>`;
+    document.getElementById('modalPassengerName').textContent = passengerName || '-';
+    document.getElementById('modalReservationId').textContent = reservationId || '-';
+    
+    // 모달 표시
+    const modal = new bootstrap.Modal(document.getElementById('seatInfoModal'));
+    modal.show();
+}
+</script>
+
+<style>
+.seat-legend {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.25rem;
+    margin: 0 auto;
+}
+
+.seat-legend.available {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.seat-legend.reserved {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.seat-legend.first-class {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border: 1px solid #ffc107;
+}
+
+.seat-legend.business-class {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    border: 1px solid #17a2b8;
+}
+
+.seat-legend.economy-class {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+}
+
+.seat-section {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.seat {
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.seat:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.seat.available {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.seat.reserved {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.seat.first-class {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.seat.business-class {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    border-color: #17a2b8;
+    color: white;
+}
+
+.seat.economy-class {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.seat-number {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.seat-price {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+</style>
+{% endblock %} 

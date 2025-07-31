@@ -1,78 +1,123 @@
 networks:
-  dmz-net:
+  ext-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.40.0.0/16
   int-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
 
 services:
 
-  # Spring Boot 웹 애플리케이션
-  web-server:
+  nginx:
+    image: nginx:latest
+    container_name: whair-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/web/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web-server-1
+      - web-server-2
+    networks:
+      ext-net:
+        ipv4_address: 172.40.0.2
+    restart: unless-stopped
+
+  web-server-1:
     build:
       context: .
       dockerfile: docker/web/Dockerfile
-    container_name: whair-web
+    container_name: whair-web-1
     environment:
-      # 데이터베이스 연결 설정
       DB_URL: jdbc:postgresql://db-server:5432/wh_air
-      DB_USERNAME: wh_air_user
-      DB_PASSWORD: wh_air_password
-      
-      # Spring Boot 설정
+      DB_USERNAME: wh_manager
+      DB_PASSWORD: password!
       SPRING_PROFILES_ACTIVE: docker
-      
-      # JVM 설정 (Spring Boot 웹 애플리케이션용)
-      # -Xmx512m: 최대 힙 메모리 512MB (이 값 초과시 OutOfMemoryError)
-      # -Xms256m: 초기 힙 메모리 256MB (시작시 할당, 필요시 최대 512MB까지 증가)
       JAVA_OPTS: "-Xmx512m -Xms256m"
-    ports:
-      - "8080:8080"
     depends_on:
       db-server:
         condition: service_healthy
     networks:
-      - dmz-net
-      - int-net
+      ext-net:
+        ipv4_address: 172.40.0.3
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+    # 포트 노출 없음 (Nginx가 프록시)
+    ports: []
 
-  # PostgreSQL 14.15 데이터베이스 (커스텀 Dockerfile 사용)
+  web-server-2:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    container_name: whair-web-2
+    environment:
+      DB_URL: jdbc:postgresql://db-server:5432/wh_air
+      DB_USERNAME: wh_manager
+      DB_PASSWORD: password!
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_OPTS: "-Xmx512m -Xms256m"
+    depends_on:
+      db-server:
+        condition: service_healthy
+    networks:
+      ext-net:
+        ipv4_address: 172.40.0.4
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    ports: []
+
   db-server:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
+    extra_hosts:
+      - "admin-server:172.30.0.4"
     container_name: whair-db
     environment:
       POSTGRES_DB: wh_air
-      POSTGRES_USER: wh_air_user
-      POSTGRES_PASSWORD: wh_air_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
-      - int-net
+      ext-net:
+        ipv4_address: 172.40.0.5
+      int-net:
+        ipv4_address: 172.30.0.3
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wh_air_user -d wh_air"]
+      test: ["CMD-SHELL", "pg_isready -U wh_manager -d wh_air"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
-  # 관리자 서버 (내부망 전용 JSP + Tomcat)
   admin-server:
     build:
       context: .
       dockerfile: docker/admin/Dockerfile
     container_name: whair-admin
-    # 개발용 임시 포트 매핑 (운영 시 제거 필요)
-    ports:
-      - "8081:8080"
+    environment:
+      DB_HOST: db-server
+      DB_PORT: 5432
+      DB_NAME: wh_air
+      DB_USER: wh_admin
+      DB_PASSWORD: "!ADpasswd@@"
     depends_on:
       - db-server
     networks:
-      - int-net
+      int-net:
+        ipv4_address: 172.30.0.4
     restart: unless-stopped
 
-# 볼륨 정의
 volumes:
   postgres_data:
     driver: local
