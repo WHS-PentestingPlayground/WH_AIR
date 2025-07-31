@@ -66,3 +66,5 @@ docker-compose down
 docker system prune -f
 docker-compose up -d --build
 ``` 
+
+<img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_1" src="https://github.com/user-attachments/assets/81dcb98c-6be1-4486-98a3-bbbce885ec41" />
