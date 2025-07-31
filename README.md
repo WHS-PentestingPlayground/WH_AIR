@@ -1,72 +1,137 @@
-# WH_AIR 프로젝트
+# ✈WH_AIR
 
-## 🚀 빠른 시작
+이 프로젝트는 Pentesting playground 플랫폼을 위한 시나리오로, 망분리 환경으로 구축되어 있으며 다양한 CVE와 Chaining 기법을 연습할 수 있도록 구성되어있습니다.
+이 문서는 프로젝트의 설치 방법, 기여자 정보, 기술 스택, 협업 방식, 개발 기간, 시스템 아키텍처, ERD, 그리고 시나리오를 설명합니다.
+## Technology Stack
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![postgresql](https://github.com/user-attachments/assets/d387b59b-8d94-4c79-9ebd-7a1d3ef071cf)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
+![NGINX](https://img.shields.io/badge/NGINX-009639?style=flat-square&logo=nginx&logoColor=white)
 
-### 필수 요구사항
-- Docker Desktop
-- Git
 
-### 환경 구축
+---
+
+## 목차
+1. [서버 설치 방법](#서버-설치-방법)
+2. [기여자 표](#기여자-표)
+3. [협업 방식](#협업-방식)
+4. [개발 기간](#개발-기간)
+5. [시스템 아키텍처](#시스템-아키텍처)
+6. [ERD](#erd)
+7. [시나리오](#시나리오)
+
+---
+
+<a id="서버-설치-방법"></a>
+## 📌 서버 설치 방법
+
+아래 단계를 따라 서버를 설치하고 실행할 수 있습니다.
+
+### 1. 저장소 복제
+
 ```bash
-# 1. 프로젝트 클론
-git clone [repository-url]
-cd WH_AIR
+# 저장소 복제
+git clone https://github.com/WHS-PentestingPlayground/WH_AIR.git
 
-# 2. Docker Compose로 전체 환경 실행
-docker-compose up -d --build
+# 빌드 및 실행
+docker compose up -d --build 
 ```
+---
 
-### 모듈 구성
-- **common**: 공통 엔티티 및 유틸리티
-- **data/web**: Spring Boot 웹 애플리케이션 (메인 서비스)
-- **data/admin**: JSP + Tomcat 관리자 서버 (내부망 전용)
-- **db**: PostgreSQL 14.15 데이터베이스
+<a id="기여자-표"></a>
+## 🙌 기여자 표
 
-### 개발 환경
-- **Backend**: Spring Boot 2.6.5 (웹 모듈)
-- **Admin**: JSP + Tomcat (관리자 모듈)
-- **Database**: PostgreSQL 14.15
-- **Build Tool**: Gradle (Wrapper 포함)
-- **Container**: Docker & Docker Compose
+<h3>Project Team</h3>
 
-### 주요 명령어
-```bash
-# 전체 서비스 시작
-docker-compose up -d --build
+<table>
+  <thead>
+    <tr>
+      <th>Profile</th>
+      <th>Role</th>
+      <th>Materialize</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/yelin1197">
+          <img src="https://github.com/yelin1197.png" width="60"/><br/>
+          yelin1197
+        </a>
+      </td>
+      <td align="center">Project Member</td>
+      <td align="center">example</td>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/legendwon">
+          <img src="https://github.com/legendwon.png" width="60"/><br/>
+          legendwon
+        </a>
+      </td>
+      <td align="center">Project Member</td>
+      <td align="center">example</td>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/meowyeok">
+          <img src="https://github.com/meowyeok.png" width="60"/><br/>
+          meowyeok
+        </a>
+      </td>
+      <td align="center">Project Member</td>
+      <td align="center">example</td>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/namd0ng">
+          <img src="https://github.com/namd0ng.png" width="60"/><br/>
+          namd0ng
+        </a>
+      </td>
+      <td align="center">Project Member</td>
+      <td align="center">example</td>
+    </tr>
+  </tbody>
+</table>
 
-# 전체 서비스 중지
-docker-compose down
+---
 
-# 로그 확인
-docker-compose logs -f [service-name]
+<a id="협업-방식"></a>
+## 🔥 협업 방식
 
-# 특정 모듈만 빌드
-docker-compose build [service-name]
-```
+| 플랫폼                                                                                                      | 사용 방식                   |
+|----------------------------------------------------------------------------------------------------------|-------------------------|
+| <img src="https://img.shields.io/badge/discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"> | 매주 토요일 2시 회의    |
+| <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=Github&logoColor=white">   | PR을 통해 변경사항 및 테스트 과정 확인 |<br/>|
+| <img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">   | 시나리오 구성, API, 회의 기록 문서화     |
 
-### 접속 정보
-- **웹 애플리케이션**: http://localhost:8080 (Spring Boot)
-- **관리자 페이지**: http://localhost:8081 (JSP + Tomcat)
-- **데이터베이스**: localhost:5432 (PostgreSQL)
+---
 
-### 네트워크 구성
-- **dmz-net**: 외부 접근 가능한 네트워크 (웹 서버)
-- **int-net**: 내부망 네트워크 (관리자 서버, DB)
+<a id="개발-기간"></a>
+## 📆 개발 기간
+- 2025.05.01 ~ 2025.05.03 : 팀 규칙 및 코딩 컨벤션 의논, 시나리오 컨셉 정의</br>
+- 2025.05.03 ~ 2025.05.07 : 킥오프 보고서작성 및 취약점 구현 역할 분배</br>
+- 2025.05.07 ~ 2025.05.10 : 프로젝트 환경 세팅</br>
+- 2025.05.10 ~ 2025.05.18 : 개별문제 제작</br>
+- 2025.05.18 ~ 2025.05.22 : 유스케이스 다이어그램,기능명세서,ERD제작</br>
+- 2025.05.22 ~ 2025.05.31 : 로그인/회원가입, 소개페이지,마이페이지 구현</br>
+- 2025.05.31 ~ 2025.06.09 : 게시판 구현 및 도커화</br>
+- 2025.06.09 ~ 2025.06.22 : 취약점(IDOR,Blind Sqli,file download/upload)구현 및 난이도조정</br>
 
-### 개발 팁
-- `.gradle`과 `build/` 디렉토리는 gitignore에 포함되어 있음 (Docker 빌드 시 자동 생성)
-- Gradle Wrapper가 포함되어 있어 별도 Gradle 설치 불필요
-- 환경 변수는 `.env` 파일로 관리 (gitignore에 포함)
-- 관리자 서버는 내부망 전용이므로 운영 시 포트 매핑 제거 필요
+---
+<a id="시스템-아키텍처"></a>
+## 🛠️ 시스템 아키텍처
 
-### 문제 해결
-```bash
-# 캐시 삭제 후 재빌드
-docker-compose down
-docker system prune -f
-docker-compose up -d --build
-```
-### 시나리오
+---
+
+<a id="erd"></a>
+## 📝 ERD
+<img width="964" height="673" alt="erd" src="https://github.com/user-attachments/assets/35122137-1aa6-435a-a808-ccd711305b81" />
+
+---
 
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_1" src="https://github.com/user-attachments/assets/81dcb98c-6be1-4486-98a3-bbbce885ec41" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_2" src="https://github.com/user-attachments/assets/06bc4786-aff1-48f3-b43b-570420ad1e48" />
@@ -95,3 +160,8 @@ docker-compose up -d --build
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_25" src="https://github.com/user-attachments/assets/0787752d-cfda-4677-8473-cd0eba8ac205" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_26" src="https://github.com/user-attachments/assets/b0903f17-e608-47b0-93ef-a13a0c637abe" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_27" src="https://github.com/user-attachments/assets/0701c5ef-1da9-4518-80a9-7ce46c8ea9b2" />
+
+
+
+
+
