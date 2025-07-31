@@ -121,6 +121,7 @@ docker compose up -d --build
 ---
 <a id="시스템-아키텍처"></a>
 ## 🛠️ 시스템 아키텍처
+(추가에정)
 
 ---
 
@@ -130,7 +131,6 @@ docker compose up -d --build
 
 ---
 
-<img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_1" src="https://github.com/user-attachments/assets/81dcb98c-6be1-4486-98a3-bbbce885ec41" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_2" src="https://github.com/user-attachments/assets/06bc4786-aff1-48f3-b43b-570420ad1e48" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_3" src="https://github.com/user-attachments/assets/0b7c6520-2fef-4d67-bb3b-1455c796084a" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_4" src="https://github.com/user-attachments/assets/1399a806-e257-4a40-9da6-8b135a1cddf2" />
