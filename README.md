@@ -126,7 +126,7 @@ docker compose up -d --build
 ---
 <a id="공격-흐름도"></a>
 ## 🧨 공격 흐름도
-<img width="1353" height="730" alt="flow" src="https://github.com/user-attachments/assets/66d89577-aec7-4649-8940-ce96fe4fec9c" />
+<img width="1418" height="770" alt="flow" src="https://github.com/user-attachments/assets/9fbabea9-6cf4-4302-9d02-37c12bc483c3" />
 
 ---
 
@@ -162,7 +162,3 @@ docker compose up -d --build
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_25" src="https://github.com/user-attachments/assets/0787752d-cfda-4677-8473-cd0eba8ac205" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_26" src="https://github.com/user-attachments/assets/b0903f17-e608-47b0-93ef-a13a0c637abe" />
 <img width="791" height="1024" alt="1753930287711-253abbfd-ad53-449b-a517-e332ee0a633c_27" src="https://github.com/user-attachments/assets/0701c5ef-1da9-4518-80a9-7ce46c8ea9b2" />
-
-
-
-
