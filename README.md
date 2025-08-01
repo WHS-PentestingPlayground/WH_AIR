@@ -19,7 +19,7 @@
 2. [기여자 표](#기여자-표)
 3. [협업 방식](#협업-방식)
 4. [개발 기간](#개발-기간)
-5. [시스템 아키텍처](#시스템-아키텍처)
+5. [공격 흐름도](#공격흐름도)
 6. [ERD](#erd)
 7. [시나리오](#시나리오)
 
@@ -121,7 +121,7 @@ docker compose up -d --build
 
 ---
 
-<a id="공격-흐름도"></a>
+<a id="공격흐름도"></a>
 ## 🛠️ 공격 흐름도
 <img width="1418" height="770" alt="flow" src="https://github.com/user-attachments/assets/9fbabea9-6cf4-4302-9d02-37c12bc483c3" />
 
